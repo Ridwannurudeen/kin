@@ -1,9 +1,17 @@
 node_modules/
 .env
 .env.local
+.env.production
+
+# Wallets and keys — NEVER commit
+.demo-wallets.json
+.persona-wallets.json
 *.key
+*.bin
 wallet.key
 private.txt
+
+# Build artifacts
 artifacts/
 cache/
 typechain-types/
