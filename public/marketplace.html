@@ -117,7 +117,12 @@ async function load() {
         <div class="price">${s.pricePerJobOG}<span class="unit">OG</span></div>
         <button class="btn" data-skill="${s.skillId}" data-price="${s.pricePerJobOG}">hire →</button>
       `;
-      div.querySelector('button').addEventListener('click', () => openPost(s.skillId, s.pricePerJobOG));
+      div.style.cursor = 'pointer';
+      div.addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON') return;
+        location.href = `/skill/${s.skillId}`;
+      });
+      div.querySelector('button').addEventListener('click', (e) => { e.stopPropagation(); openPost(s.skillId, s.pricePerJobOG); });
       list.appendChild(div);
     }
   } catch (e) { showErr(e.message); }

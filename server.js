@@ -44,8 +44,36 @@ let userKey;
 try { userKey = Buffer.from(await fs.readFile('.user-key.bin')); }
 catch { userKey = genKey(); await fs.writeFile('.user-key.bin', userKey, { mode: 0o600 }); }
 
+// Persona wallets (per-skill owner) — required so the server can submit work for any skill
+const personaWalletsByAddress = new Map(); // lowercase address → ethers.Wallet
+try {
+  const pw = JSON.parse(await fs.readFile('.persona-wallets.json', 'utf8'));
+  for (const [name, info] of Object.entries(pw)) {
+    const w = new ethers.Wallet(info.privateKey, provider);
+    personaWalletsByAddress.set(w.address.toLowerCase(), { wallet: w, name });
+  }
+  console.log(`[server] loaded ${personaWalletsByAddress.size} persona wallets`);
+} catch (e) {
+  console.log('[server] no .persona-wallets.json — only skill #0 (demo user) jobs will execute');
+}
+// demo user is also a persona for skill #0
+personaWalletsByAddress.set(user.address.toLowerCase(), { wallet: user, name: 'M' });
+
+function getSkillOwnerWallet(ownerAddress) {
+  return personaWalletsByAddress.get(ownerAddress.toLowerCase())?.wallet;
+}
+
 // Cache: jobId → execution state for UI polling
 const jobState = new Map(); // { stage: 0..5, output, attestationId, submitTx }
+
+// Persistent cache of completed job text (brief + output), keyed by jobId, written to disk.
+// Lets /skill/{id} render real outputs after server restart.
+const JOB_CACHE_FILE = '.job-cache.json';
+let jobCache = {};
+try { jobCache = JSON.parse(await fs.readFile(JOB_CACHE_FILE, 'utf8')); } catch {}
+async function persistJobCache() {
+  try { await fs.writeFile(JOB_CACHE_FILE, JSON.stringify(jobCache, null, 2), { mode: 0o600 }); } catch {}
+}
 
 let cachedBroker = null;
 let cachedProviderAddr = null;
@@ -133,8 +161,9 @@ async function runAgent(jobId, briefKey, briefRoot) {
     const job = await kinOp.getJob(jobId);
     const skillId = Number(job.skillId);
     const skill = await kinOp.getSkill(skillId);
-    if (skill.owner.toLowerCase() !== user.address.toLowerCase()) {
-      console.log(`[agent] skill ${skillId} not owned by demo user; skipping`);
+    const skillOwnerWallet = getSkillOwnerWallet(skill.owner);
+    if (!skillOwnerWallet) {
+      console.log(`[agent] skill ${skillId} owner ${skill.owner} not in our persona set; skipping`);
       return;
     }
 
@@ -191,10 +220,16 @@ async function runAgent(jobId, briefKey, briefRoot) {
       : ethers.ZeroHash;
 
     update(5);
-    const tx = await kinUser.submitWork(jobId, outputRoot, attBytes);
+    const kinAsOwner = new ethers.Contract(artifact.address, artifact.abi, skillOwnerWallet);
+    const tx = await kinAsOwner.submitWork(jobId, outputRoot, attBytes);
     const rcpt = await tx.wait();
 
     update(5, { output: result.answer, attestationId: result.attestationId, submitTx: tx.hash, valid: result.valid, model: result.model });
+
+    // Persist brief + output for /skill/{id} display after server restart
+    jobCache[jobId] = { skillId, brief: briefText, output: result.answer, attestationId: result.attestationId, model: result.model, submittedAt: new Date().toISOString() };
+    await persistJobCache();
+
     console.log(`[agent] job #${jobId} submitted | tx ${tx.hash} | block ${rcpt.blockNumber}`);
   } catch (e) {
     console.error(`[agent] job ${jobId} failed:`, e.message);
@@ -213,6 +248,7 @@ const server = http.createServer(async (req, res) => {
     if (pathname === '/marketplace') return serveStatic(res, 'marketplace.html', 'text/html; charset=utf-8');
     if (pathname === '/wallet') return serveStatic(res, 'wallet.html', 'text/html; charset=utf-8');
     if (pathname.startsWith('/job/')) return serveStatic(res, 'job.html', 'text/html; charset=utf-8');
+    if (pathname.startsWith('/skill/')) return serveStatic(res, 'skill.html', 'text/html; charset=utf-8');
     if (pathname === '/styles.css') return serveStatic(res, 'styles.css', 'text/css');
     if (pathname === '/app.js') return serveStatic(res, 'app.js', 'application/javascript');
     if (pathname === '/personas.json') return serveStatic(res, 'personas.json', 'application/json');
@@ -236,6 +272,34 @@ const server = http.createServer(async (req, res) => {
 
     if (pathname === '/api/skills' && req.method === 'GET') {
       return send(res, 200, { skills: await listAllSkills() });
+    }
+
+    const skillDetailMatch = pathname.match(/^\/api\/skill\/(\d+)$/);
+    if (skillDetailMatch && req.method === 'GET') {
+      const skillId = Number(skillDetailMatch[1]);
+      const total = Number(await kinOp.totalSkills());
+      if (skillId < 0 || skillId >= total) return send(res, 404, { error: 'skill not found' });
+      const s = await kinOp.getSkill(skillId);
+      const allJobs = await listAllJobs();
+      const skillJobs = allJobs.filter(j => j.skillId === skillId).reverse();
+      // Attach cached brief+output where available
+      const jobsWithText = skillJobs.map(j => {
+        const cached = jobCache[j.jobId];
+        return cached ? { ...j, brief: cached.brief, output: cached.output, model: cached.model } : j;
+      });
+      return send(res, 200, {
+        skillId,
+        owner: s.owner,
+        skillType: s.skillType,
+        description: s.description,
+        sampleCount: s.sampleRoots.length,
+        sampleRoots: s.sampleRoots,
+        pricePerJobOG: ethers.formatEther(s.pricePerJob),
+        jobsCompleted: Number(s.jobsCompleted),
+        totalRating: Number(s.totalRating),
+        totalEarnedOG: ethers.formatEther(s.totalEarnedWei),
+        jobs: jobsWithText,
+      });
     }
 
     if (pathname === '/api/skill' && req.method === 'POST') {
