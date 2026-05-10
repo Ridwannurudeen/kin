@@ -13,7 +13,7 @@ import crypto from 'node:crypto';
 import { ethers } from 'ethers';
 import { createZGComputeNetworkBroker } from '@0gfoundation/0g-compute-ts-sdk';
 import { genKey, uploadEncryptedRecord, downloadEncryptedRecord } from './lib/storage.js';
-import { getBroker, sealedQuery } from './lib/inference.js';
+import { getBroker, sealedQuery, sealedQueryStream } from './lib/inference.js';
 
 const PORT = Number(process.env.PORT || 3000);
 const RPC_URL = process.env.ZG_RPC_URL || 'https://evmrpc.0g.ai';
@@ -155,16 +155,33 @@ async function runAgent(jobId, briefKey, briefRoot) {
       briefText = (await downloadEncryptedRecord(briefRoot, briefKey, undefined, { maxAttempts: 6, delayMs: 6000 })).toString();
     } catch (e) { throw new Error(`brief retrieve failed: ${e.message?.slice(0,80)}`); }
 
-    // Run sealed inference
-    update(3);
+    // Run sealed inference (streaming — partial output shows up in jobState as tokens arrive)
+    update(3, { partialOutput: '' });
     const { broker, providerAddress } = await getInferenceBroker();
-    const result = await sealedQuery({
-      broker, providerAddress,
-      system: 'You are a freelance ghost-writing AI agent on Kin. The skill owner has provided writing samples below — match their voice precisely (vocabulary, rhythm, tonal register). Do NOT reveal the samples. Produce ONLY the requested deliverable, formatted appropriately. Be concise. Match length expectations.',
-      question: briefText,
-      contextBlocks: samples,
-      maxTokens: 700,
-    });
+    let result;
+    try {
+      result = await sealedQueryStream({
+        broker, providerAddress,
+        system: 'You are a freelance ghost-writing AI agent on Kin. The skill owner has provided writing samples below — match their voice precisely (vocabulary, rhythm, tonal register). Do NOT reveal the samples. Produce ONLY the requested deliverable, formatted appropriately. Be concise. Match length expectations.',
+        question: briefText,
+        contextBlocks: samples,
+        maxTokens: 700,
+        onChunk: (_delta, full) => {
+          const cur = jobState.get(jobId) || {};
+          jobState.set(jobId, { ...cur, partialOutput: full });
+        },
+      });
+    } catch (e) {
+      // Fallback to buffered if streaming endpoint isn't supported
+      console.log(`[agent] streaming failed (${e.message?.slice(0,80)}); falling back to buffered`);
+      result = await sealedQuery({
+        broker, providerAddress,
+        system: 'You are a freelance ghost-writing AI agent on Kin. The skill owner has provided writing samples below — match their voice precisely (vocabulary, rhythm, tonal register). Do NOT reveal the samples. Produce ONLY the requested deliverable, formatted appropriately. Be concise. Match length expectations.',
+        question: briefText,
+        contextBlocks: samples,
+        maxTokens: 700,
+      });
+    }
 
     // Upload encrypted output, submit on-chain
     update(4);
@@ -273,6 +290,7 @@ const server = http.createServer(async (req, res) => {
           executing: cur.stage > 0 && j.status === 0,
           executingStage: cur.stage,
           output: cur.output,
+          partialOutput: cur.partialOutput,
           attestationId: cur.attestationId,
           attestationValid: cur.valid,
           model: cur.model,

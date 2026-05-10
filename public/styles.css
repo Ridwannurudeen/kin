@@ -148,6 +148,51 @@ section { padding: 64px 0; }
 .spinner { display: inline-block; width: 12px; height: 12px; border: 1.5px solid var(--ink-mute); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* Streaming cursor */
+.cursor { display: inline-block; color: var(--gold); animation: blink 0.8s steps(2) infinite; margin-left: 2px; }
+@keyframes blink { to { opacity: 0; } }
+
+/* Skill row fade-in (staggered) */
+.skill-row { animation: rowIn 320ms ease-out both; }
+.skill-row:nth-child(1) { animation-delay: 0ms; }
+.skill-row:nth-child(2) { animation-delay: 60ms; }
+.skill-row:nth-child(3) { animation-delay: 120ms; }
+.skill-row:nth-child(4) { animation-delay: 180ms; }
+.skill-row:nth-child(5) { animation-delay: 240ms; }
+.skill-row:nth-child(6) { animation-delay: 300ms; }
+.skill-row:nth-child(7) { animation-delay: 360ms; }
+.skill-row:nth-child(8) { animation-delay: 420ms; }
+@keyframes rowIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Hero stats reveal */
+.hero-stats .stat .num { transition: color 200ms; }
+
+/* Mobile polish */
+@media (max-width: 600px) {
+  .container, .container-narrow { padding: 0 20px; }
+  .masthead { padding: 20px 0 16px; }
+  .brand { font-size: 28px; }
+  .nav-row { gap: 18px; flex-wrap: wrap; font-size: 12px; }
+  .nav-row a { padding-bottom: 1px; }
+  .hero { padding: 48px 0 56px; }
+  .hero h1 { font-size: 44px; }
+  .hero .lede { font-size: 17px; }
+  .hero .cta-row { flex-direction: column; }
+  .hero .cta-row .btn { width: 100%; }
+  .section-title { font-size: 30px; }
+  .skill-row { grid-template-columns: 1fr; gap: 12px; padding: 16px 18px; }
+  .skill-row .price { font-size: 18px; }
+  .skill-row button { width: 100%; }
+  .hero-stats { grid-template-columns: repeat(2, 1fr); }
+  .hero-stats .stat { padding: 20px 14px; }
+  .hero-stats .stat .num { font-size: 28px; }
+  .footer .row { flex-direction: column; gap: 8px; }
+  table.kv-table td { font-size: 12px; }
+}
+
 /* Pulse for "live" indicators */
 .pulse { display: inline-block; width: 8px; height: 8px; background: var(--green); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.4); } }

@@ -56,6 +56,6 @@ async function fundIfNeeded(toAddr, amountOg) {
 await fundIfNeeded(userAddr, userFund);
 await fundIfNeeded(clientAddr, clientFund);
 
-console.log(`\ndemo wallets ready.\nadd to .env:`);
-console.log(`DEMO_USER_PK=${demoWallets.user.privateKey || '(stored in .demo-wallets.json)'}`);
-console.log(`DEMO_CLIENT_PK=${demoWallets.client.privateKey || '(stored in .demo-wallets.json)'}`);
+console.log(`\ndemo wallets ready (privkeys in .demo-wallets.json — gitignored).`);
+console.log(`user:   ${userAddr}`);
+console.log(`client: ${clientAddr}`);

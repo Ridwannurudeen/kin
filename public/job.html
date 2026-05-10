@@ -78,9 +78,13 @@ async function poll() {
       if (i === active - 1) $(s).classList.add('active');
     });
 
-    if (r.output) {
+    if (r.output || r.partialOutput) {
       $('output').style.display = 'block';
-      $('output').textContent = r.output;
+      $('output').textContent = r.output || r.partialOutput;
+      if (r.partialOutput && !r.output) {
+        // Show typing cursor while streaming
+        $('output').innerHTML = (r.partialOutput || '').replace(/&/g,'&amp;').replace(/</g,'&lt;') + '<span class="cursor">▎</span>';
+      }
     }
 
     if (r.status === 'Submitted' || r.status === 'Accepted') {
@@ -121,7 +125,9 @@ $('disputeBtn').addEventListener('click', async () => {
 });
 
 poll();
-setInterval(poll, 4000);
+// Poll fast while executing, slow once settled
+let interval = 1500;
+setInterval(poll, interval);
 </script>
 </body>
 </html>
