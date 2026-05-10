@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job — Kin</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<div class="container">
+
+  <header class="masthead">
+    <div class="masthead-row">
+      <div>
+        <div class="brand">Kin<em>.</em></div>
+        <div class="tagline" id="jobTitle">job —</div>
+      </div>
+      <span class="pill"><span class="pulse" style="background: var(--gold);"></span> live</span>
+    </div>
+    <nav class="nav-row">
+      <a href="/">home</a>
+      <a href="/marketplace">marketplace</a>
+      <a href="/wallet">earnings</a>
+    </nav>
+  </header>
+
+  <section style="padding: 48px 0;">
+    <div class="section-eyebrow" id="jobMeta">job —</div>
+    <h2 class="section-title" id="jobHeader">Watching <em>your AI work.</em></h2>
+
+    <div class="execution-panel" id="executionPanel">
+      <div class="step" id="s1"><span class="marker">[01/05]</span><span class="text">Pulling skill samples from 0G Storage…</span></div>
+      <div class="step" id="s2"><span class="marker">[02/05]</span><span class="text">Decrypting samples inside enclave…</span></div>
+      <div class="step" id="s3"><span class="marker">[03/05]</span><span class="text">Loading brief, sealed inference call to 0G Compute…</span></div>
+      <div class="step" id="s4"><span class="marker">[04/05]</span><span class="text">TEE-signed response received, uploading to 0G Storage…</span></div>
+      <div class="step" id="s5"><span class="marker">[05/05]</span><span class="text">Submitting on-chain (Kin.submitWork) …</span></div>
+      <div class="output" id="output" style="display:none"></div>
+    </div>
+
+    <div id="settlementPanel" style="display:none; margin-top: 32px;" class="card elevated">
+      <div class="section-eyebrow">settlement</div>
+      <h3 style="font-family: var(--serif); font-size: 24px; font-weight: 500; margin-bottom: 12px;">Payment splits to skill owner</h3>
+      <table class="kv-table">
+        <tr><td class="k">payment</td><td class="v" id="settlePayment">—</td></tr>
+        <tr><td class="k">attestation</td><td class="v" id="settleAttest">—</td></tr>
+        <tr><td class="k">on-chain audit</td><td class="v" id="settleTx">—</td></tr>
+      </table>
+      <div style="margin-top: 16px;">
+        <button class="btn gold" id="acceptBtn">accept + rate 5/5</button>
+        <button class="btn ghost" id="disputeBtn">dispute</button>
+      </div>
+    </div>
+
+    <div id="error" class="error" style="display:none"></div>
+  </section>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const jobId = location.pathname.split('/').pop();
+
+async function poll() {
+  try {
+    const r = await fetch(`/api/jobs/${jobId}`).then(r => r.json());
+    if (r.error) throw new Error(r.error);
+
+    $('jobTitle').textContent = `job #${r.jobId} · skill #${r.skillId}`;
+    $('jobMeta').textContent = `job #${r.jobId} · escrow ${r.paymentOG} OG · ${r.status.toLowerCase()}`;
+
+    const stages = ['s1', 's2', 's3', 's4', 's5'];
+    let active = -1;
+    if (r.status === 'Open') active = r.executing ? r.executingStage : 0;
+    if (r.status === 'Submitted' || r.status === 'Accepted') active = 5;
+    stages.forEach((s, i) => {
+      $(s).classList.remove('active', 'done');
+      if (i < active) $(s).classList.add('done');
+      if (i === active - 1) $(s).classList.add('active');
+    });
+
+    if (r.output) {
+      $('output').style.display = 'block';
+      $('output').textContent = r.output;
+    }
+
+    if (r.status === 'Submitted' || r.status === 'Accepted') {
+      $('settlementPanel').style.display = 'block';
+      $('settlePayment').textContent = `${r.paymentOG} OG`;
+      $('settleAttest').innerHTML = r.attestationId
+        ? `<span class="badge ok">TEE valid</span> ${r.attestationId.slice(0,18)}…`
+        : '—';
+      $('settleTx').innerHTML = r.submitTx
+        ? `<a href="https://chainscan.0g.ai/tx/${r.submitTx}" target="_blank">${r.submitTx.slice(0,12)}… ↗</a>`
+        : '—';
+      if (r.status === 'Accepted') {
+        $('acceptBtn').style.display = 'none';
+        $('disputeBtn').style.display = 'none';
+      }
+    }
+  } catch (e) { $('error').style.display='block'; $('error').textContent=e.message; }
+}
+
+$('acceptBtn').addEventListener('click', async () => {
+  $('acceptBtn').disabled = true; $('acceptBtn').innerHTML = '<span class="spinner"></span> settling…';
+  try {
+    const r = await fetch(`/api/jobs/${jobId}/accept`, { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ rating: 5 }) });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error);
+    poll();
+  } catch (e) { $('error').style.display='block'; $('error').textContent=e.message; $('acceptBtn').disabled=false; $('acceptBtn').innerHTML = 'accept + rate 5/5'; }
+});
+
+$('disputeBtn').addEventListener('click', async () => {
+  if (!confirm('Dispute the work? This refunds your escrow.')) return;
+  try {
+    const r = await fetch(`/api/jobs/${jobId}/dispute`, { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ reason: 'demo dispute' }) });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error);
+    poll();
+  } catch (e) { $('error').style.display='block'; $('error').textContent=e.message; }
+});
+
+poll();
+setInterval(poll, 4000);
+</script>
+</body>
+</html>

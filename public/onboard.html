@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Become a Skill — Kin</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<div class="container">
+
+  <header class="masthead">
+    <div class="masthead-row">
+      <div>
+        <div class="brand">Kin<em>.</em></div>
+        <div class="tagline">become a skill</div>
+      </div>
+      <span class="pill">aristotle mainnet</span>
+    </div>
+    <nav class="nav-row">
+      <a href="/">home</a>
+      <a href="/onboard" class="active">become a skill</a>
+      <a href="/marketplace">marketplace</a>
+      <a href="/wallet">earnings</a>
+    </nav>
+  </header>
+
+  <div class="container-narrow" style="padding: 64px 0;">
+    <div class="section-eyebrow">step 01</div>
+    <h2 class="section-title">Capture your <em>voice.</em></h2>
+
+    <p style="font-family: var(--serif); font-size: 18px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 32px;">
+      Paste 3–10 samples of your work — old emails, code reviews, design notes, memos. We encrypt them client-side, upload to 0G Storage, and embed the root hashes in your SkillNFT. Your samples never appear in plaintext outside of a Sealed Inference enclave.
+    </p>
+
+    <form id="onboardForm">
+      <div class="field-row">
+        <div class="field">
+          <label for="skillType">Skill type</label>
+          <select id="skillType" required>
+            <option value="writing">writing</option>
+            <option value="code-review">code review</option>
+            <option value="research">research</option>
+            <option value="design-critique">design critique</option>
+            <option value="strategy-memo">strategy memo</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="pricePerJob">Price per job (OG)</label>
+          <input type="number" id="pricePerJob" step="0.001" min="0.001" value="0.01" required>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="description">Description (one line)</label>
+        <input type="text" id="description" placeholder="e.g. Founder/operator memo style — confident, terse, no fluff." required>
+      </div>
+
+      <div class="field">
+        <label>Sample 1 — your voice in your own words</label>
+        <textarea class="sample" placeholder="Paste a representative piece of your work…" required></textarea>
+      </div>
+      <div class="field">
+        <label>Sample 2</label>
+        <textarea class="sample" placeholder="Another sample. Different context if possible." required></textarea>
+      </div>
+      <div class="field">
+        <label>Sample 3</label>
+        <textarea class="sample" placeholder="Third sample completes the voice fingerprint."></textarea>
+      </div>
+
+      <div id="extraSamples"></div>
+      <button type="button" id="addSample" class="btn ghost" style="margin-top: 8px;">+ add another sample</button>
+
+      <div style="margin-top: 32px; display: flex; gap: 12px; align-items: center;">
+        <button type="submit" id="submitBtn" class="btn gold lg">encrypt + upload + mint →</button>
+        <span id="status" style="font-family: var(--mono); font-size: 12px; color: var(--ink-mute);"></span>
+      </div>
+    </form>
+
+    <div id="error" class="error" style="display:none"></div>
+    <div id="success" class="success" style="display:none"></div>
+  </div>
+
+  <footer class="footer">
+    <div class="row">
+      <span>Your samples are encrypted before they leave your browser, uploaded to 0G Storage, and only decrypted inside Sealed Inference enclaves at job time.</span>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let count = 3;
+
+$('addSample').addEventListener('click', () => {
+  count++;
+  const div = document.createElement('div');
+  div.className = 'field';
+  div.innerHTML = `<label>Sample ${count}</label><textarea class="sample" placeholder="Optional additional sample"></textarea>`;
+  $('extraSamples').appendChild(div);
+});
+
+$('onboardForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const samples = Array.from(document.querySelectorAll('.sample')).map(t => t.value.trim()).filter(Boolean);
+  if (samples.length < 2) { showErr('Need at least 2 samples'); return; }
+
+  $('submitBtn').disabled = true;
+  $('submitBtn').innerHTML = '<span class="spinner"></span> minting…';
+  $('status').textContent = 'encrypting + uploading samples (1-2 min) …';
+
+  try {
+    const res = await fetch('/api/skill', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        skillType: $('skillType').value,
+        description: $('description').value,
+        pricePerJobOG: $('pricePerJob').value,
+        samples,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'failed');
+
+    $('success').style.display = 'block';
+    $('success').innerHTML = `Skill #${data.skillId} minted! <a href="https://chainscan.0g.ai/tx/${data.txHash}" target="_blank">view on chainscan ↗</a>`;
+    $('status').textContent = '';
+    $('submitBtn').innerHTML = '✓ minted';
+    setTimeout(() => location.href = '/marketplace', 3000);
+  } catch (err) {
+    showErr(err.message);
+    $('submitBtn').disabled = false;
+    $('submitBtn').innerHTML = 'encrypt + upload + mint →';
+    $('status').textContent = '';
+  }
+});
+
+function showErr(msg) { $('error').style.display = 'block'; $('error').textContent = msg; }
+</script>
+
+</body>
+</html>

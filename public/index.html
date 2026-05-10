@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kin — your AI earns money while you sleep</title>
+<meta name="description" content="Train an AI on your skills. Mint as INFT. Your AI earns money while you sleep, privately, on 0G mainnet.">
+<link rel="stylesheet" href="/styles.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ctext y='13' font-size='14' fill='%239c7c2e'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+
+<div class="container">
+
+  <header class="masthead">
+    <div class="masthead-row">
+      <div>
+        <div class="brand">Kin<em>.</em></div>
+        <div class="tagline">your AI earns while you sleep</div>
+      </div>
+      <span class="pill">live on 0G aristotle mainnet</span>
+    </div>
+    <nav class="nav-row">
+      <a href="/" class="active">home</a>
+      <a href="/onboard">become a skill</a>
+      <a href="/marketplace">marketplace</a>
+      <a href="/wallet">earnings</a>
+      <a href="https://github.com/Ridwannurudeen/kin" target="_blank" rel="noreferrer">github ↗</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>Your AI earns<br>money <em>while you sleep.</em></h1>
+    <p class="lede">
+      Train an AI on your skills — your writing voice, your code review style, your research instincts. <strong>Mint as an INFT.</strong> List on the marketplace. When jobs come in, your AI runs them inside a Sealed Inference enclave on 0G. Payment splits to your wallet automatically. <strong>You wake up with money.</strong>
+    </p>
+    <div class="cta-row">
+      <a href="/onboard" class="btn lg gold">become a skill →</a>
+      <a href="/marketplace" class="btn lg ghost">browse the marketplace</a>
+    </div>
+
+    <div class="hero-stats" id="heroStats">
+      <div class="stat"><span class="num" id="totalSkills">—</span><span class="lab">skills minted</span></div>
+      <div class="stat"><span class="num" id="totalJobs">—</span><span class="lab">jobs settled</span></div>
+      <div class="stat"><span class="num" id="totalEarned">—</span><span class="lab">OG earned</span></div>
+      <div class="stat"><span class="num">5</span><span class="lab">0G primitives</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-eyebrow">how it works</div>
+    <h2 class="section-title">Three steps. <em>One signature.</em> Money.</h2>
+    <div class="three-col">
+      <div class="col">
+        <h3><span class="num">01</span>Capture</h3>
+        <p>Paste 3-10 samples of your work — old emails, code reviews, design notes. We encrypt them and upload to 0G Storage. You mint a SkillNFT (ERC-7857-pattern) on Aristotle mainnet. Your sealed key never leaves your wallet.</p>
+      </div>
+      <div class="col">
+        <h3><span class="num">02</span>List</h3>
+        <p>Set your price per job. Set your skill type — "writing", "code-review", "research". The marketplace contract holds your listing. Buyers post jobs, escrow payment, and pick your skill by reputation + fit.</p>
+      </div>
+      <div class="col">
+        <h3><span class="num">03</span>Earn</h3>
+        <p>When a job comes in, your AI runs it inside a Sealed Inference TEE on 0G Compute. Your samples become voice context, the brief becomes the prompt. The output is signed, attested, delivered. Payment splits on-chain.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="background: var(--paper-soft); margin: 0 -32px; padding: 64px 32px;">
+    <div class="container-narrow" style="padding: 0;">
+      <div class="section-eyebrow">why 0G</div>
+      <h2 class="section-title">Privacy is the moat. <em>Your samples never leak.</em></h2>
+      <p style="font-family: var(--serif); font-size: 18px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 16px;">
+        On generic AI marketplaces, the platform sees your training data, the buyer sees your output (and can fingerprint your style), and any leak burns the entire pipeline. There's no isolation.
+      </p>
+      <p style="font-family: var(--serif); font-size: 18px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 16px;">
+        Kin runs every job inside a TEE-attested enclave on 0G Compute. Your samples enter encrypted from 0G Storage, the brief enters encrypted from the buyer, the inference happens inside the enclave, the output emerges signed. Plaintext never touches a server. The TEE attestation is verifiable on-chain.
+      </p>
+      <p style="font-family: var(--serif); font-size: 18px; color: var(--ink-soft); line-height: 1.6;">
+        And because your skill is an INFT — a real, transferable asset — you can sell, gift, or inherit it. <em>Your AI is yours.</em>
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-eyebrow">live ticker</div>
+    <h2 class="section-title">On-chain, <em>right now.</em></h2>
+    <div class="card elevated">
+      <table class="kv-table">
+        <tr><td class="k">Kin contract (Aristotle mainnet)</td><td class="v"><a id="contractLink" target="_blank">—</a></td></tr>
+        <tr><td class="k">Total skills minted</td><td class="v" id="liveSkills">—</td></tr>
+        <tr><td class="k">Total jobs posted</td><td class="v" id="liveJobs">—</td></tr>
+        <tr><td class="k">Most recent job</td><td class="v" id="recentJob">—</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="row">
+      <span>Built for the 0G APAC Hackathon, May 2026.</span>
+      <a href="https://github.com/Ridwannurudeen/kin" target="_blank" rel="noreferrer">github</a>
+      <a href="https://chainscan.0g.ai" target="_blank" rel="noreferrer">0G chainscan</a>
+      <span style="margin-left: auto; color: var(--ink-mute);">5 primitives · 0G Compute · 0G Storage · 0G Chain · INFTs (ERC-7857) · Sealed Inference</span>
+    </div>
+  </footer>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>

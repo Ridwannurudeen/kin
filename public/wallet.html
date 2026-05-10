@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Earnings — Kin</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<div class="container">
+
+  <header class="masthead">
+    <div class="masthead-row">
+      <div>
+        <div class="brand">Kin<em>.</em></div>
+        <div class="tagline">earnings dashboard</div>
+      </div>
+      <span class="pill">aristotle mainnet</span>
+    </div>
+    <nav class="nav-row">
+      <a href="/">home</a>
+      <a href="/onboard">become a skill</a>
+      <a href="/marketplace">marketplace</a>
+      <a href="/wallet" class="active">earnings</a>
+    </nav>
+  </header>
+
+  <section style="padding: 48px 0;">
+    <div class="section-eyebrow">your skills</div>
+    <h2 class="section-title">Your AI's <em>earnings.</em></h2>
+
+    <div id="mySkillsList" style="margin-bottom: 56px;">
+      <p style="color: var(--ink-mute); font-style: italic;">loading…</p>
+    </div>
+
+    <div class="section-eyebrow">all jobs</div>
+    <h2 class="section-title" style="font-size: 32px; margin-bottom: 24px;">Job activity</h2>
+
+    <div id="jobsList">
+      <p style="color: var(--ink-mute); font-style: italic;">loading…</p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="row">
+      <span>Every job is settled on-chain with TEE attestation. Tap any tx for chainscan proof.</span>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+async function load() {
+  try {
+    const r = await fetch('/api/wallet').then(r => r.json());
+    if (r.error) throw new Error(r.error);
+
+    const skillsEl = $('mySkillsList');
+    skillsEl.innerHTML = '';
+    if (!r.mySkills || r.mySkills.length === 0) {
+      skillsEl.innerHTML = '<p style="color: var(--ink-mute); font-style: italic;">No skills minted yet. <a href="/onboard">Capture your first.</a></p>';
+    } else {
+      for (const s of r.mySkills) {
+        const avg = s.jobsCompleted > 0 ? (s.totalRating / s.jobsCompleted).toFixed(1) : '—';
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.style.marginBottom = '12px';
+        div.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: baseline;">
+            <div>
+              <div style="font-family: var(--mono); font-size: 11px; color: var(--gold); text-transform: uppercase;">skill #${s.skillId} · ${s.skillType}</div>
+              <div style="font-family: var(--serif); font-size: 22px; font-weight: 500; margin-top: 4px;">${s.description || s.skillType}</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-family: var(--serif); font-size: 28px; font-weight: 500;">${s.totalEarnedOG} <span style="font-size: 14px; color: var(--ink-mute);">OG earned</span></div>
+              <div style="font-family: var(--mono); font-size: 11px; color: var(--ink-mute); margin-top: 4px;">${s.jobsCompleted} job${s.jobsCompleted === 1 ? '' : 's'} · avg ${avg}/5</div>
+            </div>
+          </div>
+        `;
+        skillsEl.appendChild(div);
+      }
+    }
+
+    const jobsEl = $('jobsList');
+    jobsEl.innerHTML = '';
+    if (!r.jobs || r.jobs.length === 0) {
+      jobsEl.innerHTML = '<p style="color: var(--ink-mute); font-style: italic;">No jobs yet.</p>';
+    } else {
+      for (const j of r.jobs) {
+        const div = document.createElement('div');
+        div.className = 'skill-row';
+        const statusColor = j.status === 'Accepted' ? 'var(--green)' : j.status === 'Disputed' ? 'var(--red)' : 'var(--gold)';
+        div.innerHTML = `
+          <div class="desc">
+            <span class="type">job #${j.jobId} · skill #${j.skillId}</span>
+            <span class="name">${j.briefPreview || '(encrypted brief)'}</span>
+            <span class="meta">${new Date(j.createdAt).toLocaleString()}</span>
+          </div>
+          <div class="price">${j.paymentOG}<span class="unit">OG</span></div>
+          <span class="badge ok" style="background: var(--paper); border: 1px solid ${statusColor}; color: ${statusColor};">${j.status.toLowerCase()}</span>
+        `;
+        jobsEl.appendChild(div);
+      }
+    }
+  } catch (e) {
+    $('jobsList').innerHTML = `<p class="error">${e.message}</p>`;
+  }
+}
+load();
+setInterval(load, 15000);
+</script>
+
+</body>
+</html>

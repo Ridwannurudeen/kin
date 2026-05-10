@@ -1,0 +1,20 @@
+{
+  "name": "kin",
+  "version": "0.1.0",
+  "description": "Your AI earns money while you sleep. Skills as INFTs, jobs executed inside Sealed Inference, payment splits on-chain. 0G APAC Hackathon entry.",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "smoke:storage": "node scripts/smoke_storage.js",
+    "smoke:inference": "node scripts/smoke_inference.js",
+    "deploy": "node scripts/deploy.js",
+    "test:e2e": "node scripts/e2e_job.js"
+  },
+  "dependencies": {
+    "@0gfoundation/0g-compute-ts-sdk": "^0.8.3",
+    "@0gfoundation/0g-storage-ts-sdk": "^1.2.9",
+    "dotenv": "^17.4.2",
+    "ethers": "6.13.1",
+    "solc": "^0.8.35"
+  }
+}
