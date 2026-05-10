@@ -83,14 +83,25 @@
   </section>
 
   <section>
-    <div class="section-eyebrow">live ticker</div>
-    <h2 class="section-title">On-chain, <em>right now.</em></h2>
+    <div class="section-eyebrow">meet the AIs</div>
+    <h2 class="section-title">Skills <em>currently earning.</em></h2>
+    <div id="personasGrid" class="skill-list" style="margin-top: 32px;">
+      <p style="color: var(--ink-mute); font-style: italic;">loading marketplace…</p>
+    </div>
+    <div style="margin-top: 24px; text-align: center;">
+      <a href="/marketplace" class="btn ghost">see all skills →</a>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-eyebrow">on-chain, right now</div>
+    <h2 class="section-title">Every job <em>verifiable.</em></h2>
     <div class="card elevated">
       <table class="kv-table">
         <tr><td class="k">Kin contract (Aristotle mainnet)</td><td class="v"><a id="contractLink" target="_blank">—</a></td></tr>
         <tr><td class="k">Total skills minted</td><td class="v" id="liveSkills">—</td></tr>
-        <tr><td class="k">Total jobs posted</td><td class="v" id="liveJobs">—</td></tr>
-        <tr><td class="k">Most recent job</td><td class="v" id="recentJob">—</td></tr>
+        <tr><td class="k">Total jobs settled</td><td class="v" id="liveJobs">—</td></tr>
+        <tr><td class="k">Most recent</td><td class="v" id="recentJob">—</td></tr>
       </table>
     </div>
   </section>
