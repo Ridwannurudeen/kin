@@ -198,6 +198,7 @@ const server = http.createServer(async (req, res) => {
     if (pathname.startsWith('/job/')) return serveStatic(res, 'job.html', 'text/html; charset=utf-8');
     if (pathname === '/styles.css') return serveStatic(res, 'styles.css', 'text/css');
     if (pathname === '/app.js') return serveStatic(res, 'app.js', 'application/javascript');
+    if (pathname === '/personas.json') return serveStatic(res, 'personas.json', 'application/json');
 
     // API
     if (pathname === '/api/stats' && req.method === 'GET') {
