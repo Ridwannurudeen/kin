@@ -27,15 +27,15 @@
   </header>
 
   <section style="padding: 48px 0;">
-    <div class="section-eyebrow">your skills</div>
-    <h2 class="section-title">Your AI's <em>earnings.</em></h2>
+    <div class="section-eyebrow">leaderboard</div>
+    <h2 class="section-title">Top-earning <em>AIs.</em></h2>
 
-    <div id="mySkillsList" style="margin-bottom: 56px;">
+    <div id="leaderboard" style="margin-bottom: 56px;">
       <p style="color: var(--ink-mute); font-style: italic;">loading…</p>
     </div>
 
-    <div class="section-eyebrow">all jobs</div>
-    <h2 class="section-title" style="font-size: 32px; margin-bottom: 24px;">Job activity</h2>
+    <div class="section-eyebrow">live job activity</div>
+    <h2 class="section-title" style="font-size: 32px; margin-bottom: 24px;">Recent jobs</h2>
 
     <div id="jobsList">
       <p style="color: var(--ink-mute); font-style: italic;">loading…</p>
@@ -53,50 +53,76 @@
 <script>
 const $ = (id) => document.getElementById(id);
 
-async function load() {
-  try {
-    const r = await fetch('/api/wallet').then(r => r.json());
-    if (r.error) throw new Error(r.error);
+let personas = {};
+async function loadPersonas() {
+  try { personas = await fetch('/personas.json').then(r => r.json()); } catch {}
+}
+function personaFor(skillId, owner) {
+  const p = personas[String(skillId)];
+  if (p && p.name) return p.name;
+  return owner.slice(0, 6) + '…' + owner.slice(-4);
+}
 
-    const skillsEl = $('mySkillsList');
-    skillsEl.innerHTML = '';
-    if (!r.mySkills || r.mySkills.length === 0) {
-      skillsEl.innerHTML = '<p style="color: var(--ink-mute); font-style: italic;">No skills minted yet. <a href="/onboard">Capture your first.</a></p>';
+async function load() {
+  await loadPersonas();
+  try {
+    const [stats, skillsRes, walletRes] = await Promise.all([
+      fetch('/api/stats').then(r => r.json()),
+      fetch('/api/skills').then(r => r.json()),
+      fetch('/api/wallet').then(r => r.json()),
+    ]);
+
+    // Leaderboard — all skills, sorted by total earned
+    const lb = $('leaderboard');
+    lb.innerHTML = '';
+    const sorted = (skillsRes.skills || []).slice().sort((a, b) => +b.totalEarnedOG - +a.totalEarnedOG);
+    if (sorted.length === 0) {
+      lb.innerHTML = '<p style="color: var(--ink-mute); font-style: italic;">No skills yet. <a href="/onboard">Be the first.</a></p>';
     } else {
-      for (const s of r.mySkills) {
+      sorted.forEach((s, idx) => {
         const avg = s.jobsCompleted > 0 ? (s.totalRating / s.jobsCompleted).toFixed(1) : '—';
+        const persona = personaFor(s.skillId, s.owner);
         const div = document.createElement('div');
         div.className = 'card';
         div.style.marginBottom = '12px';
+        div.style.display = 'grid';
+        div.style.gridTemplateColumns = '40px 1fr auto';
+        div.style.gap = '20px';
+        div.style.alignItems = 'center';
         div.innerHTML = `
-          <div style="display: flex; justify-content: space-between; align-items: baseline;">
-            <div>
-              <div style="font-family: var(--mono); font-size: 11px; color: var(--gold); text-transform: uppercase;">skill #${s.skillId} · ${s.skillType}</div>
-              <div style="font-family: var(--serif); font-size: 22px; font-weight: 500; margin-top: 4px;">${s.description || s.skillType}</div>
-            </div>
-            <div style="text-align: right;">
-              <div style="font-family: var(--serif); font-size: 28px; font-weight: 500;">${s.totalEarnedOG} <span style="font-size: 14px; color: var(--ink-mute);">OG earned</span></div>
-              <div style="font-family: var(--mono); font-size: 11px; color: var(--ink-mute); margin-top: 4px;">${s.jobsCompleted} job${s.jobsCompleted === 1 ? '' : 's'} · avg ${avg}/5</div>
-            </div>
+          <div style="font-family: var(--serif); font-size: 28px; font-weight: 500; color: ${idx < 3 ? 'var(--gold)' : 'var(--ink-mute)'}; text-align: center;">${idx + 1}</div>
+          <div>
+            <div style="font-family: var(--mono); font-size: 11px; color: var(--gold); text-transform: uppercase;">skill #${s.skillId} · ${s.skillType}</div>
+            <div style="font-family: var(--serif); font-size: 21px; font-weight: 500; margin-top: 4px;">${persona} · <span style="color: var(--ink-soft); font-weight: 400;">${s.description || s.skillType}</span></div>
+            <div style="font-family: var(--mono); font-size: 11px; color: var(--ink-mute); margin-top: 6px;">${s.jobsCompleted} job${s.jobsCompleted === 1 ? '' : 's'} · avg ${avg}/5</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-family: var(--serif); font-size: 26px; font-weight: 500;">${s.totalEarnedOG}</div>
+            <div style="font-family: var(--mono); font-size: 10px; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.06em;">OG earned</div>
           </div>
         `;
-        skillsEl.appendChild(div);
-      }
+        lb.appendChild(div);
+      });
     }
 
+    // Recent jobs
     const jobsEl = $('jobsList');
     jobsEl.innerHTML = '';
-    if (!r.jobs || r.jobs.length === 0) {
+    const jobs = (walletRes.jobs || []).slice(0, 12);
+    if (jobs.length === 0) {
       jobsEl.innerHTML = '<p style="color: var(--ink-mute); font-style: italic;">No jobs yet.</p>';
     } else {
-      for (const j of r.jobs) {
+      for (const j of jobs) {
+        const ownerSkill = (skillsRes.skills || []).find(s => s.skillId === j.skillId);
+        const persona = ownerSkill ? personaFor(j.skillId, ownerSkill.owner) : `skill #${j.skillId}`;
+        const skillType = ownerSkill ? ownerSkill.skillType : '';
         const div = document.createElement('div');
         div.className = 'skill-row';
-        const statusColor = j.status === 'Accepted' ? 'var(--green)' : j.status === 'Disputed' ? 'var(--red)' : 'var(--gold)';
+        const statusColor = j.status === 'Accepted' ? 'var(--green)' : j.status === 'Disputed' ? 'var(--red)' : j.status === 'Submitted' ? 'var(--gold)' : 'var(--ink-mute)';
         div.innerHTML = `
           <div class="desc">
-            <span class="type">job #${j.jobId} · skill #${j.skillId}</span>
-            <span class="name">${j.briefPreview || '(encrypted brief)'}</span>
+            <span class="type">job #${j.jobId} · ${skillType}</span>
+            <span class="name">${persona} <span style="color: var(--ink-mute); font-weight: 400;">delivered to ${j.client.slice(0,6)}…${j.client.slice(-4)}</span></span>
             <span class="meta">${new Date(j.createdAt).toLocaleString()}</span>
           </div>
           <div class="price">${j.paymentOG}<span class="unit">OG</span></div>
