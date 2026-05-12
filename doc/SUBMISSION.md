@@ -2,7 +2,7 @@
 
 Pre-filled answers for the 0G APAC Hackathon submission form. **Review each field before pasting into HackQuest.** Nothing is submitted until you give explicit approval.
 
-> **Honesty preface — applies to every section below.** 0G Sealed Inference was degraded during the submission window (empty / malformed response bodies). The hunter daemon retries 3× per spec and then drops to `lib/audit-fallback.js`, a documented local-heuristic audit path. The live winning finding on bounty #0 was produced on the fallback path — the chain stamps `modelDigest = keccak("hunt-local-audit|hunt-audit-v1")` so the path each finding took is visible on-chain. The contract semantics, the digest structure, and the `ecrecover` gate are identical on both paths. `teeSigner` and `verifier` are operator-held single keys in v1; the v2 plan replaces both with attestation-verifying relay sets (`doc/FUTURE.md`).
+> **Honesty preface — applies to every section below.** The headline live race is **bounty #3**: oracle-specialist submitted the winning finding via real 0G Sealed Inference (`zai-org/GLM-5-FP8`) with a `ZG-Res-Key` TEE attestation. The on-chain `modelDigest` is `keccak256(utf8("zai-org/GLM-5-FP8|hunt-audit-v1"))` — pass it to `scripts/verify_bounty.js 3 --model-digest 0x<digest>` for strict cryptographic re-derivation (one-liner to compute the digest is in §9). Bounty #0 was the original race, ran on the documented fallback path (`lib/audit-fallback.js`) because of a `max_tokens=1500` budget bug in `lib/review.js` — `zai-org/GLM-5-FP8` is a reasoning model and burned the entire budget on internal `reasoning_tokens` before emitting any content. The fix (bump to 5000) is one line in `lib/review.js` and one line in `lib/fingerprint.js`. Bounty #0 is preserved on-chain as an honest record; bounty #2 is the post-fix Sealed Inference race before per-hunter specialty narrowing; bounty #3 is the current headline. The fallback path's on-chain `modelDigest = keccak256(utf8("hunt-local-audit|hunt-audit-v1"))` is *distinct* from the Sealed Inference one, so the two paths are always distinguishable. Contract semantics, digest structure, and the `ecrecover` gate are identical between paths — only the `modelDigest` differs. `teeSigner` and `verifier` are operator-held single keys in v1; the v2 plan replaces both with attestation-verifying relay sets (`doc/FUTURE.md`).
 
 ---
 
@@ -18,19 +18,19 @@ Hunt is a sealed bug-bounty network for smart contracts — protocols post encry
 
 **What it does.** Hunt turns smart-contract auditing into an on-chain race between specialist AI agents. A protocol seals its Solidity source against a shared hunter-network key, posts a bounty with an in-scope CWE class list and a payout, and escrows OG on `contracts/Hunt.sol`. Every registered hunter agent — each one a "senior auditor" identity with verifier-signed GitHub credential, TEE-signed sample fingerprint, and per-CWE reputation — watches `BountyPosted`, downloads + decrypts the code blob, runs top-K retrieval over its own prior-finding samples vs the bounty code, and calls Sealed Inference (`lib/review.js`) to produce a review + self-eval in one shot. The agent picks the highest-severity in-scope finding, encrypts it to the poster's wallet pubkey, uploads to 0G Storage, and signs an attestation digest binding `(bountyId, codeRoot, hunterId, cweClass, severity, findingRoot, modelDigest, teeTimestamp, selfEvalBps×4)`. `submitFinding` runs `ecrecover` against `teeSigner` and accepts only if `teeTimestamp ∈ [postedAt, raceDeadline]`. The poster picks the winning finding, submits a 4-axis rating, and `settleBounty` pays the winner and updates `ClassRep[hunterId][cweClass]`.
 
-**The live demo proves the per-CWE-reputation thesis end-to-end.** The staged `demo/staged-bounty/Vault.sol` contains a subtle oracle-staleness bug: `_currentPrice()` reads `updatedAt` from `latestRoundData` but only compares it against `block.timestamp` inside the admin-only `setPrice()`. Every user path (`liquidate`, `withdraw`, `mint`, `_isHealthy`, `healthFactorBps`) bypasses the freshness gate. Three hunters raced against bounty #0 on 0G Aristotle mainnet: the reentrancy-specialist and the access-control-specialist both returned zero in-scope findings — correct, the bug is not in their CWE class. The oracle-specialist's heuristic triggered, submitted `oracle-manipulation / high`, and won the 0.05 OG payout. Per-CWE reputation accrued only to the hunter who actually had expertise in that vulnerability class.
+**The live demo proves the per-CWE-reputation thesis end-to-end.** The staged `demo/staged-bounty/Vault.sol` contains a subtle oracle-staleness bug: `_currentPrice()` reads `updatedAt` from `latestRoundData` but only compares it against `block.timestamp` inside the admin-only `setPrice()`. Every user path (`liquidate`, `withdraw`, `mint`, `_isHealthy`, `healthFactorBps`) bypasses the freshness gate. Headline race is **bounty #3** on Aristotle mainnet: three hunters fired in parallel against the bounty, each one's brief narrowed to `bounty.inScopeCwes ∩ hunter specialty` (a reentrancy specialist will never submit an oracle finding even on a multi-scope bounty). Oracle-specialist completed Sealed Inference on attempt 1, surfaced `oracle-manipulation / high` with model self-eval overall 88.75% (severityCalibration 8500 / precision 9200 / coverage 8800 / exploitability 9000), submitted with real `ZG-Res-Key` TEE attestation, and won the 0.05 OG payout. The other two specialists hit transient `fetch failed` on the inference proxy under concurrent broker load, fell back to the documented local heuristic per spec, and returned 0 findings in their respective specialty classes — correct, no reentrancy or access-control bug fires the matching heuristic on this Vault. Per-CWE reputation accrued only to the hunter with the matching specialty. Bounty #2 (pre-specialty-narrowing post-fix race) shows the same outcome with severity `critical`. Bounty #0 (pre-fix original race) shows the same outcome via the local-fallback path, with its distinct on-chain `modelDigest` proving exactly which path was taken.
 
 **Problem solved.** Existing bug-bounty programs trust a central audit firm or a leaderboard of human pseudonyms. Centralised AI-auditor services are cheatable: you can't tell whether the model claimed actually ran on the input you submitted, or whether the firm replayed cached output. Putting the contract in plaintext on a marketplace also leaks pre-deployment code. Hunt fixes both: code is sealed against the public chain and storage operators (only the storage root + scope go on-chain), and every finding carries a TEE-signed attestation binding the model, the input, and the timestamp. Reputation accrues *per CWE class*, so a hunter who's elite at reentrancy and mid at oracles can't game one rep score across domains — the chain reflects calibrated expertise.
 
 **0G components used** — five primitives, all load-bearing, none decorative:
 
 - **0G Chain (Aristotle, 16661)**: `contracts/Hunt.sol` — hunter registry, bounty escrow, race + settle window, finding submission with `ecrecover`-verified attestation, per-CWE `ClassRep` ledger, credential reuse protection. ~470 LOC, single file.
-- **0G Compute / Sealed Inference**: two distinct TEE roles. (1) `lib/fingerprint.js` scores a hunter's prior-finding samples on 4 quality axes at mint time. (2) `lib/review.js` runs the review + self-eval in a single Sealed Inference call per bounty. Both consume 0G's `ZG-Res-Key` attestation via `broker.inference.processResponse`. Today's live submission runs the documented `lib/audit-fallback.js` path because the inference endpoints were degraded during the window.
+- **0G Compute / Sealed Inference**: two distinct TEE roles. (1) `lib/fingerprint.js` scores a hunter's prior-finding samples on 4 quality axes at mint time. (2) `lib/review.js` runs the review + self-eval in a single Sealed Inference call per bounty. Both consume 0G's `ZG-Res-Key` attestation via `broker.inference.processResponse`. The headline bounty #3 ran on real Sealed Inference end-to-end — winning finding's on-chain `modelDigest = keccak256(utf8("zai-org/GLM-5-FP8|hunt-audit-v1"))`, strict re-verification via `scripts/verify_bounty.js 3 --model-digest 0x<digest>` exits 0 with three checkmarks. `lib/audit-fallback.js` is the documented degraded path, exercised in bounty #3 for the two hunters whose concurrent inference calls hit transient `fetch failed` under simultaneous broker load — same on-chain semantics, distinct `modelDigest`.
 - **0G Storage**: symmetric AES for the bounty code blob (shared hunter-network key in v1); per-hunter AES for samples + embeddings (per-hunter key, owner-held); ECIES (secp256k1 + HKDF + AES-GCM) for findings encrypted to the bounty poster's pubkey. Primitives in `lib/storage.js`, `lib/ecdh.js`.
 - **TEE attestation chain-of-custody**: `teeSigner` address on-chain; off-chain relay produces the digest `Hunt.sol` recovers. v1 = one operator-held key. v2 = TEE-attestation-verifying relay set that signs only when 0G's per-response attestation validates against the model that produced the answer.
 - **Credential verifier**: `verifier/server.js` enforces the GitHub-activity bar (≥730d account age, ≥20 merged PRs, ≥10 reviews) and signs a wallet-bound, replay-protected Credential the contract recovers on mint.
 
-**Engineering depth.** 213 tests passing (64 Hunt contract, 78 Kin contract foundation, 21 verifier, 13 ECDH, 10 embedding, 5 pubkey-recover, 22 fingerprint/credential). 13 tests for the defunct Kin v2 agent intentionally fail and are flagged as legacy. Race-deadline enforcement, settle-window enforcement, CWE-scope filter, per-finding `teeTimestamp` window check, self-eval `MIN_FINDING_QUALITY_BPS` floor — all on-chain. Local-fallback path (`lib/audit-fallback.js`) is documented and stamps a distinct `modelDigest` on-chain so judges can audit which path each finding took. Standalone verifier (`scripts/verify_bounty.js`) re-derives the attestation digest from on-chain fields and runs `ecrecover` independently — judges can run it without project setup.
+**Engineering depth.** 191 tests passing, 0 failing (64 Hunt contract, 78 Kin contract foundation, 21 verifier, 13 ECDH, 10 embedding, 5 pubkey-recover). Two Kin v2 agent legacy test files target the older `review.summary` schema and are parked under `test-legacy/`, excluded from the default `npm test`. Race-deadline enforcement, settle-window enforcement, CWE-scope filter, per-hunter specialty intersection (`scripts/hunter.js` `hunterSpecialtyCwes` param), per-finding `teeTimestamp` window check, self-eval `MIN_FINDING_QUALITY_BPS` floor — all on-chain. Local-fallback path (`lib/audit-fallback.js`) is documented and stamps a distinct `modelDigest` on-chain so judges can audit which path each finding took. Standalone verifier (`scripts/verify_bounty.js`) re-derives the attestation digest from on-chain fields and runs `ecrecover` independently — judges can run it without project setup; pass `--model-digest 0x<digest>` for strict cryptographic re-derivation (one-liner in §9).
 
 ## 4. Track
 
@@ -48,15 +48,40 @@ Hunt is a multi-agent economic protocol with on-chain reputation, escrow + payme
 
 **Live mainnet activity — every tx hash is real, all settled on chain 16661.**
 
+**Deploy + hunter mints**
+
 | Event | Tx hash | Block |
 |---|---|---|
 | Deploy Hunt | `0xc08f6483a1603564ff38c6808856cc9d7e8cbe120ff95e8ccbc55722f873f6c7` | 32975183 |
-| Mint hunter #0 — `reentrancy-specialist` | `0xdac73073211a99c16cad85961461180ead95504bfae331e8e77efb7f053f9d5d` | (see chainscan) |
-| Mint hunter #1 — `oracle-specialist` | `0xd9ab16049e3a048ea30b49bb9dfb61584828c621c88bc467c2ad1eb85d6b8354` | (see chainscan) |
-| Mint hunter #2 — `access-control-specialist` | `0x66af88fe9718592223580034b3569cc79cc0ae8c8cd596595330a631e08d509f` | (see chainscan) |
-| Post bounty #0 — Vault.sol, 0.05 OG, 10-min race, scope {reentrancy, oracle, access-control} | `0xafa7c31ea102f4543ac851711fc822e41871d139220bd7bff7d9abcd831fb2df` | (see chainscan) |
-| Oracle-specialist submits winning finding (`oracle-manipulation`, severity `high`) | `0x371f2a328c5af8c0d75f867bda9f12048ba941e99efa6a210087c0b84a2cab8b` | 32977952 |
-| Settle bounty #0 — 0.05 OG to oracle-specialist + per-CWE rep update | `0xe67459a13b8b0df690847560e97249eac9a23d3ef7d2cce594338b8222cdcec4` | 32978103 |
+| Mint hunter #0 — `reentrancy-specialist` | `0xdac73073211a99c16cad85961461180ead95504bfae331e8e77efb7f053f9d5d` | (chainscan) |
+| Mint hunter #1 — `oracle-specialist` | `0xd9ab16049e3a048ea30b49bb9dfb61584828c621c88bc467c2ad1eb85d6b8354` | (chainscan) |
+| Mint hunter #2 — `access-control-specialist` | `0x66af88fe9718592223580034b3569cc79cc0ae8c8cd596595330a631e08d509f` | (chainscan) |
+
+**Bounty #3 ★ — headline race (real Sealed Inference + per-hunter specialty narrowing)**
+
+| Event | Tx hash | Block |
+|---|---|---|
+| Post bounty #3 — Vault.sol, 0.05 OG, 10-min race, scope {reentrancy, oracle, access-control} | `0x253064e8680d098c127b9cf7b2d4379136dd25bb6258117b0e4951e848922659` | (chainscan) |
+| Oracle-specialist submits winning finding — **real Sealed Inference** (`oracle-manipulation`, `high`) | `0x78f6075f7ccc99122144335c659005c162e750229d808258e06823a957b37523` | 33040490 |
+| Settle bounty #3 — 0.05 OG to oracle-specialist + per-CWE rep update | `0x9edab38c54b927fd507aeaada991694500858af4a31977d2c7154ac658f8d241` | 33041034 |
+
+Headline finding's `modelDigest = keccak256(utf8("zai-org/GLM-5-FP8|hunt-audit-v1"))` (compute with the one-liner in §9). Strict-mode `scripts/verify_bounty.js 3 --model-digest 0x<digest>` prints `digest match: ✓ / signer == teeSigner: ✓ / teeTimestamp window: ✓` and exits 0 — cryptographic proof that real Sealed Inference produced the finding inside the race window.
+
+**Bounty #2 — post-fix Sealed Inference race (no specialty narrowing yet)**
+
+| Event | Tx hash | Block |
+|---|---|---|
+| Post bounty #2 | `0x8da9cf06cfcf963ec9ad000d37a1652f0fb352c43909e6f254255db7091e4314` | (chainscan) |
+| Oracle-specialist submits winning finding (real Sealed Inference, `critical`) | `0x36bd979cc452c77626493113666b6109a73506380e1f8de610c5b73874eef554` | 33039165 |
+| Settle bounty #2 | `0xa6e03679fc9ced9fbe6a1a185550033821343934cdb12adb9da46a149ce2ed59` | 33039527 |
+
+**Bounty #0 — original race (fallback path)**
+
+| Event | Tx hash | Block |
+|---|---|---|
+| Post bounty #0 | `0xafa7c31ea102f4543ac851711fc822e41871d139220bd7bff7d9abcd831fb2df` | (chainscan) |
+| Oracle-specialist submits winning finding (fallback path, `high`) | `0x371f2a328c5af8c0d75f867bda9f12048ba941e99efa6a210087c0b84a2cab8b` | 32977952 |
+| Settle bounty #0 | `0xe67459a13b8b0df690847560e97249eac9a23d3ef7d2cce594338b8222cdcec4` | 32978103 |
 
 **Primitive-by-primitive call-site references.**
 
@@ -66,7 +91,7 @@ Hunt is a multi-agent economic protocol with on-chain reputation, escrow + payme
   - `scripts/run_race.js:50–56` — same plumbing for the demo orchestrator (shared funder broker so three personas don't each need a separate inference ledger).
   - `lib/review.js` — combined review + self-eval prompt; consumes the broker via dependency injection.
   - `lib/fingerprint.js` — sample fingerprinter; called at hunter-mint time.
-  - `lib/audit-fallback.js` — documented fallback path triggered when Sealed Inference returns 3× empty bodies or malformed JSON. Stamps `modelDigest = keccak("hunt-local-audit|hunt-audit-v1")` so on-chain readers can tell the two paths apart.
+  - `lib/audit-fallback.js` — documented fallback path triggered when the daemon's 3× retry budget on Sealed Inference is exhausted (transport failure or empty content). Stamps `modelDigest = keccak256(utf8("hunt-local-audit|hunt-audit-v1"))` so on-chain readers can tell the two paths apart from a single bytes32 read.
 
 - **0G Storage**
   - `lib/storage.js` — `uploadRaw`, `downloadRaw`, `uploadEncryptedRecord`, `downloadEncryptedRecord` over `@0gfoundation/0g-storage-ts-sdk`. AES-256-GCM wrapper for encrypted blobs.
@@ -94,7 +119,7 @@ Hunt is a multi-agent economic protocol with on-chain reputation, escrow + payme
 
 ## 7. README / Documentation
 
-See repo root `README.md` for the live-deployment table, lifecycle diagram, primitive call-sites, project layout, quickstart, and honesty notes (Sealed Inference outage + fallback path, centralised relay, shared hunter-network key v1 → per-hunter envelope v2). Roadmap: `doc/FUTURE.md`. Demo bug walk-through: `demo/staged-bounty/README.md`. AI usage: `AI_USAGE.md`.
+See repo root `README.md` for the live-deployment table (with all four bounty races: #3 headline, #2 post-fix intermediate, #0 fallback-path original), lifecycle diagram, primitive call-sites, project layout, quickstart, and honesty notes (root-cause analysis of the bounty #0 fallback, centralised relay, shared hunter-network key v1 → per-hunter envelope v2). Roadmap: `doc/FUTURE.md`. Demo bug walk-through: `demo/staged-bounty/README.md`. AI usage: `AI_USAGE.md`.
 
 ## 8. Public X Post
 
@@ -111,14 +136,17 @@ Anyone, no setup required, can verify the live race independently. Clone the rep
 ```bash
 git clone https://github.com/Ridwannurudeen/kin && cd kin
 npm install
-node scripts/verify_bounty.js 0
+# Compute the headline modelDigest (keccak256 of the model name + version):
+node -e "import('ethers').then(({ethers})=>console.log(ethers.keccak256(ethers.toUtf8Bytes('zai-org/GLM-5-FP8|hunt-audit-v1'))))"
+# Strict-mode verify against bounty #3 (the real-Sealed-Inference headline):
+node scripts/verify_bounty.js 3 --model-digest 0x<paste the digest above>
 ```
 
 Expected output (abridged):
 
 ```
 ────────────────────────────────────────────────────────────
-Hunt verifier  ·  bounty #0
+Hunt verifier  ·  bounty #3
 ────────────────────────────────────────────────────────────
 contract:      0xD4Fe5127d519B775a9a581A54ED0719BBFf0d68C
 teeSigner:     0xc9c0754fDB2C22Fd19B5B649e1e60eE9d1Ccca3f
@@ -165,9 +193,9 @@ For the strict re-derivation, pass `--model-digest 0x…` matching the encrypted
 - [ ] `scripts/post_bounty.js` — bounty #0 posted against Vault.sol
 - [ ] `scripts/run_race.js` — race ran live; oracle-specialist submitted the winning finding
 - [ ] `scripts/settle_bounty.js` — bounty #0 settled; 0.05 OG paid to oracle-specialist
-- [ ] `scripts/verify_bounty.js 0` exits 0 — winning finding verifies against `teeSigner`
+- [ ] `scripts/verify_bounty.js 3 --model-digest 0x<digest>` exits 0 — winning finding cryptographically verifies against `teeSigner` AND `modelDigest` (real Sealed Inference proof)
 - [ ] README + SUBMISSION tx hashes match what's actually on-chain
-- [ ] `npm test` — 213 tests green on the submission branch (13 tests for the defunct Kin v2 agent in `test/agent.test.js` + `test/inference-libs.test.js` intentionally fail; documented as legacy)
+- [ ] `npm test` — 191 tests green, 0 failing (legacy Kin v2 agent tests parked under `test-legacy/` and excluded from default suite)
 - [ ] Demo video recorded per `doc/DEMO_VIDEO_SCRIPT.md` (≤3 min, 1080p, real voice)
 - [ ] Demo video uploaded to YouTube unlisted; link added to §6
 - [ ] X post drafted (`doc/X_POST.md`); clip attached

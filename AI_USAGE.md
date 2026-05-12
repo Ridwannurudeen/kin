@@ -51,15 +51,24 @@ Claude Opus 4.7 (1M context) via Claude Code CLI. Approximate session length ove
 - The five sample code reviews per persona in `demo/personas.json`, `scripts/e2e_v2.js`, and `test/agent.test.js` are stylised — they read like real senior-engineer reviews and reflect real categories of bugs (TOCTOU, swallowed retries, catastrophic regex backtracking, partial-failure tests, missing mutex, oracle manipulation, storage-slot collision, etc.) but are not attributed to specific PRs. The three demo personas (`ts-senior`, `rust-senior`, `sol-senior`) are explicitly labelled "demo skill" in the UI.
 - The reviews produced by `scripts/e2e_v2.js` at job time are real LLM output from 0G Sealed Inference, not pre-baked.
 
-## Sealed Inference + the documented fallback (encountered live during populate)
+## Sealed Inference: the real root cause, discovered 2026-05-12
 
-`scripts/populate_marketplace.js` ran against Aristotle mainnet on 2026-05-11. Three skills minted:
+The Kin v2 populate run on 2026-05-11 produced an apparent partial outage: typescript Skill #0 fingerprinted via Sealed Inference cleanly, but rust Skill #1 and solidity Skill #2 returned empty bodies on all 3 attempts and fell back to the local feature-stats fingerprinter. The same empty-body symptom appeared on Hunt bounty #0's race the same evening. We initially attributed this to "model tokenizer choking on Rust/Solidity syntax" and shipped bounty #0 with the documented fallback narrative.
 
-- **Skill #0 — typescript (ts-senior)**: 0G Sealed Inference (`zai-org/GLM-5-FP8`) returned a parseable JSON fingerprint on attempt 1. Overall = 8620 bps. LLM-judged.
-- **Skill #1 — rust (rust-senior)**: 0G Sealed Inference returned empty responses on all 3 attempts (valid TEE attestations each time — IDs logged — but `answer length: 0` in each. Suspected cause: model tokenizer choking on Rust syntax like `Arc<Mutex<T>>` / `::` in the prompt). `lib/fingerprint.js` fell back to a deterministic local feature-stats fingerprinter as authorised in `doc/V2_SPEC.md §14` (risk register row: *"0G Sealed Inference can't run our evaluator prompts reliably → fall back to inference-model self-eval (single call) instead of a separate evaluator"*). Overall = 7237 bps. `modelDigest = keccak256("kin-local-stats|kin-fingerprint-v1")` on-chain — a buyer can verify this skill's quality signal came from local stats, not from a TEE LLM judgement.
-- **Skill #2 — solidity (sol-senior)**: Same pattern as Skill #1 (3 empty LLM responses → fallback). Overall = 6239 bps via local feature stats.
+On 2026-05-12, during a thorough re-investigation, the actual root cause surfaced: `zai-org/GLM-5-FP8` is a **reasoning model** (similar architecture to OpenAI o1/o3). It consumes `completion_tokens` on internal `reasoning_tokens` *before* emitting any content. With `max_tokens=1500` (the budget passed by `lib/review.js` and `max_tokens=1000` passed by `lib/fingerprint.js`), the model spent the entire budget on reasoning, returned `finish_reason: length` with 0 content tokens, and our code interpreted the empty content as "endpoint broken → fall back."
 
-The local fingerprinter is honest about its provenance: distinct `modelDigest`, distinct rationale text on-chain (`"0G Sealed Inference unavailable; scored locally via lexical+structural feature stats over the samples"`), and the `fallback: true` flag returned from `fingerprintSamples`. Real users who hit the empty-response issue would either retry until 0G inference recovers, or use the local path knowingly. v3 will instrument 0G's per-response attestation directly into the on-chain verification path so the trust shift from "LLM-judged" to "stats-judged" is enforced at the contract level rather than just documented.
+The raw HTTP response makes it unambiguous:
+
+| max_tokens | reasoning_tokens | content_tokens | finish_reason | content length |
+|---|---|---|---|---|
+| 1500 (production) | 1500 | 0 | `length` (cut off) | 0 |
+| 4000 | 1018 | 828 | `stop` (clean) | 3734 chars valid JSON |
+
+The fix is a single line in each of two files: `lib/review.js` default `maxTokens 1500 → 5000`; `lib/fingerprint.js` explicit `maxTokens 1000 → 5000`. Comments in both files document the reasoning-model rationale so future contributors don't reintroduce the bug.
+
+The honest narrative: bounty #0 fell back not because 0G was broken, but because of our budget bug. `lib/audit-fallback.js` activated correctly and produced a verifiable on-chain receipt — graceful degradation as designed — but the original diagnosis ("model can't handle rust/solidity") was wrong. Bounties #2 and #3 are post-fix re-races on real Sealed Inference. Bounty #3 is the current headline: oracle-specialist submitted via Sealed Inference with a real TEE attestation, on-chain `modelDigest = keccak256(utf8("zai-org/GLM-5-FP8|hunt-audit-v1"))`, strict re-verification via `scripts/verify_bounty.js 3 --model-digest 0x<digest>` exits 0 with three checkmarks. The fallback path remains in-tree and is exercised in bounty #3 too (by the two hunters whose concurrent inference calls hit transient `fetch failed` on the inference proxy under simultaneous broker load — same observable end-state, with distinct `modelDigest` proving which path was taken).
+
+The Kin v2 Skill #1 and #2 fingerprints (`modelDigest = keccak256("kin-local-stats|kin-fingerprint-v1")` on-chain) are kept as honest historical records of the fallback path; rerunning `populate_marketplace.js` against the fixed `lib/fingerprint.js` would now produce Sealed-Inference fingerprints on rust + solidity too.
 
 ## Repo licensing
 
