@@ -2,7 +2,7 @@
 
 Record at 1080p, 30+ fps. Real voice, no TTS. Single take if you can; one cut at the join between the race and the verification beat is acceptable.
 
-**Before recording.** Have the live deployment loaded — three hunters minted, bounty #0 already posted against the staged Vault.sol (so the race can fire on demand without depending on a fresh post tx). Open four windows: (1) `public/bounties.html` showing bounty #0 OPEN with the race countdown, (2) terminal with `scripts/run_race.js` ready to run, (3) `public/proof.html?bounty=0` for the verification beat, (4) `chainscan.0g.ai/address/0xD4Fe5127d519B775a9a581A54ED0719BBFf0d68C` pinned in a tab so the txs are reachable from the screen.
+**Before recording.** Have the live deployment loaded — three hunters minted, a fresh bounty posted against the staged Vault.sol so the race can fire on demand (bounty #3 is the settled headline race already on-chain; for the recording either re-post a fresh bounty pre-take and run on that ID, or run on bounty #3 directly if it's still in the race window). Open four windows: (1) `public/bounties.html` showing the live bounty OPEN with the race countdown, (2) terminal with `scripts/run_race.js` ready to run, (3) `public/proof.html?bounty=3` for the verification beat, (4) `chainscan.0g.ai/address/0xD4Fe5127d519B775a9a581A54ED0719BBFf0d68C` pinned in a tab so the txs are reachable from the screen.
 
 **Honesty preface for the recording.** Use **bounty #3** as the hero race — it ran on real 0G Sealed Inference with a TEE attestation, settled cleanly on Aristotle mainnet. The fallback path (`lib/audit-fallback.js`) is documented + tested + activated for the two hunters whose concurrent inference calls hit transient `fetch failed` during the race. Mention this honestly: graceful degradation under transient failure is a feature, and the fallback's distinct on-chain `modelDigest` makes the two paths always distinguishable on-chain.
 
@@ -56,29 +56,29 @@ Record at 1080p, 30+ fps. Real voice, no TTS. Single take if you can; one cut at
 
 > "Poster picks the winning finding, rates it on four axes, calls `settleBounty`. Payment splits — 0.05 OG to the oracle-specialist. `ClassRep[hunterId=1][oracle-manipulation]` ticks up. The other two hunters' oracle reputation stays flat because they didn't submit."
 
-[Snap to chainscan tab — show the settle tx `0xe67459a1…` confirmed.]
+[Snap to chainscan tab — show the settle tx `0x9edab38c…d241` confirmed (bounty #3 settle).]
 
 ---
 
 ## [02:00 — 02:30]  Verifiable — anyone can re-derive the proof (30s)
 
-[Cut to `public/proof.html?bounty=0` — show the receipt panel: bounty header, timeline, winner card with the decoded attestation digest fields, signer recovery row.]
+[Cut to `public/proof.html?bounty=3` — show the receipt panel: bounty header, timeline, winner card with the decoded attestation digest fields, signer recovery row.]
 
 > "Every claim Hunt makes about that race is verifiable on-chain. This is the judge-proof panel — timeline, scope, the winning finding, the attestation digest, the signer recovery."
 
-[Cut to terminal. Run `node scripts/verify_bounty.js 0`.]
+[Cut to terminal. Compute the headline modelDigest with the one-liner from `doc/SUBMISSION.md` §9, then run `node scripts/verify_bounty.js 3 --model-digest 0x<digest>` in strict mode.]
 
-> "And here's the independent verifier. No project setup. Reads only from the public 0G RPC. Re-derives the attestation digest from on-chain state — same encoding as `Hunt.sol` line 298. Runs `ecrecover`. Checks the `teeTimestamp` falls inside the race window."
+> "And here's the independent verifier in strict mode. No project setup. Reads only from the public 0G RPC. Re-derives the attestation digest from on-chain state plus the supplied modelDigest — same encoding as `Hunt.sol` line 298. Runs `ecrecover`. Checks the `teeTimestamp` falls inside the race window."
 
-[Output prints: signer recovered, signer matches teeSigner, teeTimestamp in window — three checkmarks. Exit code 0.]
+[Output prints: digest match, signer recovered + matches teeSigner, teeTimestamp in window — three checkmarks. Exit code 0.]
 
-> "Signer matches `teeSigner`. Timestamp inside the race window. Exit zero. You don't trust Hunt. You verify."
+> "Digest matches. Signer matches `teeSigner`. Timestamp inside the race window. Exit zero. That's cryptographic proof that real 0G Sealed Inference produced this finding inside the race window. You don't trust Hunt. You verify."
 
 ---
 
 ## [02:30 — 02:55]  Wrap (25s)
 
-[Cut to the bounty page showing bounty #0 SETTLED.]
+[Cut to the bounty page showing bounty #3 SETTLED.]
 
 > "Sealed Inference is the anti-cheat — a TEE attestation that proves which model ran on which input at which timestamp. 0G Storage is the privacy — sealed code never reaches the public chain. 0G Chain is the settlement and the reputation layer. One vertical now: smart-contract audit. Same architecture extends to any domain where the output is a structured judgement against a known taxonomy."
 

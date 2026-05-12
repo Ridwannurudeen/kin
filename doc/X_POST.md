@@ -43,15 +43,15 @@ How Hunt works:
 4. Per-CWE reputation on-chain
 ```
 
-**3/4** — the live race result (278 chars)
+**3/4** — the live race result
 
 ```
-Bounty #0 went live on Aristotle mainnet. 3 hunters raced against a staged Vault.sol with a subtle oracle-staleness bug.
+Bounty #3 went live on @0G_labs Aristotle. 3 AI hunters raced against a staged Vault.sol oracle-staleness bug.
 
-Reentrancy + access-control specialists: 0 findings (correct, not their CWE).
-Oracle-specialist: caught it, severity high, won 0.05 OG.
+Oracle-specialist won via real Sealed Inference + TEE attestation: severity high, 0.05 OG.
+The other two: 0 findings (correct — not their CWE).
 
-tx 0xe67459a1…cdcec4
+settle tx 0x9edab38c…
 ```
 
 **4/4** — verify yourself (262 chars)
@@ -60,9 +60,9 @@ tx 0xe67459a1…cdcec4
 Verify the race independently:
 
 git clone github.com/Ridwannurudeen/hunt
-node scripts/verify_bounty.js 0
+node scripts/verify_bounty.js 3 --model-digest 0xba2eccd8…03078e
 
-Re-derives the attestation digest from on-chain state, ecrecovers vs teeSigner. No project setup needed.
+Re-derives the attestation digest from on-chain state, ecrecovers vs teeSigner. No project setup needed. Exit 0 = real Sealed Inference proven.
 
 @0G_labs @0g_CN @0g_Eco @HackQuest_
 #0GHackathon #BuildOn0G

@@ -1,8 +1,8 @@
 # AI Usage Attribution
 
-Kin was built solo with substantial AI pair-programming assistance from Claude (Anthropic) over the May 10–16 2026 hackathon window.
+Hunt was built solo with substantial AI pair-programming assistance from Claude (Anthropic) over the May 10–16 2026 hackathon window. Hunt is a 2026-05-11 pivot from the predecessor **Kin v2** on the same codebase — same credential / fingerprint / TEE-attestation plumbing, refocused from "code review marketplace" to "sealed bug-bounty network for smart contracts" (a sharper fit for 0G's TEE + reputation primitives). The Kin v1 → Kin v2 history below covers the deeper architectural pivot that landed the design Hunt now uses. Hunt-specific additions are called out in **"Hunt — what AI added on top of Kin v2"** further down.
 
-## v1 → v2 — what changed and why
+## v1 → v2 — what changed and why (predecessor Kin history)
 
 The first 24 hours produced a v1 demo end-to-end on Aristotle mainnet (skill mint, job post, sealed inference, on-chain settle). Re-reading the code with fresh eyes, several claims didn't hold up:
 
@@ -30,8 +30,24 @@ The pivot to **v2 — narrow vertical (code review only), deep on every quality 
 - `verifier/server.js`, `verifier/github.js` — GitHub OAuth verifier service with two-call ticket flow + admin issuance for demo personas.
 - `scripts/agent.js` — autonomous agent daemon. Lazy-loads 0G SDK (dodges a broken ESM re-export at test load time), file-locked against double-start.
 - `scripts/e2e_v2.js` — end-to-end mainnet runner (mint → post → process → accept).
-- 159 tests written across `test/Kin.test.js`, `test/verifier.test.js`, `test/ecdh.test.js`, `test/pubkey.test.js`, `test/embedding.test.js`, `test/inference-libs.test.js`, `test/agent.test.js`.
+- 191 tests written and passing across `test/Hunt.test.js` (64), `test/Kin.test.js` (78, retained as predecessor regression baseline), `test/verifier.test.js` (21), `test/ecdh.test.js` (13), `test/embedding.test.js` (10), `test/pubkey.test.js` (5). Two Kin v2 agent test files target the older `review.summary` schema and are parked under `test-legacy/`, excluded from the default `npm test`.
 - README, AI_USAGE.md, demo video script, X post draft, SUBMISSION.md.
+
+## Hunt — what AI added on top of Kin v2
+
+The pivot on 2026-05-11 reframed the same primitives around audit economics. Hunt-specific code (all Claude-paired):
+
+- `contracts/Hunt.sol` — single-file Hunt contract (~470 LOC). Bounty escrow with race deadline + settle window, per-CWE `ClassRep` ledger (not the Kin v2 single PerDimRating), finding submission with `ecrecover` against `teeSigner` over an attestation binding `(bountyId, codeRoot, hunterId, cweClass, severity, findingRoot, modelDigest, teeTimestamp, selfEvalBps×4)`, in-scope CWE filter, self-eval floor, `teeTimestamp` race-window enforcement, no-findings refund + settle-window-expired refund paths. Forked from Kin v2 — docstring carries the fork note.
+- `lib/audit-fallback.js` — documented degraded path with three heuristic detectors (CEI/reentrancy, oracle staleness, setter-without-modifier access control). Activates only when Sealed Inference fails the 3× transport/quality retry budget. Stamps a distinct on-chain `modelDigest = keccak256(utf8("hunt-local-audit|hunt-audit-v1"))` so the two paths are always distinguishable from a single bytes32 read.
+- `lib/cwe.js` — canonical CWE/SWC class registry (kebab-case + bytes32 hashes); used by both the contract scope filter and the agent specialty-narrowing logic.
+- `scripts/hunter.js` — long-lived hunter daemon (one process per operator). Watches `BountyPosted`, downloads + decrypts the code blob via `lib/storage.js`, runs top-K retrieval over the hunter's own samples, calls Sealed Inference with `brief.focus` narrowed to `bounty.inScopeCwes ∩ hunter specialty` (a reentrancy specialist never submits an oracle finding even on a multi-scope bounty), encrypts the chosen finding to the poster's pubkey, signs the attestation digest, submits.
+- `scripts/run_race.js` — one-shot orchestrator firing all three hunter personas in parallel against a single bounty under a shared funder broker (so three personas don't each need a separate inference ledger). Used for the demo recording; production = N daemons across N hosts.
+- `scripts/post_bounty.js` — seals a Solidity blob with the shared hunter-network key, uploads to 0G Storage, posts the bounty on-chain with the in-scope CWE list and the payout escrow.
+- `scripts/settle_bounty.js` — poster's settle path; chooses `winningIdx`, submits 4-axis `AuditRating`, contract pays the winner and updates `ClassRep[hunterId][cweClass]`.
+- `scripts/verify_bounty.js` — standalone judge verifier. Single file, depends only on `ethers` + Node built-ins. Re-derives the attestation digest from on-chain fields (mirrors `Hunt.sol:298–302`), runs `ecrecover`, checks the `teeTimestamp` is inside the race window. Strict mode (`--model-digest 0x…`) re-derives the digest with the supplied `modelDigest`; exit code 0 means the winning finding's attestation matches the on-chain `teeSigner` AND the supplied model.
+- `demo/staged-bounty/Vault.sol` — staged oracle-staleness bug. Reads `latestRoundData()` in `_currentPrice()` and stores `updatedAt`, but only compares against `block.timestamp` inside the admin-only `setPrice()`. Every user path (`liquidate`, `withdraw`, `mint`, `_isHealthy`, `healthFactorBps`) bypasses the freshness gate. Pattern sourced from public Code4rena (Prisma Finance Mar 2024) and Sherlock (Angle Protocol 2024) reports; provenance + reference findings in `demo/staged-bounty/README.md`.
+- 64 Hunt-specific contract tests (`test/Hunt.test.js`) covering mint, post, submit, settle, expire, scope filter, race window, attestation `ecrecover`, per-CWE `ClassRep` math, credential reuse protection.
+- Hunt-framed README, SUBMISSION.md, DEMO_VIDEO_SCRIPT.md, X_POST.md, FUTURE.md.
 
 **Reused from prior 0G work**
 - AES-GCM upload/download patterns in `lib/storage.js` originate from a prior 0G prototype (ChartChain). Refactored in v2 to expose `uploadRaw`/`downloadRaw` primitives that ECDH-encrypted blobs route through directly.
