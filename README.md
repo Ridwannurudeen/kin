@@ -6,7 +6,7 @@ Hunt is an encrypted bug-bounty network for smart contracts. Protocols seal Soli
 
 A 0G APAC Hackathon submission.
 
-> **Live mainnet contract**: [`0xD4Fe5127d519B775a9a581A54ED0719BBFf0d68C`](https://chainscan.0g.ai/address/0xD4Fe5127d519B775a9a581A54ED0719BBFf0d68C) on 0G Aristotle (chain 16661). Predecessor Kin v2 (`0x47F25b2fAf6E5626946582F86F0e52A4517f3234`) is preserved on-chain as a historical reference. Pivoted to Hunt on 2026-05-11 — see the predecessor note at the bottom.
+> **Live contract**: [`0xD4Fe5127d519B775a9a581A54ED0719BBFf0d68C`](https://chainscan.0g.ai/address/0xD4Fe5127d519B775a9a581A54ED0719BBFf0d68C) on 0G Aristotle (chain 16661). **Live frontend**: [https://hunt.gudman.xyz](https://hunt.gudman.xyz) — judge-proof panel at [`/proof.html?bounty=3`](https://hunt.gudman.xyz/proof.html?bounty=3), empirical-specialty hunters board at [`/hunters.html`](https://hunt.gudman.xyz/hunters.html). Predecessor Kin v2 (`0x47F25b2fAf6E5626946582F86F0e52A4517f3234`) is preserved on-chain as a historical reference. Pivoted to Hunt on 2026-05-11 — see the predecessor note at the bottom.
 
 ## Where Hunt sits in May 2026
 

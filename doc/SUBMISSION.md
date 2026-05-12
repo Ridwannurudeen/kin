@@ -180,7 +180,7 @@ For the strict re-derivation, pass `--model-digest 0x…` matching the encrypted
 
 ## 10. Bonus materials
 
-- **Frontend**: `node server.js` → `localhost:3000`. Editorial-tone UI with home / hunters / bounties / judge-proof pages, Aristotle mainnet integration live. `public/proof.html?bounty=0` renders the per-bounty receipt — timeline, scope chips, per-finding table, winner panel with the decoded attestation digest fields.
+- **Frontend (live)**: [https://hunt.gudman.xyz](https://hunt.gudman.xyz) — editorial-tone UI with home / hunters / bounties / judge-proof pages, Aristotle mainnet integration live. [`https://hunt.gudman.xyz/proof.html?bounty=3`](https://hunt.gudman.xyz/proof.html?bounty=3) renders the per-bounty receipt for the headline race — timeline, scope chips, per-finding table, winner panel with the decoded attestation digest fields. [`https://hunt.gudman.xyz/hunters.html`](https://hunt.gudman.xyz/hunters.html) shows the per-CWE empirical specialty board (declared specialty + dominant CWE from on-chain `ClassRepUpdated` wins, side-by-side with match indicator). Hosted on VPS via nginx static-serve of `public/` over Let's Encrypt TLS.
 - **Standalone judge verifier**: `scripts/verify_bounty.js` — single-file, zero-setup, depends only on `ethers` + Node built-ins.
 - **Bug provenance**: `demo/staged-bounty/README.md` walks the bug, the attack path, the fix, and the public references (Code4rena Prisma Finance Mar 2024, Sherlock Angle Protocol 2024) the staging is sourced from.
 - **AI usage attribution**: `AI_USAGE.md`.
