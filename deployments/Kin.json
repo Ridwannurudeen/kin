@@ -1,23 +1,124 @@
 {
   "name": "Kin",
-  "address": "0x4eC373111616a104DE83402B92966d6efca0ca9E",
-  "txHash": "0xae667eb035257c63ca2f7f327a5c3a53471f62635b4a652948bec73a01d99680",
-  "blockNumber": 32852223,
+  "address": "0x47F25b2fAf6E5626946582F86F0e52A4517f3234",
+  "txHash": "0xbf70dec3ce92a4c62e39e59140aef4a8902b2e4b7d546e7c569c77e41c768e7c",
+  "blockNumber": 32930013,
   "chainId": 16661,
   "rpc": "https://evmrpc.0g.ai",
-  "teePubkey": "0xc9c0754fDB2C22Fd19B5B649e1e60eE9d1Ccca3f",
+  "teeSigner": "0xc9c0754fDB2C22Fd19B5B649e1e60eE9d1Ccca3f",
+  "verifier": "0x3a40CA052c10FB6f0B1934e9db680034aFF1759E",
   "deployer": "0xc9c0754fDB2C22Fd19B5B649e1e60eE9d1Ccca3f",
   "abi": [
     {
       "inputs": [
         {
           "internalType": "address",
-          "name": "_teePubkey",
+          "name": "_teeSigner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_verifier",
           "type": "address"
         }
       ],
       "stateMutability": "nonpayable",
       "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "jobId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "newBriefRoot",
+          "type": "bytes32"
+        }
+      ],
+      "name": "BriefReposted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "client",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "ClientStakeRefunded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "client",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "ClientStaked",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "client",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "githubHandleHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "ClientVerified",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "client",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "firstSeen",
+          "type": "uint64"
+        }
+      ],
+      "name": "ClientWaitStarted",
+      "type": "event"
     },
     {
       "anonymous": false,
@@ -37,7 +138,25 @@
         {
           "indexed": false,
           "internalType": "uint8",
-          "name": "rating",
+          "name": "voiceMatch",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "completeness",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "accuracy",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "structure",
           "type": "uint8"
         },
         {
@@ -60,12 +179,6 @@
           "type": "uint256"
         },
         {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "skillId",
-          "type": "uint256"
-        },
-        {
           "indexed": false,
           "internalType": "string",
           "name": "reason",
@@ -82,12 +195,6 @@
           "indexed": true,
           "internalType": "uint256",
           "name": "jobId",
-          "type": "uint256"
-        },
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "skillId",
           "type": "uint256"
         },
         {
@@ -135,9 +242,9 @@
         },
         {
           "indexed": false,
-          "internalType": "uint64",
-          "name": "deadline",
-          "type": "uint64"
+          "internalType": "uint8",
+          "name": "urgency",
+          "type": "uint8"
         }
       ],
       "name": "JobPosted",
@@ -153,19 +260,13 @@
           "type": "uint256"
         },
         {
-          "indexed": true,
-          "internalType": "address",
-          "name": "agent",
-          "type": "address"
-        },
-        {
           "indexed": false,
           "internalType": "uint256",
-          "name": "agentAmount",
+          "name": "paid",
           "type": "uint256"
         }
       ],
-      "name": "PaymentSplit",
+      "name": "JobReleased",
       "type": "event"
     },
     {
@@ -184,10 +285,22 @@
           "type": "address"
         },
         {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "githubHandleHash",
+          "type": "bytes32"
+        },
+        {
           "indexed": false,
           "internalType": "string",
-          "name": "skillType",
+          "name": "language",
           "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint16",
+          "name": "fingerprintOverallBps",
+          "type": "uint16"
         },
         {
           "indexed": false,
@@ -207,37 +320,6 @@
           "internalType": "uint256",
           "name": "skillId",
           "type": "uint256"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "from",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        }
-      ],
-      "name": "SkillTransferred",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "skillId",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "bytes32[]",
-          "name": "sampleRoots",
-          "type": "bytes32[]"
         },
         {
           "indexed": false,
@@ -260,6 +342,44 @@
       "inputs": [
         {
           "indexed": true,
+          "internalType": "address",
+          "name": "previous",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "current",
+          "type": "address"
+        }
+      ],
+      "name": "TeeSignerRotated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previous",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "current",
+          "type": "address"
+        }
+      ],
+      "name": "VerifierRotated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
           "internalType": "uint256",
           "name": "jobId",
           "type": "uint256"
@@ -271,12 +391,6 @@
           "type": "uint256"
         },
         {
-          "indexed": true,
-          "internalType": "address",
-          "name": "agentOwner",
-          "type": "address"
-        },
-        {
           "indexed": false,
           "internalType": "bytes32",
           "name": "outputRoot",
@@ -284,8 +398,14 @@
         },
         {
           "indexed": false,
+          "internalType": "uint16",
+          "name": "qualityScore",
+          "type": "uint16"
+        },
+        {
+          "indexed": false,
           "internalType": "bytes32",
-          "name": "attestationId",
+          "name": "attestationDigest",
           "type": "bytes32"
         }
       ],
@@ -294,7 +414,46 @@
     },
     {
       "inputs": [],
-      "name": "DEFAULT_DEADLINE_DURATION",
+      "name": "BRIEF_SCHEMA_V1",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "CLIENT_STAKE_AMOUNT",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "CLIENT_WAIT_DURATION",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "DEFAULT_DEADLINE",
       "outputs": [
         {
           "internalType": "uint64",
@@ -319,6 +478,71 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "MIN_ACCOUNT_AGE_DAYS",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MIN_CODE_REVIEW_COUNT",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MIN_MERGED_PRS",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MIN_OUTPUT_QUALITY_BPS",
+      "outputs": [
+        {
+          "internalType": "uint16",
+          "name": "",
+          "type": "uint16"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MIN_QUALITY_BPS",
+      "outputs": [
+        {
+          "internalType": "uint16",
+          "name": "",
+          "type": "uint16"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "uint256",
@@ -326,14 +550,49 @@
           "type": "uint256"
         },
         {
-          "internalType": "uint8",
-          "name": "rating",
-          "type": "uint8"
+          "components": [
+            {
+              "internalType": "uint8",
+              "name": "voiceMatch",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "completeness",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "accuracy",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "structure",
+              "type": "uint8"
+            }
+          ],
+          "internalType": "struct Kin.PerDimRating",
+          "name": "r",
+          "type": "tuple"
         }
       ],
       "name": "acceptWork",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "admin",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -344,12 +603,122 @@
           "type": "uint256"
         }
       ],
-      "name": "avgRatingBps",
+      "name": "avgPerDim",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "voiceMatchBps",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint64",
+          "name": "completenessBps",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint64",
+          "name": "accuracyBps",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint64",
+          "name": "structureBps",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "c",
+          "type": "address"
+        }
+      ],
+      "name": "clientEligible",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "clientFirstSeen",
       "outputs": [
         {
           "internalType": "uint64",
           "name": "",
           "type": "uint64"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "clientStakeBalance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "clientVerified",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "credentialUsed",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
         }
       ],
       "stateMutability": "view",
@@ -390,6 +759,25 @@
       "inputs": [
         {
           "internalType": "uint256",
+          "name": "skillId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getEmbedRoots",
+      "outputs": [
+        {
+          "internalType": "bytes32[]",
+          "name": "",
+          "type": "bytes32[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
           "name": "jobId",
           "type": "uint256"
         }
@@ -414,9 +802,36 @@
               "type": "uint256"
             },
             {
-              "internalType": "bytes32",
-              "name": "briefRoot",
-              "type": "bytes32"
+              "components": [
+                {
+                  "internalType": "uint8",
+                  "name": "briefSchemaVersion",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "briefRoot",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "repoFingerprint",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint16",
+                  "name": "diffLinesEstimate",
+                  "type": "uint16"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "urgency",
+                  "type": "uint8"
+                }
+              ],
+              "internalType": "struct Kin.StructuredBrief",
+              "name": "brief",
+              "type": "tuple"
             },
             {
               "internalType": "bytes32",
@@ -425,13 +840,50 @@
             },
             {
               "internalType": "bytes32",
-              "name": "attestationId",
+              "name": "attestationDigest",
               "type": "bytes32"
+            },
+            {
+              "internalType": "bytes",
+              "name": "attestationSig",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint16",
+              "name": "qualityScore",
+              "type": "uint16"
             },
             {
               "internalType": "enum Kin.JobStatus",
               "name": "status",
               "type": "uint8"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint8",
+                  "name": "voiceMatch",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "completeness",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "accuracy",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "structure",
+                  "type": "uint8"
+                }
+              ],
+              "internalType": "struct Kin.PerDimRating",
+              "name": "rating",
+              "type": "tuple"
             },
             {
               "internalType": "uint64",
@@ -465,7 +917,7 @@
           "type": "uint256"
         }
       ],
-      "name": "getSamples",
+      "name": "getSampleRoots",
       "outputs": [
         {
           "internalType": "bytes32[]",
@@ -494,8 +946,102 @@
               "type": "address"
             },
             {
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "githubHandleHash",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "accountAgeDays",
+                  "type": "uint32"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "mergedPRs",
+                  "type": "uint32"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "codeReviewCount",
+                  "type": "uint32"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "verifiedAt",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "address",
+                  "name": "verifier",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "sig",
+                  "type": "bytes"
+                }
+              ],
+              "internalType": "struct Kin.Credential",
+              "name": "credential",
+              "type": "tuple"
+            },
+            {
+              "internalType": "bytes32[]",
+              "name": "sampleRoots",
+              "type": "bytes32[]"
+            },
+            {
+              "internalType": "bytes32[]",
+              "name": "embedRoots",
+              "type": "bytes32[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint16",
+                  "name": "vocabEntropyBps",
+                  "type": "uint16"
+                },
+                {
+                  "internalType": "uint16",
+                  "name": "domainTermBps",
+                  "type": "uint16"
+                },
+                {
+                  "internalType": "uint16",
+                  "name": "structuralBps",
+                  "type": "uint16"
+                },
+                {
+                  "internalType": "uint16",
+                  "name": "specificityBps",
+                  "type": "uint16"
+                },
+                {
+                  "internalType": "uint16",
+                  "name": "overallBps",
+                  "type": "uint16"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "modelDigest",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "teeSig",
+                  "type": "bytes"
+                }
+              ],
+              "internalType": "struct Kin.SampleFingerprint",
+              "name": "fingerprint",
+              "type": "tuple"
+            },
+            {
               "internalType": "string",
-              "name": "skillType",
+              "name": "language",
               "type": "string"
             },
             {
@@ -504,34 +1050,46 @@
               "type": "string"
             },
             {
-              "internalType": "bytes32[]",
-              "name": "sampleRoots",
-              "type": "bytes32[]"
-            },
-            {
-              "internalType": "bytes",
-              "name": "sealedKey",
-              "type": "bytes"
-            },
-            {
               "internalType": "uint256",
               "name": "pricePerJob",
               "type": "uint256"
             },
             {
-              "internalType": "uint64",
-              "name": "jobsCompleted",
-              "type": "uint64"
-            },
-            {
-              "internalType": "uint64",
-              "name": "totalRating",
-              "type": "uint64"
-            },
-            {
-              "internalType": "uint64",
-              "name": "totalEarnedWei",
-              "type": "uint64"
+              "components": [
+                {
+                  "internalType": "uint64",
+                  "name": "jobsCompleted",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "sumVoiceMatch",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "sumCompleteness",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "sumAccuracy",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "sumStructure",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "totalEarnedWei",
+                  "type": "uint64"
+                }
+              ],
+              "internalType": "struct Kin.PerDimReputation",
+              "name": "rep",
+              "type": "tuple"
             },
             {
               "internalType": "bool",
@@ -550,78 +1108,46 @@
     {
       "inputs": [
         {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "name": "jobs",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "skillId",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "client",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "payment",
-          "type": "uint256"
-        },
-        {
-          "internalType": "bytes32",
-          "name": "briefRoot",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "bytes32",
-          "name": "outputRoot",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "bytes32",
-          "name": "attestationId",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "enum Kin.JobStatus",
-          "name": "status",
-          "type": "uint8"
-        },
-        {
-          "internalType": "uint64",
-          "name": "createdAt",
-          "type": "uint64"
-        },
-        {
-          "internalType": "uint64",
-          "name": "deadline",
-          "type": "uint64"
-        },
-        {
-          "internalType": "uint64",
-          "name": "submittedAt",
-          "type": "uint64"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "skillType",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "description",
-          "type": "string"
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "githubHandleHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint32",
+              "name": "accountAgeDays",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint32",
+              "name": "mergedPRs",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint32",
+              "name": "codeReviewCount",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint64",
+              "name": "verifiedAt",
+              "type": "uint64"
+            },
+            {
+              "internalType": "address",
+              "name": "verifier",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "sig",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct Kin.Credential",
+          "name": "cred",
+          "type": "tuple"
         },
         {
           "internalType": "bytes32[]",
@@ -629,9 +1155,61 @@
           "type": "bytes32[]"
         },
         {
-          "internalType": "bytes",
-          "name": "sealedKey",
-          "type": "bytes"
+          "internalType": "bytes32[]",
+          "name": "embedRoots",
+          "type": "bytes32[]"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint16",
+              "name": "vocabEntropyBps",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "domainTermBps",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "structuralBps",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "specificityBps",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "overallBps",
+              "type": "uint16"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "modelDigest",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes",
+              "name": "teeSig",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct Kin.SampleFingerprint",
+          "name": "fp",
+          "type": "tuple"
+        },
+        {
+          "internalType": "string",
+          "name": "language",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "description",
+          "type": "string"
         },
         {
           "internalType": "uint256",
@@ -684,9 +1262,36 @@
           "type": "uint256"
         },
         {
-          "internalType": "bytes32",
-          "name": "briefRoot",
-          "type": "bytes32"
+          "components": [
+            {
+              "internalType": "uint8",
+              "name": "briefSchemaVersion",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "briefRoot",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "repoFingerprint",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint16",
+              "name": "diffLinesEstimate",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint8",
+              "name": "urgency",
+              "type": "uint8"
+            }
+          ],
+          "internalType": "struct Kin.StructuredBrief",
+          "name": "brief",
+          "type": "tuple"
         }
       ],
       "name": "postJob",
@@ -717,59 +1322,58 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "",
+          "name": "jobId",
           "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "newBriefRoot",
+          "type": "bytes32"
         }
       ],
-      "name": "skills",
-      "outputs": [
+      "name": "repostBrief",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
         {
           "internalType": "address",
-          "name": "owner",
+          "name": "newSigner",
           "type": "address"
-        },
-        {
-          "internalType": "string",
-          "name": "skillType",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "description",
-          "type": "string"
-        },
-        {
-          "internalType": "bytes",
-          "name": "sealedKey",
-          "type": "bytes"
-        },
-        {
-          "internalType": "uint256",
-          "name": "pricePerJob",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint64",
-          "name": "jobsCompleted",
-          "type": "uint64"
-        },
-        {
-          "internalType": "uint64",
-          "name": "totalRating",
-          "type": "uint64"
-        },
-        {
-          "internalType": "uint64",
-          "name": "totalEarnedWei",
-          "type": "uint64"
-        },
-        {
-          "internalType": "bool",
-          "name": "paused",
-          "type": "bool"
         }
       ],
-      "stateMutability": "view",
+      "name": "setTeeSigner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newVerifier",
+          "type": "address"
+        }
+      ],
+      "name": "setVerifier",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "stakeForJobAccess",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "startClientWait",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -785,9 +1389,19 @@
           "type": "bytes32"
         },
         {
+          "internalType": "uint16",
+          "name": "qualityScore",
+          "type": "uint16"
+        },
+        {
           "internalType": "bytes32",
-          "name": "attestationId",
+          "name": "modelDigest",
           "type": "bytes32"
+        },
+        {
+          "internalType": "bytes",
+          "name": "attestationSig",
+          "type": "bytes"
         }
       ],
       "name": "submitWork",
@@ -797,7 +1411,7 @@
     },
     {
       "inputs": [],
-      "name": "teePubkey",
+      "name": "teeSigner",
       "outputs": [
         {
           "internalType": "address",
@@ -837,22 +1451,12 @@
     {
       "inputs": [
         {
-          "internalType": "uint256",
-          "name": "skillId",
-          "type": "uint256"
-        },
-        {
           "internalType": "address",
-          "name": "to",
+          "name": "newAdmin",
           "type": "address"
-        },
-        {
-          "internalType": "bytes",
-          "name": "newSealedKey",
-          "type": "bytes"
         }
       ],
-      "name": "transferSkill",
+      "name": "transferAdmin",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -865,11 +1469,6 @@
           "type": "uint256"
         },
         {
-          "internalType": "bytes32[]",
-          "name": "sampleRoots",
-          "type": "bytes32[]"
-        },
-        {
           "internalType": "uint256",
           "name": "pricePerJob",
           "type": "uint256"
@@ -880,11 +1479,74 @@
           "type": "bool"
         }
       ],
-      "name": "updateSamples",
+      "name": "updateSkill",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "verifier",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "githubHandleHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint32",
+              "name": "accountAgeDays",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint32",
+              "name": "mergedPRs",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint32",
+              "name": "codeReviewCount",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint64",
+              "name": "verifiedAt",
+              "type": "uint64"
+            },
+            {
+              "internalType": "address",
+              "name": "verifier",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "sig",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct Kin.Credential",
+          "name": "cred",
+          "type": "tuple"
+        }
+      ],
+      "name": "verifyClient",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     }
   ],
-  "deployedAt": "2026-05-10T16:10:06.022Z"
+  "deployedAt": "2026-05-11T11:25:34.226Z"
 }

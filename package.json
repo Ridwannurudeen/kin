@@ -8,7 +8,11 @@
     "smoke:storage": "node scripts/smoke_storage.js",
     "smoke:inference": "node scripts/smoke_inference.js",
     "deploy": "node scripts/deploy.js",
-    "test:e2e": "node scripts/e2e_job.js"
+    "test": "hardhat test",
+    "test:e2e": "node scripts/e2e_v2.js",
+    "agent": "node scripts/agent.js",
+    "verifier": "node verifier/server.js",
+    "setup:verifier": "node scripts/setup_verifier.js"
   },
   "dependencies": {
     "@0gfoundation/0g-compute-ts-sdk": "^0.8.3",
@@ -16,5 +20,12 @@
     "dotenv": "^17.4.2",
     "ethers": "6.13.1",
     "solc": "^0.8.35"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^4.0.11",
+    "@nomicfoundation/hardhat-network-helpers": "^3.0.8",
+    "@nomicfoundation/hardhat-node-test-runner": "^3.0.15",
+    "chai": "^6.2.2",
+    "hardhat": "^3.4.5"
   }
 }

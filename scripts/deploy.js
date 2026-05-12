@@ -39,11 +39,17 @@ const { abi, evm } = out.contracts['Kin.sol'].Kin;
 const bytecode = '0x' + evm.bytecode.object;
 console.log(`deployed bytecode size: ${evm.deployedBytecode.object.length / 2} bytes`);
 
-const teePubkey = process.argv[2] || wallet.address;
-console.log(`deploying with teePubkey: ${teePubkey} ...`);
+const teeSigner = process.env.TEE_SIGNER || process.argv[2];
+const verifier  = process.env.VERIFIER  || process.argv[3];
+if (!teeSigner || !verifier) {
+  console.error('TEE_SIGNER and VERIFIER required (env or argv[2..3]).');
+  console.error('  Example: TEE_SIGNER=0x... VERIFIER=0x... node scripts/deploy.js');
+  process.exit(1);
+}
+console.log(`deploying with teeSigner=${teeSigner} verifier=${verifier} ...`);
 
 const factory = new ethers.ContractFactory(abi, bytecode, wallet);
-const contract = await factory.deploy(teePubkey);
+const contract = await factory.deploy(teeSigner, verifier);
 const tx = contract.deploymentTransaction();
 console.log(`deploy tx: ${tx.hash}`);
 const rcpt = await tx.wait();
@@ -58,7 +64,8 @@ const artifact = {
   blockNumber: Number(rcpt.blockNumber),
   chainId: 16661,
   rpc: RPC_URL,
-  teePubkey,
+  teeSigner,
+  verifier,
   deployer: wallet.address,
   abi,
   deployedAt: new Date().toISOString(),
