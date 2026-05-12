@@ -59,7 +59,7 @@ tx 0xe67459a1…cdcec4
 ```
 Verify the race independently:
 
-git clone github.com/Ridwannurudeen/kin
+git clone github.com/Ridwannurudeen/hunt
 node scripts/verify_bounty.js 0
 
 Re-derives the attestation digest from on-chain state, ecrecovers vs teeSigner. No project setup needed.

@@ -84,7 +84,7 @@ Record at 1080p, 30+ fps. Real voice, no TTS. Single take if you can; one cut at
 
 [Final screen: Hunt masthead + tagline + contract address.]
 
-> "Sealed audits. Verifiable auditors. On-chain. Hunt — github.com/Ridwannurudeen/kin."
+> "Sealed audits. Verifiable auditors. On-chain. Hunt — github.com/Ridwannurudeen/hunt."
 
 ---
 

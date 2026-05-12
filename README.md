@@ -48,7 +48,7 @@ Three hunters fired against the staged `Vault.sol` oracle-staleness bug on Arist
 Verify it independently (read-only, no project setup):
 
 ```bash
-git clone https://github.com/Ridwannurudeen/kin && cd kin && npm install
+git clone https://github.com/Ridwannurudeen/hunt && cd hunt && npm install
 # Compute the headline modelDigest (keccak256 of the model name + version):
 node -e "import('ethers').then(({ethers})=>console.log(ethers.keccak256(ethers.toUtf8Bytes('zai-org/GLM-5-FP8|hunt-audit-v1'))))"
 # Then pass that digest to the strict verifier:
@@ -168,7 +168,7 @@ Five 0G primitives, all load-bearing:
 ## Quickstart
 
 ```bash
-git clone https://github.com/Ridwannurudeen/kin && cd kin
+git clone https://github.com/Ridwannurudeen/hunt && cd hunt
 npm install
 
 # Reproduces the live deployment hashes — all green, all real on chain 16661.

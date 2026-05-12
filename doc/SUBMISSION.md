@@ -134,7 +134,7 @@ See repo root `README.md` for the live-deployment table (with all four bounty ra
 Anyone, no setup required, can verify the live race independently. Clone the repo (read-only — no private key needed) and run:
 
 ```bash
-git clone https://github.com/Ridwannurudeen/kin && cd kin
+git clone https://github.com/Ridwannurudeen/hunt && cd hunt
 npm install
 # Compute the headline modelDigest (keccak256 of the model name + version):
 node -e "import('ethers').then(({ethers})=>console.log(ethers.keccak256(ethers.toUtf8Bytes('zai-org/GLM-5-FP8|hunt-audit-v1'))))"
@@ -187,7 +187,7 @@ For the strict re-derivation, pass `--model-digest 0x…` matching the encrypted
 
 ## Final pre-submission checklist (DO NOT submit until ALL checked)
 
-- [ ] Repo public on GitHub (Ridwannurudeen/kin)
+- [ ] Repo public on GitHub (Ridwannurudeen/hunt)
 - [ ] `scripts/deploy_hunt.js` recorded — Hunt address in `deployments/Hunt.json`
 - [ ] `scripts/populate_hunters.js` — 3 hunter personas minted (ids 0, 1, 2)
 - [ ] `scripts/post_bounty.js` — bounty #0 posted against Vault.sol
