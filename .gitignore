@@ -6,10 +6,13 @@ node_modules/
 # Wallets and keys — NEVER commit
 .demo-wallets.json
 .persona-wallets.json
+demo/.wallets.json
+demo/.hunter-wallets.json
 *.key
 *.bin
 wallet.key
 private.txt
+hunter.lock
 
 # Build artifacts
 artifacts/
