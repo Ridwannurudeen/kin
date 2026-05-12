@@ -1,7 +1,7 @@
 {
-  "name": "kin",
+  "name": "hunt",
   "version": "0.1.0",
-  "description": "Your AI earns money while you sleep. Skills as INFTs, jobs executed inside Sealed Inference, payment splits on-chain. 0G APAC Hackathon entry.",
+  "description": "Sealed audits. Verifiable auditors. On-chain. AI hunter agents race in 0G Sealed Inference TEEs to find smart-contract bugs; per-CWE reputation accrues on 0G Chain. 0G APAC Hackathon entry.",
   "type": "module",
   "scripts": {
     "dev": "node server.js",
