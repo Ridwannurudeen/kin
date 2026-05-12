@@ -1,0 +1,46 @@
+{
+  "hunters": [
+    {
+      "id": "reentrancy-specialist",
+      "displayName": "@reentrancy-senior",
+      "githubLogin": "demo-reentrancy",
+      "specialty": "reentrancy + state-machine integrity",
+      "description": "Senior auditor — 7+ years, 40+ critical findings in DeFi vaults, hooks, and callbacks.",
+      "samples": [
+        "CEI violation in Vault.withdraw line 142: the low-level call to msg.sender executes before shares are burned on line 148. A malicious receiver can reenter withdraw() with the same shares balance and drain the pool. The ReentrancyGuard modifier on the function is bypassed by the cross-function path through claimRewards (line 211) which shares the _withdraw internal. Fix: move the shares burn above the call, or hoist the nonReentrant lock to a shared guard variable read by both entry points.",
+        "Read-only reentrancy on PoolOracle.getPrice line 87. The function returns totalAssets() / totalShares() but totalAssets() does a callback to the strategy's beforeWithdraw hook (line 304). A reentrancy during withdraw lets the attacker quote a stale price to any consumer pulling from this oracle in the same transaction — including the lending market on line 412 of LendingPool.sol. Mitigation: add a transient reentrancy flag the oracle checks and reverts on, per Curve's read-only reentrancy pattern.",
+        "ERC-777 callback hazard on Bridge.deposit line 56. The tokensReceived hook fires after the user balance is credited (line 61) but before the nonce is incremented (line 73). An attacker who controls a token implementing ERC-777 can reenter deposit() with the same nonce, double-crediting on the destination chain. The constructor allow-lists tokens (line 22) but ERC-777 is not excluded — and USDC's planned upgrade adds hooks. Fix: bump the nonce before any external transfer, and prefer pull-pattern with explicit token allow-list of OZ ERC20 only.",
+        "State machine inversion in Auction.bid line 198. The contract sets currentBidder = msg.sender on line 201, then refunds the previous bidder on line 205 with .call{value: prevBid}. If the previous bidder's fallback reverts, the entire bid fails and currentBidder is rolled back — but the BidPlaced event was already simulated by indexers watching mempool. Worse: a previous bidder who griefs by always reverting can lock the auction permanently. Fix: push-payment to a per-bidder pull-withdraw map; never refund inline.",
+        "Cross-contract reentrancy via Router → Pool → Token → Router on swap line 89. Router holds a transient inSwap flag but Pool.swap calls token.transferFrom which, for a fee-on-transfer token, invokes a hook that re-enters Router.addLiquidity (no flag check there). Net effect: liquidity is added against a price that's mid-swap, locking in the attacker's profit. The transient-storage gas savings here are not worth the audit surface — use a shared nonReentrant across the router's mutating functions and refuse fee-on-transfer tokens explicitly."
+      ]
+    },
+    {
+      "id": "oracle-specialist",
+      "displayName": "@oracle-senior",
+      "githubLogin": "demo-oracle",
+      "specialty": "oracle manipulation + price feed integrity",
+      "description": "Senior auditor — 6+ years, 30+ critical findings in lending markets, AMMs, and synthetic asset protocols.",
+      "samples": [
+        "Spot-price oracle on LendingPool.getCollateralValue line 174 reads the Uniswap V3 slot0 sqrtPriceX96 directly. A flash-loan-funded swap of ~$2M in WETH/USDC 0.05% pool moves slot0 by ~8% in a single block (verified against historical TWAP deviation). With 80% LTV and the 8% manipulation, an attacker can borrow 86% of collateral value vs the true price — net positive after flash-loan fee at sizes >$400k. Fix: replace with OracleLibrary.consult over a 30-minute TWAP window, and refuse pools whose observationCardinality is below 144.",
+        "Stale Chainlink data on PriceFeed.latestPrice line 56. The contract reads roundData but never checks updatedAt against the heartbeat. ETH/USD on mainnet heartbeats every 3600s; staking-derivative feeds heartbeat every 86400s. During the May 2024 sequencer pause, sETH2/USD was stale for 14 hours while the underlying depegged 4%. Add: require(block.timestamp - updatedAt <= MAX_STALENESS), and require(answer > 0) — Chainlink returns 0 on aggregator failure, which the current code would treat as a valid zero price.",
+        "TWAP window too short on AMM.observe line 203. The 5-minute window is below the manipulation cost for the WETH/UNI pool — at current liquidity (~$8M), a $120k flash loan moves the 5-minute TWAP by ~3.2%. The minimum economically-safe TWAP for this pair is 30 minutes; for thinner pairs (anything outside top-50 by TVL) it's 60 minutes. Either bump the window or weight-average against a second oracle source. Reference: Euler's post-mortem analysis of their March 2023 incident covers exactly this calibration.",
+        "Oracle-of-oracles failure mode on AggregatorRouter.medianPrice line 89. The contract takes the median of 3 feeds but two of them (Chainlink and Uniswap V3 TWAP of the same pair) are correlated — if Chainlink stales, Uniswap TWAP follows it within the heartbeat window because arb is profitable only relative to Chainlink. A single point of failure dressed as three. Add a Pyth feed (genuinely independent price source via Pythnet) or use a TWAP of a different pair (e.g. ETH/USDC instead of ETH/USDT) for actual decorrelation.",
+        "L2 sequencer downtime not handled on Arbitrum deployment. PriceFeed.sol line 41 reads Chainlink without consulting the L2 Sequencer Uptime Feed. During the 78-minute Arbitrum outage on 2024-12-15, prices froze — anyone with a position open when the sequencer came back could be liquidated against the post-outage price discovery without grace period. Add: check sequencerUptimeFeed.latestRoundData(), require status == 0 (up) AND require block.timestamp - startedAt > GRACE_PERIOD (typically 3600s) before honoring liquidations. Standard Aave v3 pattern."
+      ]
+    },
+    {
+      "id": "access-control-specialist",
+      "displayName": "@accesscontrol-senior",
+      "githubLogin": "demo-accesscontrol",
+      "specialty": "access control + privileged calls + upgrade safety",
+      "description": "Senior auditor — 5+ years, 35+ critical findings in governance, proxies, and role-gated systems.",
+      "samples": [
+        "Missing onlyOwner on Treasury.setFeeRecipient line 88. The function writes to feeRecipient with no access modifier — anyone can redirect protocol fees to their address. Adjacent functions (setFeeRate line 95, withdrawFees line 102) all have onlyOwner. This looks like a copy-paste regression introduced in commit 4f2a1c. Fix is trivial but the function should also emit FeeRecipientChanged(old, new) for monitoring — currently silent state change with no event.",
+        "initializer not protected on UpgradeableVault.sol line 34. The initialize() function has the initializer modifier but the implementation contract itself is never initialized, leaving the implementation's storage slot 0 (the _initialized flag) at zero. An attacker can call initialize() on the implementation directly, becoming its owner — then call selfdestruct via the upgradable upgradeTo proxy admin path if anyone delegatecalls the implementation. Fix: add _disableInitializers() in the implementation's constructor (OZ pattern, since v4.6.0).",
+        "Privileged role granted without timelock on RoleManager.grantRole line 142. DEFAULT_ADMIN_ROLE can grant MINTER_ROLE instantly with no delay. If the admin key is compromised, attacker mints unlimited tokens in one tx. Comparable systems (Aave, Compound) enforce a 48-hour timelock on any new role grant. Fix: route grantRole through a TimelockController, or implement a queueRoleGrant / executeRoleGrant pair with a configurable delay (recommend 24h minimum, 72h for mint-capable roles).",
+        "Two-step ownership transfer bypassed on Ownable2Step inheritance line 18. Contract inherits from Ownable2Step but the deployment script calls transferOwnership immediately and expects single-step semantics — the new owner never accepts, so ownership effectively still sits with the deployer EOA which is supposed to be hot-key-only-for-deploy. Either deploy with the cold multisig as initial owner directly, or have the multisig call acceptOwnership in a second tx before the protocol is funded.",
+        "Storage layout collision on UUPSUpgradeable migration line 12. The new implementation V2 adds `address pendingAdmin` between `address admin` (slot 1) and `uint256 totalSupply` (was slot 2, now slot 3). Existing storage reads totalSupply at slot 2 will return the address bits cast to uint256 — a 20-byte-aligned huge number, likely silently breaking accounting and possibly bypassing balance checks (totalSupply > userBalance evaluates true for any user). Fix: append pendingAdmin to the end of the layout, or use the storage-gap pattern with explicit slot reservations (uint256[50] __gap)."
+      ]
+    }
+  ]
+}

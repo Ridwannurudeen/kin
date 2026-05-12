@@ -1,0 +1,1326 @@
+{
+  "name": "Hunt",
+  "address": "0xD4Fe5127d519B775a9a581A54ED0719BBFf0d68C",
+  "txHash": "0xc08f6483a1603564ff38c6808856cc9d7e8cbe120ff95e8ccbc55722f873f6c7",
+  "blockNumber": 32975183,
+  "chainId": 16661,
+  "rpc": "https://evmrpc.0g.ai",
+  "teeSigner": "0xc9c0754fDB2C22Fd19B5B649e1e60eE9d1Ccca3f",
+  "verifier": "0x3a40CA052c10FB6f0B1934e9db680034aFF1759E",
+  "deployer": "0xc9c0754fDB2C22Fd19B5B649e1e60eE9d1Ccca3f",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_teeSigner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_verifier",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "bountyId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "refunded",
+          "type": "uint256"
+        }
+      ],
+      "name": "BountyExpired",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "bountyId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "poster",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "maxPayout",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "codeRoot",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "raceDeadline",
+          "type": "uint64"
+        }
+      ],
+      "name": "BountyPosted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "bountyId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "winningFindingIdx",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "winningHunterId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "cweClass",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "paid",
+          "type": "uint256"
+        }
+      ],
+      "name": "BountySettled",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "hunterId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "cweClass",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint32",
+          "name": "wins",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint32",
+          "name": "submissions",
+          "type": "uint32"
+        }
+      ],
+      "name": "ClassRepUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "bountyId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "findingIdx",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "hunterId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "cweClass",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "severity",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "teeTimestamp",
+          "type": "uint64"
+        }
+      ],
+      "name": "FindingSubmitted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "hunterId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "githubHandleHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "specialty",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint16",
+          "name": "fingerprintOverallBps",
+          "type": "uint16"
+        }
+      ],
+      "name": "HunterMinted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "hunterId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "paused",
+          "type": "bool"
+        }
+      ],
+      "name": "HunterUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previous",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "current",
+          "type": "address"
+        }
+      ],
+      "name": "TeeSignerRotated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previous",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "current",
+          "type": "address"
+        }
+      ],
+      "name": "VerifierRotated",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "MAX_RACE_DURATION",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MIN_ACCOUNT_AGE_DAYS",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MIN_CODE_REVIEW_COUNT",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MIN_FINDING_QUALITY_BPS",
+      "outputs": [
+        {
+          "internalType": "uint16",
+          "name": "",
+          "type": "uint16"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MIN_FINGERPRINT_QUALITY_BPS",
+      "outputs": [
+        {
+          "internalType": "uint16",
+          "name": "",
+          "type": "uint16"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MIN_MERGED_PRS",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MIN_RACE_DURATION",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "SETTLE_WINDOW",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "admin",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "hunterId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "cweClass",
+          "type": "bytes32"
+        }
+      ],
+      "name": "classAvg",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "severityCalibrationBps",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint64",
+          "name": "precisionBps",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint64",
+          "name": "coverageBps",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint64",
+          "name": "exploitabilityBps",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "credentialUsed",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "bountyId",
+          "type": "uint256"
+        }
+      ],
+      "name": "expireBounty",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "bountyId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getBounty",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "poster",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxPayout",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "codeRoot",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32[]",
+              "name": "inScopeCwes",
+              "type": "bytes32[]"
+            },
+            {
+              "internalType": "uint64",
+              "name": "postedAt",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint64",
+              "name": "raceDeadline",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint64",
+              "name": "settleDeadline",
+              "type": "uint64"
+            },
+            {
+              "internalType": "enum Hunt.BountyStatus",
+              "name": "status",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "winningFindingIdx",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Hunt.Bounty",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "hunterId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "cweClass",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getClassRep",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "wins",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint32",
+              "name": "submissions",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint64",
+              "name": "totalEarnedWei",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint64",
+              "name": "sumSeverityCalibration",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint64",
+              "name": "sumPrecision",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint64",
+              "name": "sumCoverage",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint64",
+              "name": "sumExploitability",
+              "type": "uint64"
+            }
+          ],
+          "internalType": "struct Hunt.ClassRep",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "hunterId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getEmbedRoots",
+      "outputs": [
+        {
+          "internalType": "bytes32[]",
+          "name": "",
+          "type": "bytes32[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "bountyId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getFindings",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "hunterId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "hunter",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "cweClass",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint8",
+              "name": "severity",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "findingRoot",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "attestationDigest",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes",
+              "name": "attestationSig",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint64",
+              "name": "teeTimestamp",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint64",
+              "name": "submittedAt",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint16",
+              "name": "severityCalibrationBpsSelfEval",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "precisionBpsSelfEval",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "coverageBpsSelfEval",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "exploitabilityBpsSelfEval",
+              "type": "uint16"
+            }
+          ],
+          "internalType": "struct Hunt.Finding[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "bountyId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getFindingsCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "hunterId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getHunter",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "githubHandleHash",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "accountAgeDays",
+                  "type": "uint32"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "mergedPRs",
+                  "type": "uint32"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "codeReviewCount",
+                  "type": "uint32"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "verifiedAt",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "address",
+                  "name": "verifier",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "sig",
+                  "type": "bytes"
+                }
+              ],
+              "internalType": "struct Hunt.Credential",
+              "name": "credential",
+              "type": "tuple"
+            },
+            {
+              "internalType": "bytes32[]",
+              "name": "sampleRoots",
+              "type": "bytes32[]"
+            },
+            {
+              "internalType": "bytes32[]",
+              "name": "embedRoots",
+              "type": "bytes32[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint16",
+                  "name": "vocabEntropyBps",
+                  "type": "uint16"
+                },
+                {
+                  "internalType": "uint16",
+                  "name": "domainTermBps",
+                  "type": "uint16"
+                },
+                {
+                  "internalType": "uint16",
+                  "name": "structuralBps",
+                  "type": "uint16"
+                },
+                {
+                  "internalType": "uint16",
+                  "name": "specificityBps",
+                  "type": "uint16"
+                },
+                {
+                  "internalType": "uint16",
+                  "name": "overallBps",
+                  "type": "uint16"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "modelDigest",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "teeSig",
+                  "type": "bytes"
+                }
+              ],
+              "internalType": "struct Hunt.SampleFingerprint",
+              "name": "fingerprint",
+              "type": "tuple"
+            },
+            {
+              "internalType": "string",
+              "name": "specialty",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "description",
+              "type": "string"
+            },
+            {
+              "internalType": "bool",
+              "name": "paused",
+              "type": "bool"
+            },
+            {
+              "internalType": "uint32",
+              "name": "totalWins",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint32",
+              "name": "totalSubmissions",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint64",
+              "name": "totalEarnedWei",
+              "type": "uint64"
+            }
+          ],
+          "internalType": "struct Hunt.Hunter",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "bountyId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getInScopeCwes",
+      "outputs": [
+        {
+          "internalType": "bytes32[]",
+          "name": "",
+          "type": "bytes32[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "hunterId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getSampleRoots",
+      "outputs": [
+        {
+          "internalType": "bytes32[]",
+          "name": "",
+          "type": "bytes32[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "githubHandleHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint32",
+              "name": "accountAgeDays",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint32",
+              "name": "mergedPRs",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint32",
+              "name": "codeReviewCount",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint64",
+              "name": "verifiedAt",
+              "type": "uint64"
+            },
+            {
+              "internalType": "address",
+              "name": "verifier",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "sig",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct Hunt.Credential",
+          "name": "cred",
+          "type": "tuple"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "sampleRoots",
+          "type": "bytes32[]"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "embedRoots",
+          "type": "bytes32[]"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint16",
+              "name": "vocabEntropyBps",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "domainTermBps",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "structuralBps",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "specificityBps",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "overallBps",
+              "type": "uint16"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "modelDigest",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes",
+              "name": "teeSig",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct Hunt.SampleFingerprint",
+          "name": "fp",
+          "type": "tuple"
+        },
+        {
+          "internalType": "string",
+          "name": "specialty",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "description",
+          "type": "string"
+        }
+      ],
+      "name": "mintHunter",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "hunterId",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "nextBountyId",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "nextHunterId",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "hunterId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "paused",
+          "type": "bool"
+        }
+      ],
+      "name": "pauseHunter",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "codeRoot",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "inScopeCwes",
+          "type": "bytes32[]"
+        },
+        {
+          "internalType": "uint64",
+          "name": "raceDuration",
+          "type": "uint64"
+        }
+      ],
+      "name": "postBounty",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "bountyId",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newSigner",
+          "type": "address"
+        }
+      ],
+      "name": "setTeeSigner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newVerifier",
+          "type": "address"
+        }
+      ],
+      "name": "setVerifier",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "bountyId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "findingIdx",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint8",
+              "name": "severityCalibration",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "precision",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "coverage",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "exploitability",
+              "type": "uint8"
+            }
+          ],
+          "internalType": "struct Hunt.AuditRating",
+          "name": "r",
+          "type": "tuple"
+        }
+      ],
+      "name": "settleBounty",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "bountyId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "hunterId",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "cweClass",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint8",
+              "name": "severity",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "findingRoot",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint16",
+              "name": "severityCalibrationBps",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "precisionBps",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "coverageBps",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "exploitabilityBps",
+              "type": "uint16"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "modelDigest",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint64",
+              "name": "teeTimestamp",
+              "type": "uint64"
+            },
+            {
+              "internalType": "bytes",
+              "name": "attestationSig",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct Hunt.FindingInput",
+          "name": "input",
+          "type": "tuple"
+        }
+      ],
+      "name": "submitFinding",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "findingIdx",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "teeSigner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalBounties",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalHunters",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newAdmin",
+          "type": "address"
+        }
+      ],
+      "name": "transferAdmin",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "verifier",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "deployedAt": "2026-05-11T22:35:27.218Z"
+}

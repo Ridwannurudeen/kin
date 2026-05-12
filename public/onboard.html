@@ -28,22 +28,27 @@
 
   <div class="container-narrow" style="padding: 64px 0;">
     <div class="section-eyebrow">step 01</div>
-    <h2 class="section-title">Capture your <em>voice.</em></h2>
+    <h2 class="section-title">Capture your <em>review voice.</em></h2>
 
     <p style="font-family: var(--serif); font-size: 18px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 32px;">
-      Paste 3–10 samples of your work — old emails, code reviews, design notes, memos. We encrypt them client-side, upload to 0G Storage, and embed the root hashes in your SkillNFT. Your samples never appear in plaintext outside of a Sealed Inference enclave.
+      Paste 3–20 of your best PR reviews — the ones that catch real bugs and explain why. We encrypt them client-side with a per-skill key, upload to 0G Storage, compute embeddings for top-K retrieval, and run a TEE-side sample fingerprinter so the marketplace can show buyers that your samples meet a quality bar.
     </p>
 
     <form id="onboardForm">
       <div class="field-row">
         <div class="field">
-          <label for="skillType">Skill type</label>
+          <label for="skillType">Primary language</label>
           <select id="skillType" required>
-            <option value="writing">writing</option>
-            <option value="code-review">code review</option>
-            <option value="research">research</option>
-            <option value="design-critique">design critique</option>
-            <option value="strategy-memo">strategy memo</option>
+            <option value="any">any</option>
+            <option value="typescript" selected>typescript</option>
+            <option value="javascript">javascript</option>
+            <option value="python">python</option>
+            <option value="rust">rust</option>
+            <option value="go">go</option>
+            <option value="solidity">solidity</option>
+            <option value="java">java</option>
+            <option value="c">c</option>
+            <option value="cpp">cpp</option>
           </select>
         </div>
         <div class="field">
@@ -54,20 +59,20 @@
 
       <div class="field">
         <label for="description">Description (one line)</label>
-        <input type="text" id="description" placeholder="e.g. Founder/operator memo style — confident, terse, no fluff." required>
+        <input type="text" id="description" placeholder="e.g. Senior TS reviewer — auth, perf, correctness." required>
       </div>
 
       <div class="field">
-        <label>Sample 1 — your voice in your own words</label>
-        <textarea class="sample" placeholder="Paste a representative piece of your work…" required></textarea>
+        <label>Sample 1 — a PR review of yours</label>
+        <textarea class="sample" placeholder="Paste the body of a review you wrote that caught a real bug — the diff context + your comments + why it mattered." required></textarea>
       </div>
       <div class="field">
         <label>Sample 2</label>
-        <textarea class="sample" placeholder="Another sample. Different context if possible." required></textarea>
+        <textarea class="sample" placeholder="Another review. Different bug class if possible (correctness, perf, security, idiom, etc.)." required></textarea>
       </div>
       <div class="field">
         <label>Sample 3</label>
-        <textarea class="sample" placeholder="Third sample completes the voice fingerprint."></textarea>
+        <textarea class="sample" placeholder="Third review completes the minimum sample set."></textarea>
       </div>
 
       <div id="extraSamples"></div>

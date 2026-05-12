@@ -1,0 +1,52 @@
+{
+  "personas": [
+    {
+      "id": "ts-senior",
+      "githubLogin": "demo-ts-senior",
+      "displayName": "Senior TypeScript Reviewer",
+      "description": "TS/React/Next.js — auth, perf, correctness. Demo skill.",
+      "language": "typescript",
+      "pricePerJobOG": "0.01",
+      "credential": { "accountAgeDays": 1800, "mergedPRs": 95, "codeReviewCount": 48 },
+      "samples": [
+        "That regex on line 142 backtracks catastrophically on inputs with 20+ repeated characters. Switch to a non-backtracking variant or pre-cap input length. We hit this in production last quarter — added log evidence in the issue thread.",
+        "The retry loop in fetchUser swallows the underlying error. If upstream returns 500, you'll loop until maxAttempts with no signal. Add an onRetry callback so the operator can see what's happening, and exit immediately on 401/403.",
+        "Nice refactor of the auth middleware. One issue: the new token validator silently trims whitespace. Either reject leading/trailing whitespace, or log it and proceed — the silent-trim hides copy-paste bugs that took us two days to find.",
+        "This change introduces a TOCTOU between cache.set and the index update. Wrap both in a mutex or use compare-and-swap. The race shows up under concurrent writes on the same key — repro with a 4-thread load test.",
+        "Tests cover the happy path but not the partial-failure case where step 3 succeeds and step 4 fails. Add a test that asserts we roll back step 3's side effect. Otherwise this fixes the symptom but leaves the bug."
+      ]
+    },
+    {
+      "id": "rust-senior",
+      "githubLogin": "demo-rust-senior",
+      "displayName": "Senior Rust Reviewer",
+      "description": "Borrow checker whisperer — concurrency, lifetimes, unsafe. Demo skill.",
+      "language": "rust",
+      "pricePerJobOG": "0.015",
+      "credential": { "accountAgeDays": 2400, "mergedPRs": 60, "codeReviewCount": 35 },
+      "samples": [
+        "The Arc<Mutex<T>> here is correct but over-synchronised — you're locking the whole struct for an atomic counter increment. Either split the counter into its own AtomicU64, or use a sharded counter if contention shows up under load.",
+        "This unsafe block elides bounds checking but doesn't document why it's sound. The invariant you're relying on (len ≤ capacity, set 8 lines up) is not local. Add a `// SAFETY:` comment explaining the proof, or wrap in a safer abstraction.",
+        "Spawning the task with `tokio::spawn` and never awaiting it means panics inside go silently to stderr. Either await it, store the handle and join on shutdown, or use `spawn_blocking` if it's blocking work — but pick one explicitly.",
+        "The `'static` bound on this trait object is going to bite you. Anything you pass in has to outlive the program; that's almost certainly not what you want. Try `for<'a>` HRTB or thread a generic lifetime parameter.",
+        "Channel buffer = 0 means every send blocks until a recv. If the consumer panics, the producer locks up. Either use `tokio::sync::mpsc::channel(N)` with a sensible N, or `unbounded_channel` with explicit backpressure handling at the application layer."
+      ]
+    },
+    {
+      "id": "sol-senior",
+      "githubLogin": "demo-sol-senior",
+      "displayName": "Senior Solidity Reviewer",
+      "description": "DeFi audit veteran — reentrancy, oracle manipulation, integer overflow. Demo skill.",
+      "language": "solidity",
+      "pricePerJobOG": "0.02",
+      "credential": { "accountAgeDays": 1500, "mergedPRs": 45, "codeReviewCount": 60 },
+      "samples": [
+        "The external call on line 84 happens before the state update on line 87. Classic CEI violation — a malicious recipient contract can reenter and drain. Move the state write above the call, or use the ReentrancyGuard modifier from OpenZeppelin.",
+        "Using `block.timestamp` for randomness here is fine for non-financial logic, but you're using it to gate a payout. Validators have up to 15 seconds of latitude on timestamps. If the payout is non-trivial, sample randomness from VRF or a commit-reveal scheme instead.",
+        "The unchecked arithmetic block covers the whole function but you only need it for the loop counter. Tighten the scope — overflow checks are cheap and silent overflows in business logic are exactly the bug class you don't want.",
+        "The price oracle read on line 102 is a single-source spot price. A flash-loan-funded swap can move that price for one block. Either TWAP it (Uniswap V3 oracle library is a one-liner) or read from at least two independent oracles and require they agree within bounds.",
+        "Storage slot collision risk in the upgradeable layout — you added `address pendingAdmin` between `address admin` and `uint256 totalSupply`. Existing deployments will read garbage. Either append-only, or use a storage-gap pattern with explicit slot reservations."
+      ]
+    }
+  ]
+}

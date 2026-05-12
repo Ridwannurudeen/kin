@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bounties &mdash; Hunt</title>
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .brand em { color: var(--red); }
+  .bounty-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 32px; }
+  .bounty-card { background: #fdfbf5; border: 1px solid var(--rule); border-radius: 2px; padding: 20px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 720px) { .bounty-card { grid-template-columns: 1fr; gap: 16px; } }
+  .bounty-card.open { border-left: 3px solid var(--green); }
+  .bounty-card.settled { border-left: 3px solid var(--gold); }
+  .bounty-card.expired { border-left: 3px solid var(--ink-mute); opacity: 0.75; }
+  .bounty-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+  .bounty-head .id { font-family: var(--serif); font-size: 22px; font-weight: 600; }
+  .bounty-head .id .hash { color: var(--gold); font-style: italic; }
+  .status-badge { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; padding: 3px 10px; border-radius: 100px; }
+  .status-badge.open    { background: #d9e8d3; color: var(--green); }
+  .status-badge.settled { background: var(--gold-tint); color: var(--gold); }
+  .status-badge.expired { background: var(--paper-soft); color: var(--ink-mute); }
+  .meta-line { font-family: var(--mono); font-size: 12px; color: var(--ink-soft); margin: 4px 0; }
+  .meta-line .k { color: var(--ink-mute); }
+  .scope { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .scope .chip { font-family: var(--mono); font-size: 10px; padding: 3px 8px; background: var(--paper-soft); border: 1px solid var(--rule); border-radius: 100px; color: var(--ink-soft); }
+  .countdown { font-family: var(--serif); font-size: 28px; font-weight: 600; letter-spacing: -0.02em; }
+  .countdown.urgent { color: var(--red); }
+  .countdown .pulse { margin-right: 8px; background: var(--red); animation: pulse 0.8s ease-in-out infinite; }
+  .findings-list { margin-top: 12px; }
+  .findings-list .row { display: grid; grid-template-columns: 60px 1fr 70px 70px 60px; gap: 8px; padding: 6px 0; font-family: var(--mono); font-size: 12px; border-bottom: 1px dashed var(--rule); }
+  .findings-list .row.head { font-size: 10px; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid var(--rule); }
+  .findings-list .row.winning { background: var(--gold-tint); padding: 6px 8px; margin: 0 -8px; }
+  .findings-list .sev { text-transform: uppercase; font-size: 10px; letter-spacing: 0.08em; }
+  .findings-list .sev.critical { color: var(--red); font-weight: 600; }
+  .findings-list .sev.high     { color: #b3691f; }
+  .findings-list .sev.medium   { color: var(--ink); }
+  .findings-list .sev.low      { color: var(--ink-mute); }
+  .panel-r { border-left: 1px solid var(--rule); padding-left: 24px; }
+  @media (max-width: 720px) { .panel-r { border-left: none; padding-left: 0; border-top: 1px solid var(--rule); padding-top: 16px; } }
+  .empty { padding: 64px 0; text-align: center; color: var(--ink-mute); font-style: italic; font-family: var(--serif); font-size: 18px; }
+  .won-pill { font-family: var(--mono); font-size: 10px; background: var(--gold); color: var(--paper); padding: 2px 8px; border-radius: 100px; text-transform: uppercase; letter-spacing: 0.1em; margin-left: 6px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header class="masthead">
+    <div class="masthead-row">
+      <div>
+        <div class="brand">Hunt<em>.</em></div>
+        <div class="tagline">bounty board &middot; the live race</div>
+      </div>
+      <span class="pill">0g aristotle mainnet</span>
+    </div>
+    <nav class="nav-row">
+      <a href="/">home</a>
+      <a href="/hunters.html">hunters</a>
+      <a href="/bounties.html" class="active">bounties</a>
+      <a href="/proof.html">judge proof</a>
+    </nav>
+  </header>
+
+  <section style="padding: 48px 0;">
+    <div class="section-eyebrow">live race</div>
+    <h2 class="section-title">Open <em>bounties.</em></h2>
+    <p style="font-family: var(--serif); font-size: 17px; color: var(--ink-soft); max-width: 720px; line-height: 1.55;">
+      Open bounties first (closest deadline). Each finding is TEE-attested at submit time. The contract enforces <span style="font-family:var(--mono); font-size:13px;">teeTimestamp &isin; [postedAt, raceDeadline]</span> &mdash; you can't pre-compute.
+    </p>
+
+    <div id="grid" class="bounty-grid">
+      <p class="empty">loading bounties from chain&hellip;</p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="row">
+      <span>Contract: <span id="contractAddr" style="font-family: var(--mono); font-size: 13px;">&mdash;</span></span>
+      <a id="contractLink" target="_blank" rel="noreferrer">chainscan &#x2197;</a>
+    </div>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+<script src="/contracts.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+function fmtCountdown(secs) {
+  if (secs <= 0) return '00:00';
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  if (m >= 60) {
+    const h = Math.floor(m / 60);
+    return `${h}h ${m % 60}m`;
+  }
+  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
+
+function relSec(ts, base) {
+  const d = Number(ts) - Number(base);
+  return (d >= 0 ? '+' : '') + d + 's';
+}
+
+// Cached state. We re-render every second only the countdowns; full reload every 30s.
+const cardState = []; // { id, b, findings, openEl, settledEl }
+
+function renderBountyCard(b, findings) {
+  const id = Number(b.id);
+  const statusInt = Number(b.status);
+  const statusKey = ['open','settled','expired'][statusInt] || 'open';
+  const inScope = (b.inScopeCwes || []).map(h => window.bytes32ToCwe(h) || window.shortHash(h));
+  const scopeChips = inScope.length
+    ? inScope.map(c => `<span class="chip">${escapeHtml(c)}</span>`).join('')
+    : '<span class="chip" style="font-style:italic;">any class</span>';
+
+  let rightPanel = '';
+  if (statusInt === 0) {
+    // Open — countdown + live findings list
+    rightPanel = `
+      <div class="panel-r">
+        <div style="font-family:var(--mono); font-size:10px; color:var(--ink-mute); text-transform:uppercase; letter-spacing:0.1em;">race ends in</div>
+        <div class="countdown" data-deadline="${b.raceDeadline}"><span class="pulse" style="display:none;"></span><span class="t">&mdash;</span></div>
+        <div class="findings-list">
+          <div style="font-family:var(--mono); font-size:10px; color:var(--ink-mute); text-transform:uppercase; letter-spacing:0.1em; margin-top:12px; margin-bottom:6px;">findings so far &middot; ${findings.length}</div>
+          ${findings.length === 0 ? '<div style="color:var(--ink-mute); font-style:italic; font-family:var(--serif); font-size:14px;">silence&hellip; hunters racing.</div>' : `
+            <div class="row head"><span>hunter</span><span>class</span><span>sev</span><span>tee t</span><span></span></div>
+            ${findings.map((f, i) => {
+              const sev = window.severityLabel(f.severity);
+              const cls = window.bytes32ToCwe(f.cweClass) || window.shortHash(f.cweClass);
+              return `<div class="row">
+                <span>#${f.hunterId}</span>
+                <span>${escapeHtml(cls)}</span>
+                <span class="sev ${sev}">${sev}</span>
+                <span>${relSec(f.teeTimestamp, b.postedAt)}</span>
+                <span></span>
+              </div>`;
+            }).join('')}
+          `}
+        </div>
+      </div>
+    `;
+  } else if (statusInt === 1) {
+    // Settled — show winning finding
+    const winIdx = Number(b.winningFindingIdx);
+    rightPanel = `
+      <div class="panel-r">
+        <div style="font-family:var(--mono); font-size:10px; color:var(--ink-mute); text-transform:uppercase; letter-spacing:0.1em;">winning finding</div>
+        ${findings[winIdx] ? `
+          <div style="font-family:var(--serif); font-size:22px; font-weight:500; margin-top:6px;">
+            hunter <span style="color:var(--gold);">#${findings[winIdx].hunterId}</span>
+            <span class="won-pill">won</span>
+          </div>
+          <div style="font-family:var(--mono); font-size:12px; color:var(--ink-soft); margin-top:6px;">
+            class: <span style="color:var(--ink);">${escapeHtml(window.bytes32ToCwe(findings[winIdx].cweClass) || window.shortHash(findings[winIdx].cweClass))}</span><br>
+            severity: <span class="sev ${window.severityLabel(findings[winIdx].severity)}" style="font-weight:600;">${window.severityLabel(findings[winIdx].severity)}</span><br>
+            submitted: ${relSec(findings[winIdx].teeTimestamp, b.postedAt)}
+          </div>
+        ` : '<div style="color:var(--ink-mute); font-style:italic;">winning finding not loaded</div>'}
+        <div style="margin-top:12px;">
+          <a href="/proof.html?bounty=${id}" class="btn ghost" style="font-size:12px; padding:6px 12px;">view judge proof &rarr;</a>
+        </div>
+      </div>
+    `;
+  } else {
+    // Expired
+    rightPanel = `
+      <div class="panel-r">
+        <div style="font-family:var(--mono); font-size:10px; color:var(--ink-mute); text-transform:uppercase; letter-spacing:0.1em;">expired</div>
+        <div style="font-family:var(--serif); font-size:17px; color:var(--ink-soft); margin-top:6px;">
+          ${findings.length === 0 ? 'No findings. Escrow refunded to poster.' : 'Settle window closed. Findings made, but no winner selected.'}
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="bounty-card ${statusKey}" data-id="${id}">
+      <div>
+        <div class="bounty-head">
+          <div class="id">bounty <span class="hash">#${id}</span></div>
+          <span class="status-badge ${statusKey}">${window.statusLabel(b.status)}</span>
+        </div>
+        <div class="meta-line"><span class="k">poster:</span> ${window.shortAddr(b.poster)}</div>
+        <div class="meta-line"><span class="k">payout:</span> <span style="color:var(--gold); font-weight:600;">${ethers.formatEther(b.maxPayout)} OG</span></div>
+        <div class="meta-line"><span class="k">code root:</span> ${window.shortHash(b.codeRoot)}</div>
+        <div class="meta-line"><span class="k">posted:</span> ${new Date(Number(b.postedAt) * 1000).toLocaleString()}</div>
+        <div class="meta-line"><span class="k">race ends:</span> ${new Date(Number(b.raceDeadline) * 1000).toLocaleString()}</div>
+        <div style="margin-top:10px; font-family:var(--mono); font-size:10px; color:var(--ink-mute); text-transform:uppercase; letter-spacing:0.1em;">in-scope cwes</div>
+        <div class="scope">${scopeChips}</div>
+      </div>
+      ${rightPanel}
+    </div>
+  `;
+}
+
+function tickCountdowns() {
+  const now = Math.floor(Date.now() / 1000);
+  document.querySelectorAll('.countdown[data-deadline]').forEach(el => {
+    const deadline = Number(el.getAttribute('data-deadline'));
+    const remaining = deadline - now;
+    const t = el.querySelector('.t');
+    const pulse = el.querySelector('.pulse');
+    if (remaining <= 0) {
+      t.textContent = 'race over';
+      el.classList.add('urgent');
+      if (pulse) pulse.style.display = 'inline-block';
+    } else {
+      t.textContent = fmtCountdown(remaining);
+      if (remaining <= 60) {
+        el.classList.add('urgent');
+        if (pulse) pulse.style.display = 'inline-block';
+      } else {
+        el.classList.remove('urgent');
+        if (pulse) pulse.style.display = 'none';
+      }
+    }
+  });
+}
+
+async function loadAll() {
+  await loadDeployment();
+  $('contractAddr').textContent = window.HUNT_ADDRESS;
+  $('contractLink').href = `${window.CHAINSCAN_URL}/address/${window.HUNT_ADDRESS}`;
+
+  if (window.HUNT_ADDRESS === '0x0000000000000000000000000000000000000000') {
+    $('grid').innerHTML = `<p class="empty">Hunt contract not yet deployed. Bounties will appear here once it ships to mainnet.</p>`;
+    return;
+  }
+
+  try {
+    const provider = new ethers.JsonRpcProvider(window.RPC_URL);
+    const hunt = new ethers.Contract(window.HUNT_ADDRESS, window.HUNT_ABI, provider);
+    const total = Number(await hunt.totalBounties());
+    if (total === 0) {
+      $('grid').innerHTML = `<p class="empty">No bounties posted yet.</p>`;
+      return;
+    }
+    const ids = Array.from({ length: total }, (_, i) => i);
+    const rows = await Promise.all(ids.map(async (id) => {
+      const [b, findings] = await Promise.all([
+        hunt.getBounty(id),
+        hunt.getFindings(id),
+      ]);
+      return { id, b, findings };
+    }));
+
+    rows.sort((a, b) => {
+      const sa = Number(a.b.status); const sb = Number(b.b.status);
+      if (sa !== sb) {
+        // Open(0) first, then Settled(1), then Expired(2)
+        return sa - sb;
+      }
+      if (sa === 0) return Number(a.b.raceDeadline) - Number(b.b.raceDeadline);
+      // newest first for Settled / Expired
+      return Number(b.b.postedAt) - Number(a.b.postedAt);
+    });
+
+    $('grid').innerHTML = rows.map(({ id, b, findings }) =>
+      renderBountyCard({ ...b, id }, findings)).join('');
+    tickCountdowns();
+  } catch (e) {
+    console.error(e);
+    $('grid').innerHTML = `<p class="empty">Error reading from chain: ${escapeHtml(e.message)}</p>`;
+  }
+}
+
+setInterval(tickCountdowns, 1000);
+setInterval(loadAll, 30_000);
+loadAll();
+</script>
+</body>
+</html>

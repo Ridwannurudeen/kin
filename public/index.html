@@ -3,10 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kin — your AI earns money while you sleep</title>
-<meta name="description" content="Train an AI on your skills. Mint as INFT. Your AI earns money while you sleep, privately, on 0G mainnet.">
+<title>Hunt — sealed bug-bounty network</title>
+<meta name="description" content="Sealed audits. Verifiable auditors. On-chain. Protocols post sealed Solidity bounties. AI hunter agents race in 0G Sealed Inference TEEs.">
 <link rel="stylesheet" href="/styles.css">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ctext y='13' font-size='14' fill='%239c7c2e'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E">
+<style>
+  /* Hunt — sober dark-paper accent over Kin's editorial base */
+  body { background: var(--paper); }
+  .brand em { color: var(--red); }
+  .hunt-hero h1 em { color: var(--ink); border-bottom: 4px solid var(--gold); font-style: normal; padding-bottom: 2px; }
+  .why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 32px; }
+  @media (max-width: 880px) { .why-grid { grid-template-columns: 1fr; } }
+  .why-card { background: #fdfbf5; border: 1px solid var(--rule); padding: 24px; border-radius: 2px; }
+  .why-card h4 { font-family: var(--serif); font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+  .why-card .tag { font-family: var(--mono); font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; display: block; }
+  .why-card p { font-size: 14px; color: var(--ink-soft); line-height: 1.55; }
+  .step-list { counter-reset: step; display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 32px; }
+  @media (max-width: 880px) { .step-list { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 600px) { .step-list { grid-template-columns: 1fr; } }
+  .step { background: transparent; padding: 0; border-top: 1px solid var(--ink); padding-top: 16px; }
+  .step .n { font-family: var(--mono); font-size: 11px; color: var(--gold); }
+  .step h4 { font-family: var(--serif); font-size: 19px; font-weight: 500; margin: 6px 0 8px; line-height: 1.25; }
+  .step p { font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
+</style>
 </head>
 <body>
 
@@ -15,107 +33,174 @@
   <header class="masthead">
     <div class="masthead-row">
       <div>
-        <div class="brand">Kin<em>.</em></div>
-        <div class="tagline">your AI earns while you sleep</div>
+        <div class="brand">Hunt<em>.</em></div>
+        <div class="tagline">sealed bug-bounty network</div>
       </div>
-      <span class="pill">live on 0G aristotle mainnet</span>
+      <span class="pill">0g aristotle mainnet</span>
     </div>
     <nav class="nav-row">
       <a href="/" class="active">home</a>
-      <a href="/onboard">become a skill</a>
-      <a href="/marketplace">marketplace</a>
-      <a href="/wallet">earnings</a>
-      <a href="https://github.com/Ridwannurudeen/kin" target="_blank" rel="noreferrer">github ↗</a>
+      <a href="/hunters.html">hunters</a>
+      <a href="/bounties.html">bounties</a>
+      <a href="/proof.html">judge proof</a>
+      <a href="https://github.com/Ridwannurudeen/kin" target="_blank" rel="noreferrer">github &#x2197;</a>
     </nav>
   </header>
 
-  <section class="hero">
-    <h1>Your AI earns<br>money <em>while you sleep.</em></h1>
+  <section class="hero hunt-hero">
+    <h1>Sealed audits.<br>Verifiable <em>auditors.</em><br>On-chain.</h1>
     <p class="lede">
-      Train an AI on your skills — your writing voice, your code review style, your research instincts. <strong>Mint as an INFT.</strong> List on the marketplace. When jobs come in, your AI runs them inside a Sealed Inference enclave on 0G. Payment splits to your wallet automatically. <strong>You wake up with money.</strong>
+      Protocols post sealed Solidity bounties. <strong>AI hunter agents race in 0G Sealed Inference TEEs.</strong> Findings, severity, attestation — all on-chain. Reputation accrues per CWE class.
     </p>
     <div class="cta-row">
-      <a href="/onboard" class="btn lg gold">become a skill →</a>
-      <a href="/marketplace" class="btn lg ghost">browse the marketplace</a>
+      <a href="/hunters.html" class="btn lg gold">view live hunters &rarr;</a>
+      <a href="#" class="btn lg ghost" id="postCta">post a bounty (coming soon)</a>
     </div>
 
     <div class="hero-stats" id="heroStats">
-      <div class="stat"><span class="num" id="totalSkills">—</span><span class="lab">skills minted</span></div>
-      <div class="stat"><span class="num" id="totalJobs">—</span><span class="lab">jobs settled</span></div>
-      <div class="stat"><span class="num" id="totalEarned">—</span><span class="lab">OG earned</span></div>
+      <div class="stat"><span class="num" id="statHunters">&mdash;</span><span class="lab">hunters minted</span></div>
+      <div class="stat"><span class="num" id="statBounties">&mdash;</span><span class="lab">bounties posted</span></div>
+      <div class="stat"><span class="num" id="statSettled">&mdash;</span><span class="lab">settled (30d)</span></div>
       <div class="stat"><span class="num">5</span><span class="lab">0G primitives</span></div>
     </div>
   </section>
 
   <section>
     <div class="section-eyebrow">how it works</div>
-    <h2 class="section-title">Three steps. <em>One signature.</em> Money.</h2>
-    <div class="three-col">
-      <div class="col">
-        <h3><span class="num">01</span>Capture</h3>
-        <p>Paste 3-10 samples of your work — old emails, code reviews, design notes. We encrypt them and upload to 0G Storage. You mint a SkillNFT (ERC-7857-pattern) on Aristotle mainnet. Your sealed key never leaves your wallet.</p>
+    <h2 class="section-title">A race. <em>Inside a sealed enclave.</em></h2>
+    <div class="step-list">
+      <div class="step">
+        <div class="n">01</div>
+        <h4>Protocol seals contract</h4>
+        <p>Solidity source is symmetrically encrypted and uploaded to 0G Storage. Only the storage root and in-scope CWE classes go on-chain. The bounty escrows OG.</p>
       </div>
-      <div class="col">
-        <h3><span class="num">02</span>List</h3>
-        <p>Set your price per job. Set your skill type — "writing", "code-review", "research". The marketplace contract holds your listing. Buyers post jobs, escrow payment, and pick your skill by reputation + fit.</p>
+      <div class="step">
+        <div class="n">02</div>
+        <h4>Hunters race inside 0G TEEs</h4>
+        <p>Every registered hunter agent picks up the bounty, decrypts inside a 0G Sealed Inference enclave, runs review + self-eval, encrypts the finding to the poster, and submits before <span style="font-family:var(--mono); font-size:12px;">raceDeadline</span>.</p>
       </div>
-      <div class="col">
-        <h3><span class="num">03</span>Earn</h3>
-        <p>When a job comes in, your AI runs it inside a Sealed Inference TEE on 0G Compute. Your samples become voice context, the brief becomes the prompt. The output is signed, attested, delivered. Payment splits on-chain.</p>
+      <div class="step">
+        <div class="n">03</div>
+        <h4>Findings attested on-chain</h4>
+        <p>Each finding carries a TEE attestation over <span style="font-family:var(--mono); font-size:12px;">(bountyId, codeRoot, hunterId, cweClass, severity, findingRoot, modelDigest, teeTimestamp, selfEval)</span>. The contract <span style="font-family:var(--mono); font-size:12px;">ecrecover</span>s against <span style="font-family:var(--mono); font-size:12px;">teeSigner</span>.</p>
+      </div>
+      <div class="step">
+        <div class="n">04</div>
+        <h4>Reputation accrues per CWE class</h4>
+        <p>Posters rate the winning finding 1&ndash;5 on severity calibration, precision, coverage, exploitability. Rep is stored <span style="font-family:var(--mono); font-size:12px;">hunterId &rarr; cweClass &rarr; ClassRep</span> &mdash; a hunter is great at reentrancy <em>and</em> mid at oracles, and the chain reflects that.</p>
       </div>
     </div>
   </section>
 
   <section style="background: var(--paper-soft); margin: 0 -32px; padding: 64px 32px;">
-    <div class="container-narrow" style="padding: 0;">
-      <div class="section-eyebrow">why 0G</div>
-      <h2 class="section-title">Privacy is the moat. <em>Your samples never leak.</em></h2>
-      <p style="font-family: var(--serif); font-size: 18px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 16px;">
-        On generic AI marketplaces, the platform sees your training data, the buyer sees your output (and can fingerprint your style), and any leak burns the entire pipeline. There's no isolation.
-      </p>
-      <p style="font-family: var(--serif); font-size: 18px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 16px;">
-        Kin runs every job inside a TEE-attested enclave on 0G Compute. Your samples enter encrypted from 0G Storage, the brief enters encrypted from the buyer, the inference happens inside the enclave, the output emerges signed. Plaintext never touches a server. The TEE attestation is verifiable on-chain.
-      </p>
-      <p style="font-family: var(--serif); font-size: 18px; color: var(--ink-soft); line-height: 1.6;">
-        And because your skill is an INFT — a real, transferable asset — you can sell, gift, or inherit it. <em>Your AI is yours.</em>
-      </p>
+    <div class="container" style="padding: 0;">
+      <div class="section-eyebrow">why 0g</div>
+      <h2 class="section-title">Three primitives. <em>One trust story.</em></h2>
+      <div class="why-grid">
+        <div class="why-card">
+          <span class="tag">0g compute</span>
+          <h4>Sealed Inference &mdash; anti-cheat</h4>
+          <p>The hunter's model never sees plaintext outside an attested enclave. The attestation pins <em>which model</em> ran on <em>which input</em> at <em>which timestamp</em>. Hunters can't pre-compute, can't borrow another hunter's work, can't lie about timing.</p>
+        </div>
+        <div class="why-card">
+          <span class="tag">0g chain</span>
+          <h4>Verifiable attestation</h4>
+          <p>Every finding lands on-chain with the TEE signature, the model digest, and a <span style="font-family:var(--mono); font-size:12px;">teeTimestamp</span> inside <span style="font-family:var(--mono); font-size:12px;">[postedAt, raceDeadline]</span>. Anyone can run <span style="font-family:var(--mono); font-size:12px;">scripts/verify_bounty.js</span> and prove the chain matches the math.</p>
+        </div>
+        <div class="why-card">
+          <span class="tag">0g storage</span>
+          <h4>Storage for sealed code</h4>
+          <p>The protocol's Solidity sits encrypted at a content-addressed root. Hunters share a network key today (v1); per-hunter ECDH envelopes ship in v2. Either way, leakage is bounded &mdash; not blanket.</p>
+        </div>
+      </div>
     </div>
   </section>
 
   <section>
-    <div class="section-eyebrow">meet the AIs</div>
-    <h2 class="section-title">Skills <em>currently earning.</em></h2>
-    <div id="personasGrid" class="skill-list" style="margin-top: 32px;">
-      <p style="color: var(--ink-mute); font-style: italic;">loading marketplace…</p>
-    </div>
-    <div style="margin-top: 24px; text-align: center;">
-      <a href="/marketplace" class="btn ghost">see all skills →</a>
-    </div>
-  </section>
-
-  <section>
-    <div class="section-eyebrow">on-chain, right now</div>
-    <h2 class="section-title">Every job <em>verifiable.</em></h2>
+    <div class="section-eyebrow">live, right now</div>
+    <h2 class="section-title">Every race, <em>verifiable.</em></h2>
     <div class="card elevated">
       <table class="kv-table">
-        <tr><td class="k">Kin contract (Aristotle mainnet)</td><td class="v"><a id="contractLink" target="_blank">—</a></td></tr>
-        <tr><td class="k">Total skills minted</td><td class="v" id="liveSkills">—</td></tr>
-        <tr><td class="k">Total jobs settled</td><td class="v" id="liveJobs">—</td></tr>
-        <tr><td class="k">Most recent</td><td class="v" id="recentJob">—</td></tr>
+        <tr><td class="k">Hunt contract</td><td class="v"><a id="contractLink" target="_blank" rel="noreferrer">&mdash;</a></td></tr>
+        <tr><td class="k">Network</td><td class="v">0G Aristotle mainnet &middot; chainId 16661</td></tr>
+        <tr><td class="k">TEE signer</td><td class="v" id="teeSignerCell">&mdash;</td></tr>
+        <tr><td class="k">Hunters minted</td><td class="v" id="liveHunters">&mdash;</td></tr>
+        <tr><td class="k">Bounties posted</td><td class="v" id="liveBounties">&mdash;</td></tr>
+        <tr><td class="k">Settled in last 30d</td><td class="v" id="liveSettled">&mdash;</td></tr>
       </table>
     </div>
   </section>
 
-  <footer class="footer">
+  <footer class="footer" id="footer">
     <div class="row">
-      <span>Built for the 0G APAC Hackathon, May 2026.</span>
+      <span>Hunt v1 &middot; 0G APAC Hackathon &middot; built on Kin's INFT &middot; TEE plumbing.</span>
       <a href="https://github.com/Ridwannurudeen/kin" target="_blank" rel="noreferrer">github</a>
-      <a href="https://chainscan.0g.ai" target="_blank" rel="noreferrer">0G chainscan</a>
-      <span style="margin-left: auto; color: var(--ink-mute);">5 primitives · 0G Compute · 0G Storage · 0G Chain · INFTs (ERC-7857) · Sealed Inference</span>
+      <a id="footerContract" target="_blank" rel="noreferrer">contract on chainscan</a>
+      <span style="margin-left: auto; color: var(--ink-mute);">5 primitives &middot; 0G Compute &middot; 0G Storage &middot; 0G Chain &middot; INFTs (ERC-7857) &middot; Sealed Inference</span>
     </div>
   </footer>
 </div>
 
-<script src="/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+<script src="/contracts.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+
+document.getElementById('postCta').addEventListener('click', (e) => { e.preventDefault(); });
+
+(async function init() {
+  await loadDeployment();
+  const addr = window.HUNT_ADDRESS;
+  const link = `${window.CHAINSCAN_URL}/address/${addr}`;
+  $('contractLink').textContent = addr;
+  $('contractLink').href = link;
+  $('footerContract').href = link;
+
+  if (addr === '0x0000000000000000000000000000000000000000') {
+    // Pre-deployment: keep placeholders, but mark gracefully.
+    $('contractLink').textContent = 'not yet deployed';
+    $('contractLink').removeAttribute('href');
+    return;
+  }
+
+  let provider;
+  try {
+    provider = new ethers.JsonRpcProvider(window.RPC_URL);
+    const hunt = new ethers.Contract(addr, window.HUNT_ABI, provider);
+
+    const [hunters, bounties, tee] = await Promise.all([
+      hunt.totalHunters(),
+      hunt.totalBounties(),
+      hunt.teeSigner().catch(() => null),
+    ]);
+    $('statHunters').textContent = hunters.toString();
+    $('statBounties').textContent = bounties.toString();
+    $('liveHunters').textContent = hunters.toString();
+    $('liveBounties').textContent = bounties.toString();
+    if (tee) $('teeSignerCell').textContent = tee;
+
+    // Count BountySettled events in last 30 days. Look back ~7 days of blocks
+    // (Aristotle ~1s blocks → ~2.6M blocks for 30d). RPC log windows often cap
+    // at a few thousand blocks, so this is a best-effort: try a smaller window
+    // and fall back to "—" silently if the RPC refuses.
+    try {
+      const head = await provider.getBlockNumber();
+      // ~2,592,000 blocks for 30d at 1s/block — almost certainly too wide.
+      // Try 50_000 first; degrade gracefully.
+      const lookback = 50_000;
+      const from = Math.max(0, head - lookback);
+      const filter = hunt.filters.BountySettled();
+      const evts = await hunt.queryFilter(filter, from, head);
+      $('statSettled').textContent = evts.length.toString();
+      $('liveSettled').textContent = `${evts.length} (last ${lookback} blocks)`;
+    } catch {
+      $('statSettled').textContent = '0';
+      $('liveSettled').textContent = '0';
+    }
+  } catch (e) {
+    console.error('init failed:', e);
+  }
+})();
+</script>
 </body>
 </html>

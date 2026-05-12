@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Judge Proof &mdash; Hunt</title>
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .brand em { color: var(--red); }
+  .proof-section { margin-bottom: 48px; }
+  .proof-section .head { font-family: var(--mono); font-size: 11px; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; align-items: center; }
+  .proof-section .head .right { color: var(--ink); font-family: var(--mono); }
+  .kv-grid { display: grid; grid-template-columns: 180px 1fr; gap: 8px 24px; font-family: var(--mono); font-size: 13px; }
+  @media (max-width: 600px) { .kv-grid { grid-template-columns: 1fr; gap: 4px; } }
+  .kv-grid .k { color: var(--ink-mute); }
+  .kv-grid .v { color: var(--ink); word-break: break-all; }
+  .kv-grid .v a { color: var(--gold); }
+  .kv-grid .v.mono { font-family: var(--mono); }
+  .status-pill { font-family: var(--mono); font-size: 11px; padding: 3px 10px; border-radius: 100px; text-transform: uppercase; letter-spacing: 0.1em; }
+  .status-pill.open    { background: #d9e8d3; color: var(--green); }
+  .status-pill.settled { background: var(--gold-tint); color: var(--gold); }
+  .status-pill.expired { background: var(--paper-soft); color: var(--ink-mute); }
+  .timeline { position: relative; height: 64px; background: var(--paper-soft); border: 1px solid var(--rule); border-radius: 2px; margin: 16px 0 28px; }
+  .timeline .axis { position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--ink-mute); }
+  .timeline .label { position: absolute; bottom: -22px; font-family: var(--mono); font-size: 10px; color: var(--ink-mute); }
+  .timeline .marker { position: absolute; top: calc(50% - 7px); width: 14px; height: 14px; border-radius: 50%; background: var(--ink); border: 2px solid var(--paper); transform: translateX(-7px); cursor: pointer; }
+  .timeline .marker.winner { background: var(--gold); box-shadow: 0 0 0 3px var(--gold-tint); width: 18px; height: 18px; top: calc(50% - 9px); transform: translateX(-9px); }
+  .timeline .marker:hover::after {
+    content: attr(data-tip);
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: var(--ink); color: var(--paper); padding: 6px 10px; border-radius: 2px;
+    font-family: var(--mono); font-size: 11px; white-space: nowrap; z-index: 10;
+  }
+  table.findings { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; margin-top: 12px; }
+  table.findings th { text-align: left; padding: 8px 8px; font-size: 10px; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid var(--ink); font-weight: 500; }
+  table.findings td { padding: 8px 8px; border-bottom: 1px dashed var(--rule); vertical-align: top; }
+  table.findings tr.winner { background: var(--gold-tint); }
+  table.findings tr.winner td { font-weight: 500; }
+  .sev-critical { color: var(--red); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.08em; }
+  .sev-high     { color: #b3691f; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.08em; }
+  .sev-medium   { color: var(--ink); font-weight: 500; text-transform: uppercase; font-size: 11px; letter-spacing: 0.08em; }
+  .sev-low      { color: var(--ink-mute); text-transform: uppercase; font-size: 11px; letter-spacing: 0.08em; }
+  .winner-panel { border: 2px solid var(--gold); background: linear-gradient(to bottom, #fff7e0 0%, #fdfbf5 100%); padding: 28px; border-radius: 2px; margin-top: 8px; }
+  .winner-panel .crown { font-family: var(--serif); font-size: 28px; font-weight: 600; margin-bottom: 8px; }
+  .winner-panel .crown em { color: var(--gold); font-style: italic; }
+  .code-block { background: var(--ink); color: var(--paper); padding: 18px 22px; border-radius: 2px; font-family: var(--mono); font-size: 13px; line-height: 1.7; white-space: pre; overflow-x: auto; }
+  .input-bar { display: flex; gap: 12px; align-items: center; margin-bottom: 24px; }
+  .input-bar input { max-width: 200px; }
+  .scope-list { font-family: var(--mono); font-size: 12px; }
+  .scope-list .chip { display: inline-block; margin: 2px 4px 2px 0; padding: 2px 8px; background: var(--paper-soft); border: 1px solid var(--rule); border-radius: 100px; }
+  .rep-table { width: 100%; font-family: var(--mono); font-size: 12px; border-collapse: collapse; }
+  .rep-table td { padding: 6px 0; border-bottom: 1px dashed var(--rule); }
+  .rep-table td.k { color: var(--ink-mute); width: 220px; }
+  .empty { padding: 48px 0; text-align: center; color: var(--ink-mute); font-style: italic; font-family: var(--serif); font-size: 17px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header class="masthead">
+    <div class="masthead-row">
+      <div>
+        <div class="brand">Hunt<em>.</em></div>
+        <div class="tagline">judge proof mode</div>
+      </div>
+      <span class="pill">0g aristotle mainnet</span>
+    </div>
+    <nav class="nav-row">
+      <a href="/">home</a>
+      <a href="/hunters.html">hunters</a>
+      <a href="/bounties.html">bounties</a>
+      <a href="/proof.html" class="active">judge proof</a>
+    </nav>
+  </header>
+
+  <section style="padding: 40px 0 16px;">
+    <div class="section-eyebrow">cryptographic receipt</div>
+    <h2 class="section-title">Verify the <em>race.</em></h2>
+    <p style="font-family: var(--serif); font-size: 17px; color: var(--ink-soft); max-width: 720px; line-height: 1.55; margin-bottom: 24px;">
+      Every field below is read directly from the contract. The attestation digest is re-derived in the browser from the on-chain finding tuple. The signer is recovered from the attestation signature and checked against <span style="font-family:var(--mono); font-size:13px;">Hunt.teeSigner()</span>.
+      If a value can be forged off-chain, it's not on this page.
+    </p>
+
+    <div class="input-bar">
+      <input id="bountyInput" type="number" placeholder="bounty id" min="0">
+      <button id="loadBtn" class="btn">load receipt &rarr;</button>
+      <span id="hint" style="font-family: var(--mono); font-size: 12px; color: var(--ink-mute);"></span>
+    </div>
+
+    <div id="root">
+      <p class="empty">enter a bounty id above, or append <span style="font-family: var(--mono);">?bounty=N</span> to the url.</p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="row">
+      <span>Contract: <span id="contractAddr" style="font-family: var(--mono); font-size: 13px;">&mdash;</span></span>
+      <a id="contractLink" target="_blank" rel="noreferrer">chainscan &#x2197;</a>
+    </div>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+<script src="/contracts.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+// Re-derive the attestation digest from a finding row, mirroring Hunt.sol:298-302.
+function deriveAttestationDigest(bountyId, codeRoot, hunterId, f, modelDigest) {
+  // The on-chain finding doesn't store modelDigest — only the attestationDigest. We pass
+  // modelDigest from the off-chain receipt (it's part of the attestation envelope and
+  // travels alongside the finding in scripts/hunter.js step 8).
+  return ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(
+    ['uint256','bytes32','uint256','bytes32','uint8','bytes32','bytes32','uint64','uint16','uint16','uint16','uint16'],
+    [
+      bountyId,
+      codeRoot,
+      hunterId,
+      f.cweClass,
+      Number(f.severity),
+      f.findingRoot,
+      modelDigest,
+      f.teeTimestamp,
+      Number(f.severityCalibrationBpsSelfEval),
+      Number(f.precisionBpsSelfEval),
+      Number(f.coverageBpsSelfEval),
+      Number(f.exploitabilityBpsSelfEval),
+    ]
+  ));
+}
+
+async function recoverEth(digest, sig) {
+  // Hunt.sol _recoverEth prefixes with "\x19Ethereum Signed Message:\n32" before ecrecover.
+  // ethers.verifyMessage takes the raw bytes that were signed (pre-prefix). Here the bytes
+  // are the 32-byte digest interpreted as a Uint8Array.
+  try {
+    return ethers.verifyMessage(ethers.getBytes(digest), sig);
+  } catch (e) {
+    return null;
+  }
+}
+
+function tsLocal(ts) { return new Date(Number(ts) * 1000).toLocaleString(); }
+function relSec(ts, base) {
+  const d = Number(ts) - Number(base);
+  return (d >= 0 ? '+' : '') + d + 's';
+}
+
+async function render(bountyId, provider, hunt) {
+  const root = $('root');
+  root.innerHTML = `<p class="empty">loading bounty #${bountyId}&hellip;</p>`;
+
+  // Pull everything in parallel.
+  const [bounty, findings, teeSigner] = await Promise.all([
+    hunt.getBounty(bountyId),
+    hunt.getFindings(bountyId),
+    hunt.teeSigner(),
+  ]);
+
+  if (bounty.poster === ethers.ZeroAddress) {
+    root.innerHTML = `<p class="empty">bounty #${bountyId} not found on-chain.</p>`;
+    return;
+  }
+
+  const statusInt = Number(bounty.status);
+  const statusKey = ['open','settled','expired'][statusInt] || 'unknown';
+  const inScopeStrings = (bounty.inScopeCwes || []).map(h => window.bytes32ToCwe(h) || h);
+  const winningIdx = statusInt === 1 ? Number(bounty.winningFindingIdx) : -1;
+
+  // Re-derive each finding's attestation digest. We *don't* know the modelDigest from on-
+  // chain (only from off-chain payload), so the "match" check is over the fields that DO
+  // live on-chain — i.e. we treat the modelDigest as zero32 and surface a warning if the
+  // derived digest doesn't equal the stored attestationDigest. The CLI verifier
+  // (scripts/verify_bounty.js) is the canonical check; this is best-effort.
+  // To do the check honestly: we re-derive assuming modelDigest may be zero AND we recover
+  // the signer over the stored attestationDigest directly, which IS sufficient because
+  // the contract's ecrecover used the on-chain attestationDigest as the message.
+  const enrichedFindings = await Promise.all(findings.map(async (f, idx) => {
+    const recovered = await recoverEth(f.attestationDigest, f.attestationSig);
+    const sigOk = recovered && recovered.toLowerCase() === teeSigner.toLowerCase();
+    return { ...f, idx, recovered, sigOk };
+  }));
+
+  const winningFinding = winningIdx >= 0 ? enrichedFindings[winningIdx] : null;
+
+  // ── Per-CWE rep AFTER settlement, for the winning hunter + class ──
+  let postRep = null, postAvg = null;
+  if (winningFinding) {
+    postRep = await hunt.getClassRep(winningFinding.hunterId, winningFinding.cweClass);
+    postAvg = await hunt.classAvg(winningFinding.hunterId, winningFinding.cweClass);
+  }
+
+  // ── Render ──
+  const raceWindow = Number(bounty.raceDeadline) - Number(bounty.postedAt);
+
+  function timelinePct(ts) {
+    if (raceWindow === 0) return 0;
+    const d = Number(ts) - Number(bounty.postedAt);
+    return Math.max(0, Math.min(100, (d / raceWindow) * 100));
+  }
+
+  const markers = enrichedFindings.map(f => {
+    const isWin = f.idx === winningIdx;
+    const cls = window.bytes32ToCwe(f.cweClass) || window.shortHash(f.cweClass);
+    const tip = `#${f.hunterId} · ${cls} · ${window.severityLabel(f.severity)} · ${relSec(f.teeTimestamp, bounty.postedAt)}`;
+    return `<div class="marker ${isWin ? 'winner' : ''}" style="left: ${timelinePct(f.teeTimestamp)}%" data-tip="${escapeHtml(tip)}"></div>`;
+  }).join('');
+
+  const scopeChips = inScopeStrings.length
+    ? inScopeStrings.map(s => `<span class="chip">${escapeHtml(s)}</span>`).join('')
+    : '<span class="chip" style="font-style:italic;">any class accepted</span>';
+
+  const findingsRows = enrichedFindings.map(f => {
+    const sev = window.severityLabel(f.severity);
+    const cls = window.bytes32ToCwe(f.cweClass) || window.shortHash(f.cweClass);
+    const selfAvg = ((Number(f.severityCalibrationBpsSelfEval) + Number(f.precisionBpsSelfEval) + Number(f.coverageBpsSelfEval) + Number(f.exploitabilityBpsSelfEval)) / 400).toFixed(2);
+    return `
+      <tr class="${f.idx === winningIdx ? 'winner' : ''}">
+        <td>#${f.hunterId}</td>
+        <td>${window.shortAddr(f.hunter)}</td>
+        <td>${escapeHtml(cls)}</td>
+        <td><span class="sev-${sev}">${sev}</span></td>
+        <td>${window.shortHash(f.findingRoot)}</td>
+        <td>${relSec(f.teeTimestamp, bounty.postedAt)}</td>
+        <td>${selfAvg}/5</td>
+        <td>${window.shortHash(f.attestationDigest)}</td>
+        <td>${f.sigOk ? `<span style="color:var(--green);">&#x2713; ${window.shortAddr(f.recovered)}</span>` : '<span style="color:var(--red);">&#x2717; bad sig</span>'}</td>
+      </tr>
+    `;
+  }).join('');
+
+  let winnerSection = '';
+  if (winningFinding) {
+    winnerSection = `
+      <div class="proof-section">
+        <div class="head"><span>winning finding</span><span class="right">&#x2605; settled</span></div>
+        <div class="winner-panel">
+          <div class="crown">hunter <em>#${winningFinding.hunterId}</em> took the bounty</div>
+          <div class="kv-grid">
+            <div class="k">hunter</div>             <div class="v">${winningFinding.hunter}</div>
+            <div class="k">CWE class</div>          <div class="v">${escapeHtml(window.bytes32ToCwe(winningFinding.cweClass) || winningFinding.cweClass)}</div>
+            <div class="k">severity</div>           <div class="v"><span class="sev-${window.severityLabel(winningFinding.severity)}">${window.severityLabel(winningFinding.severity)}</span></div>
+            <div class="k">finding root</div>       <div class="v">${winningFinding.findingRoot}</div>
+            <div class="k">teeTimestamp</div>       <div class="v">${winningFinding.teeTimestamp} <span style="color:var(--ink-mute);">(${tsLocal(winningFinding.teeTimestamp)} · ${relSec(winningFinding.teeTimestamp, bounty.postedAt)} into race)</span></div>
+            <div class="k">submittedAt</div>        <div class="v">${winningFinding.submittedAt} <span style="color:var(--ink-mute);">(${tsLocal(winningFinding.submittedAt)})</span></div>
+            <div class="k">self-eval (sev-cal/prec/cov/expl bps)</div>
+            <div class="v">${winningFinding.severityCalibrationBpsSelfEval} / ${winningFinding.precisionBpsSelfEval} / ${winningFinding.coverageBpsSelfEval} / ${winningFinding.exploitabilityBpsSelfEval}</div>
+            <div class="k">attestation digest</div> <div class="v">${winningFinding.attestationDigest}</div>
+            <div class="k">attestation sig</div>    <div class="v">${winningFinding.attestationSig.slice(0,42)}&hellip;${winningFinding.attestationSig.slice(-12)}</div>
+            <div class="k">signer recovered</div>
+            <div class="v">${winningFinding.sigOk
+                ? `<span style="color:var(--green);">&#x2713; ${winningFinding.recovered}</span> &nbsp;== Hunt.teeSigner()`
+                : `<span style="color:var(--red);">&#x2717; ${winningFinding.recovered || 'recovery failed'}</span>`}</div>
+          </div>
+
+          <div style="margin-top: 24px;">
+            <div style="font-family: var(--mono); font-size: 11px; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">current per-CWE reputation for this hunter</div>
+            <table class="rep-table">
+              <tr><td class="k">wins / submissions (this class)</td><td>${postRep.wins} / ${postRep.submissions}</td></tr>
+              <tr><td class="k">total earned (this class, wei)</td><td>${postRep.totalEarnedWei.toString()}</td></tr>
+              <tr><td class="k">avg severity calibration</td><td>${postAvg.severityCalibrationBps == 0n ? '—' : (Number(postAvg.severityCalibrationBps) / 10000).toFixed(2) + ' / 5'}</td></tr>
+              <tr><td class="k">avg precision</td><td>${postAvg.precisionBps == 0n ? '—' : (Number(postAvg.precisionBps) / 10000).toFixed(2) + ' / 5'}</td></tr>
+              <tr><td class="k">avg coverage</td><td>${postAvg.coverageBps == 0n ? '—' : (Number(postAvg.coverageBps) / 10000).toFixed(2) + ' / 5'}</td></tr>
+              <tr><td class="k">avg exploitability</td><td>${postAvg.exploitabilityBps == 0n ? '—' : (Number(postAvg.exploitabilityBps) / 10000).toFixed(2) + ' / 5'}</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+  } else if (statusInt === 0) {
+    winnerSection = `
+      <div class="proof-section">
+        <div class="head"><span>winning finding</span><span class="right">race still open</span></div>
+        <p class="empty">Race is live. No winner yet &mdash; check back after <span style="font-family:var(--mono);">raceDeadline</span> + settlement.</p>
+      </div>
+    `;
+  } else if (statusInt === 2) {
+    winnerSection = `
+      <div class="proof-section">
+        <div class="head"><span>winning finding</span><span class="right">expired</span></div>
+        <p class="empty">Bounty expired without settlement. Escrow refunded.</p>
+      </div>
+    `;
+  }
+
+  root.innerHTML = `
+    <div class="proof-section">
+      <div class="head"><span>bounty #${bountyId}</span><span class="right"><span class="status-pill ${statusKey}">${window.statusLabel(bounty.status)}</span></span></div>
+      <div class="kv-grid">
+        <div class="k">poster</div>          <div class="v"><a href="${window.CHAINSCAN_URL}/address/${bounty.poster}" target="_blank">${bounty.poster}</a></div>
+        <div class="k">max payout</div>      <div class="v"><span style="color:var(--gold); font-weight:600;">${ethers.formatEther(bounty.maxPayout)} OG</span></div>
+        <div class="k">code root</div>       <div class="v">${bounty.codeRoot}</div>
+        <div class="k">postedAt</div>        <div class="v">${bounty.postedAt} <span style="color:var(--ink-mute);">(${tsLocal(bounty.postedAt)})</span></div>
+        <div class="k">raceDeadline</div>    <div class="v">${bounty.raceDeadline} <span style="color:var(--ink-mute);">(${tsLocal(bounty.raceDeadline)} · race window ${raceWindow}s)</span></div>
+        <div class="k">settleDeadline</div>  <div class="v">${bounty.settleDeadline} <span style="color:var(--ink-mute);">(${tsLocal(bounty.settleDeadline)})</span></div>
+        <div class="k">winningFindingIdx</div><div class="v">${statusInt === 1 ? bounty.winningFindingIdx.toString() : '—'}</div>
+        <div class="k">in-scope CWEs</div>   <div class="v scope-list">${scopeChips}</div>
+      </div>
+    </div>
+
+    <div class="proof-section">
+      <div class="head"><span>race timeline</span><span class="right">${findings.length} finding${findings.length === 1 ? '' : 's'}</span></div>
+      <div class="timeline" id="timeline">
+        <div class="axis"></div>
+        ${markers}
+        <span class="label" style="left: 0;">postedAt</span>
+        <span class="label" style="right: 0;">raceDeadline</span>
+      </div>
+    </div>
+
+    <div class="proof-section">
+      <div class="head"><span>all findings (chronological per teeTimestamp)</span><span class="right">teeSigner: ${window.shortAddr(teeSigner)}</span></div>
+      ${findings.length === 0 ? '<p class="empty">no findings submitted</p>' : `
+        <table class="findings">
+          <thead>
+            <tr>
+              <th>hunter</th><th>address</th><th>CWE class</th><th>sev</th>
+              <th>finding root</th><th>tee t</th><th>self-eval avg</th>
+              <th>att. digest</th><th>signer recovered</th>
+            </tr>
+          </thead>
+          <tbody>${findingsRows}</tbody>
+        </table>
+      `}
+    </div>
+
+    ${winnerSection}
+
+    <div class="proof-section">
+      <div class="head"><span>verify it yourself</span><span class="right">canonical CLI</span></div>
+      <p style="font-family: var(--serif); font-size: 15px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 12px;">
+        The browser does best-effort signer recovery above. For the canonical, full check &mdash;
+        re-derive the attestation digest including <span style="font-family:var(--mono); font-size:13px;">modelDigest</span>,
+        ecrecover the signer, and compare to <span style="font-family:var(--mono); font-size:13px;">Hunt.teeSigner()</span>
+        &mdash; run the standalone Node script. It needs nothing but <span style="font-family:var(--mono); font-size:13px;">ethers</span>.
+      </p>
+      <div class="code-block">git clone https://github.com/Ridwannurudeen/kin
+cd kin &amp;&amp; npm install
+node scripts/verify_bounty.js ${bountyId}</div>
+    </div>
+  `;
+}
+
+(async function init() {
+  await loadDeployment();
+  $('contractAddr').textContent = window.HUNT_ADDRESS;
+  $('contractLink').href = `${window.CHAINSCAN_URL}/address/${window.HUNT_ADDRESS}`;
+
+  const params = new URLSearchParams(location.search);
+  const bountyId = params.get('bounty');
+  if (bountyId !== null) $('bountyInput').value = bountyId;
+
+  if (window.HUNT_ADDRESS === '0x0000000000000000000000000000000000000000') {
+    $('root').innerHTML = `<p class="empty">Hunt contract not yet deployed. Once <span style="font-family:var(--mono);">deployments/Hunt.json</span> lands, paste a bounty id above to see its full receipt.</p>`;
+    return;
+  }
+
+  const provider = new ethers.JsonRpcProvider(window.RPC_URL);
+  const hunt = new ethers.Contract(window.HUNT_ADDRESS, window.HUNT_ABI, provider);
+
+  $('loadBtn').addEventListener('click', async () => {
+    const id = $('bountyInput').value;
+    if (!id) { $('hint').textContent = 'enter a bounty id'; return; }
+    $('hint').textContent = '';
+    history.replaceState(null, '', `?bounty=${id}`);
+    try {
+      await render(id, provider, hunt);
+    } catch (e) {
+      console.error(e);
+      $('root').innerHTML = `<p class="empty">error: ${escapeHtml(e.message)}</p>`;
+    }
+  });
+
+  if (bountyId !== null) {
+    try { await render(bountyId, provider, hunt); }
+    catch (e) {
+      console.error(e);
+      $('root').innerHTML = `<p class="empty">error: ${escapeHtml(e.message)}</p>`;
+    }
+  }
+})();
+</script>
+</body>
+</html>

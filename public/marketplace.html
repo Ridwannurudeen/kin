@@ -42,12 +42,12 @@
     <div style="background: var(--paper); border: 1px solid var(--ink); padding: 32px; max-width: 600px; width: calc(100% - 64px); border-radius: 2px; box-shadow: 0 24px 48px -12px rgba(0,0,0,0.3);">
       <div class="section-eyebrow">post a job</div>
       <h3 id="postTitle" style="font-family: var(--serif); font-size: 28px; font-weight: 500; margin-bottom: 12px;">Post to skill #—</h3>
-      <p style="color: var(--ink-mute); font-size: 13px; margin-bottom: 20px;">Your brief is encrypted client-side, uploaded to 0G Storage, then decrypted only inside the Sealed Inference enclave at execution time.</p>
+      <p style="color: var(--ink-mute); font-size: 13px; margin-bottom: 20px;">Your brief is encrypted client-side to the skill owner's pubkey and uploaded to 0G Storage. Only the senior engineer you chose can decrypt it. Output is encrypted back to your pubkey.</p>
 
       <form id="postForm">
         <div class="field">
-          <label>Brief (what do you need this skill to do?)</label>
-          <textarea id="brief" placeholder="e.g. Write a 200-word internal memo announcing a 4-week sprint…" rows="6" required></textarea>
+          <label>Brief — paste the diff + focus areas + constraints</label>
+          <textarea id="brief" placeholder="Paste the unified diff you want reviewed. Add focus (correctness / perf / security), any context the reviewer needs, and known constraints." rows="6" required></textarea>
         </div>
         <div style="margin-top: 8px; font-family: var(--mono); font-size: 12px; color: var(--ink-mute);">
           escrow: <span id="postPrice">— OG</span>
