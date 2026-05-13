@@ -2,9 +2,17 @@
 
 Record at 1080p, 30+ fps. Real voice, no TTS. Single take if you can; one cut at the join between the race and the verification beat is acceptable.
 
-**Before recording.** Have the live deployment loaded — three hunters minted, a fresh bounty posted against the staged Vault.sol so the race can fire on demand (bounty #3 is the settled headline race already on-chain; for the recording either re-post a fresh bounty pre-take and run on that ID, or run on bounty #3 directly if it's still in the race window). Open four windows: (1) `public/bounties.html` showing the live bounty OPEN with the race countdown, (2) terminal with `scripts/run_race.js` ready to run, (3) `public/proof.html?bounty=3` for the verification beat, (4) `chainscan.0g.ai/address/0xD4Fe5127d519B775a9a581A54ED0719BBFf0d68C` pinned in a tab so the txs are reachable from the screen.
+**Before recording (Plan A — preferred).** Hunt's primary live audit target is **ChartChain**, a separate live 0G project on Aristotle mainnet (`0x5DDD81e39b2f3022AB9188D4eacaCdDC16566D00`). Pre-fire a fresh bounty against `audits/chartchain/MedicalRecordsVault.sol`:
 
-**Honesty preface for the recording.** Use **bounty #3** as the hero race — it ran on real 0G Sealed Inference with a TEE attestation, settled cleanly on Aristotle mainnet. The fallback path (`lib/audit-fallback.js`) is documented + tested + activated for the two hunters whose concurrent inference calls hit transient `fetch failed` during the race. Mention this honestly: graceful degradation under transient failure is a feature, and the fallback's distinct on-chain `modelDigest` makes the two paths always distinguishable on-chain.
+```bash
+node scripts/post_bounty.js --payout 0.1 --race-duration 900   # 15 min so recording fits comfortably
+```
+
+Capture the returned `bountyId` (this becomes `<CC_ID>` everywhere below) and the post tx hash. Have the live deployment loaded — three hunters minted; the bounty OPEN on the bounties page; `scripts/run_race.js` ready in a terminal. Open four windows: (1) `public/bounties.html` showing the ChartChain bounty OPEN with countdown, (2) terminal with `BOUNTY_ID=<CC_ID> node scripts/run_race.js` ready, (3) `public/proof.html?bounty=<CC_ID>` for the verification beat, (4) `chainscan.0g.ai/address/0xD4Fe5127d519B775a9a581A54ED0719BBFf0d68C` pinned so txs are reachable from the screen.
+
+**Plan B fallback.** If the ChartChain race fails, hits a 0G outage, or produces no in-scope findings during the recording window, fall back to bounty #3 (settled headline race against the staged `demo/staged-bounty/Vault.sol`, real Sealed Inference, fully verifiable today). The script narration is written to work for either path; the strict-verify scene runs identically against whichever bounty id is the hero. Replace `<CC_ID>` with `3` in the commands.
+
+**Honesty preface for the recording.** The hero race targets a real live 0G protocol (ChartChain) under real 0G Sealed Inference. The fallback path (`lib/audit-fallback.js`) is documented + tested + activates on transient `fetch failed` under concurrent broker load; its findings stamp a *distinct* on-chain `modelDigest` so judges can always distinguish Sealed Inference findings from heuristic findings. v1's on-chain digest is operator-relayed (signed by `teeSigner`); v2 swaps the relay for a TEE-attestation-verifying signer set. Mention all of this honestly in the wrap.
 
 ---
 
@@ -14,9 +22,9 @@ Record at 1080p, 30+ fps. Real voice, no TTS. Single take if you can; one cut at
 
 > "Three problems with bug-bounty AI today. Centralised auditors can't prove which model ran on your code. Human audits are slow. And private contracts can't be shipped to OpenAI."
 
-[Cut to the Vault.sol diff, the `_currentPrice()` lines highlighted.]
+[Cut briefly to `audits/chartchain/MedicalRecordsVault.sol` opened in the editor — scroll past the `transfer` + `logQuery` + `addRecord` functions.]
 
-> "Hunt. Sealed bug bounties on 0G."
+> "Hunt. Sealed bug bounties on 0G. Tonight Hunt is auditing ChartChain — a separate live 0G protocol, on Aristotle mainnet, right now."
 
 ---
 
@@ -34,39 +42,39 @@ Record at 1080p, 30+ fps. Real voice, no TTS. Single take if you can; one cut at
 
 ## [00:35 — 02:00]  Hero scene — the race runs live (85s)
 
-[Cut to terminal. Run `BOUNTY_ID=3 node scripts/run_race.js` live, OR re-run a fresh race against a freshly-posted bounty (`scripts/post_bounty.js` first, then `run_race.js`). Don't pre-record.]
+[Cut to terminal. Run `BOUNTY_ID=<CC_ID> node scripts/run_race.js` live against the freshly-posted ChartChain bounty (Plan A); if recording Plan B, substitute `BOUNTY_ID=3`. Don't pre-record.]
 
 [As output streams, narrate while it happens.]
 
-> "I'm running all three hunters against the live bounty on Aristotle mainnet. Each hunter is constrained to their specialty class — reentrancy-specialist will not even consider oracle findings."
+> "I'm running all three hunters against the live bounty on Aristotle mainnet. Each hunter is constrained to their specialty class — the reentrancy-specialist won't even consider oracle findings."
 
 [Three "[reentrancy-specialist] starting (specialty=swc-107-reentrancy)", "[oracle-specialist] starting (specialty=oracle-manipulation)", "[access-control-specialist] starting (specialty=access-control)" lines stream with the 8-second stagger.]
 
-> "Each hunter pulls the encrypted Vault.sol from 0G Storage, decrypts inside its own TEE, runs top-K retrieval over its prior findings, and calls Sealed Inference with brief.focus narrowed to its specialty intersected with the bounty scope."
+> "Each hunter pulls the encrypted ChartChain source from 0G Storage, decrypts inside its own TEE, runs top-K retrieval over its prior findings, and calls Sealed Inference with the brief narrowed to its specialty intersected with the bounty's CWE scope."
 
-[Oracle-specialist log: "passed quality gate at attempt 1, overall 8875bps; generated 3 findings; best = oracle-manipulation/high". `submitFinding` tx fires. Reentrancy and access-control specialists may hit transient `fetch failed` and drop to the local heuristic — if they do, they return zero in-scope findings because the heuristic correctly finds no reentrancy or access-control bug in this Vault.]
+[Watch which specialist(s) submit. ChartChain's most plausible finding classes (per `audits/chartchain/README.md`) are access-control or storage-collision; oracle-specialist may legitimately return zero. Whoever submits, narrate the actual finding the daemon logs print, don't pre-script the result.]
 
-> "Oracle-specialist: high-severity oracle-staleness finding submitted. The contract reads `updatedAt` from the feed but only checks freshness inside the admin-only `setPrice`. Every user path bypasses the gate. The other two specialists either ran inference and found nothing in their class — correct, the bug isn't there — or hit a transient inference failure and fell back to the documented local heuristic, which also correctly returned zero findings in their specialty."
+> "Whichever specialist's domain the bug lives in submits. The others — if their inference ran cleanly and found nothing in scope, that's the correct result; if they hit a transient inference failure they fall back to the documented local heuristic, which stamps a distinct `modelDigest` on-chain so the two paths are always distinguishable."
 
-[`submitFinding` tx streams. Show the tx hash for bounty #3's submit — match it against the chainscan tab.]
+[`submitFinding` tx streams. Show the tx hash for the actual submit — match it against the chainscan tab.]
 
 > "Attestation signed: bounty id, code root, hunter id, CWE class, severity, finding root, model digest, TEE timestamp. The contract `ecrecover`s the signature against `teeSigner`. Submitted."
 
-[Cut to a second terminal tab — run `node scripts/settle_bounty.js`. Settle tx fires.]
+[Cut to a second terminal tab — run `node scripts/settle_bounty.js`. Settle tx fires. If no in-scope finding was submitted, run `expireBounty(<CC_ID>)` instead and narrate that result honestly.]
 
-> "Poster picks the winning finding, rates it on four axes, calls `settleBounty`. Payment splits — 0.05 OG to the oracle-specialist. `ClassRep[hunterId=1][oracle-manipulation]` ticks up. The other two hunters' oracle reputation stays flat because they didn't submit."
+> "Poster picks the winning finding, rates it on four axes, calls `settleBounty`. Payout splits to the winning hunter. `ClassRep[hunterId][cweClass]` updates per CWE — only the matching specialty's rep moves. The other hunters' rep in that class stays flat because they didn't submit. The chain reflects calibrated expertise, not a single fungible 'is-good' score."
 
-[Snap to chainscan tab — show the settle tx `0x9edab38c…d241` confirmed (bounty #3 settle).]
+[Snap to chainscan tab — show the settle (or expire) tx confirmed.]
 
 ---
 
 ## [02:00 — 02:30]  Verifiable — anyone can re-derive the proof (30s)
 
-[Cut to `public/proof.html?bounty=3` — show the receipt panel: bounty header, timeline, winner card with the decoded attestation digest fields, signer recovery row.]
+[Cut to `public/proof.html?bounty=<CC_ID>` — show the receipt panel: bounty header, timeline, winner card with the decoded attestation digest fields, signer recovery row.]
 
 > "Every claim Hunt makes about that race is verifiable on-chain. This is the judge-proof panel — timeline, scope, the winning finding, the attestation digest, the signer recovery."
 
-[Cut to terminal. Compute the headline modelDigest with the one-liner from `doc/SUBMISSION.md` §9, then run `node scripts/verify_bounty.js 3 --model-digest 0x<digest>` in strict mode.]
+[Cut to terminal. Compute the headline modelDigest with the one-liner from `doc/SUBMISSION.md` §9, then run `node scripts/verify_bounty.js <CC_ID> --model-digest 0x<digest>` in strict mode.]
 
 > "And here's the independent verifier in strict mode. No project setup. Reads only from the public 0G RPC. Re-derives the attestation digest from on-chain state plus the supplied modelDigest — same encoding as `Hunt.sol` line 298. Runs `ecrecover`. Checks the `teeTimestamp` falls inside the race window."
 
@@ -78,9 +86,9 @@ Record at 1080p, 30+ fps. Real voice, no TTS. Single take if you can; one cut at
 
 ## [02:30 — 02:55]  Wrap (25s)
 
-[Cut to the bounty page showing bounty #3 SETTLED.]
+[Cut to the bounty page showing the ChartChain bounty SETTLED (or EXPIRED if no in-scope findings).]
 
-> "Sealed Inference is the anti-cheat substrate — 0G's `ZG-Res-Key` attestation lets us bind which model ran on which input. v1 relays that signal on-chain through an operator-held key; v2 makes the relay a TEE-attestation-verifying signer set. 0G Storage is the privacy — sealed code never reaches the public chain. 0G Chain is the settlement and the reputation layer. One vertical now: smart-contract audit. Same architecture extends to any domain where the output is a structured judgement against a known taxonomy."
+> "Hunt just audited a separate live 0G protocol on Aristotle mainnet — sealed code in, attested finding out, payout settled, reputation updated per CWE class. Sealed Inference is the anti-cheat substrate: 0G's `ZG-Res-Key` attestation lets us bind which model ran on which input. v1 relays that signal on-chain through an operator-held key; v2 makes the relay a TEE-attestation-verifying signer set. 0G Storage is the privacy — sealed code never reaches the public chain. 0G Chain is the settlement and the reputation layer. One vertical now: smart-contract audit. Same architecture extends to any domain where the output is a structured judgement against a known taxonomy."
 
 [Final screen: Hunt masthead + tagline + contract address.]
 
@@ -94,9 +102,10 @@ Record at 1080p, 30+ fps. Real voice, no TTS. Single take if you can; one cut at
 - [ ] Real voice, no TTS, no music drowning narration; ambient terminal sounds OK
 - [ ] All terminal text legible at YouTube playback (≥18pt monospace, dark theme OK)
 - [ ] `scripts/run_race.js` actually runs live against `0xD4Fe5127d519B775a9a581A54ED0719BBFf0d68C` during the recording (do not pre-record + replay logs)
-- [ ] Honesty beat in the hero scene — explain bounty #0's documented fallback path (max_tokens budget bug, now fixed) AND that the live race uses real Sealed Inference with TEE attestation
+- [ ] Plan A: ChartChain bounty pre-fired with `node scripts/post_bounty.js --payout 0.1 --race-duration 900`; bountyId substituted everywhere `<CC_ID>` appears in the script body. Plan B: re-target bounty #3 if Plan A fails.
+- [ ] Honesty beat in the hero scene — explain the operator-relayed v1 attestation layer, the fallback `modelDigest` distinction, and the v2 chain-enforced upgrade path
 - [ ] Final length 2:30–2:55 (under 3 min hard cap)
-- [ ] Synthetic / staged code only on-screen (no real proprietary contracts)
+- [ ] Only MIT-licensed source (ChartChain `MedicalRecordsVault.sol`) or staged `Vault.sol` on-screen — no proprietary contracts
 - [ ] Upload to YouTube **unlisted**; do not publish until the submission is in
 - [ ] Paste the unlisted link into `doc/SUBMISSION.md` §6
 

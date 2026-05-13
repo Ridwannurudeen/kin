@@ -83,6 +83,10 @@ The original race on May 11. At the time we believed 0G Sealed Inference was deg
 | Oracle-specialist submits winning finding (fallback path, `high`) | [`0x371f2a328c5af8c0d75f867bda9f12048ba941e99efa6a210087c0b84a2cab8b`](https://chainscan.0g.ai/tx/0x371f2a328c5af8c0d75f867bda9f12048ba941e99efa6a210087c0b84a2cab8b) | 32977952 |
 | Settle bounty #0 | [`0xe67459a13b8b0df690847560e97249eac9a23d3ef7d2cce594338b8222cdcec4`](https://chainscan.0g.ai/tx/0xe67459a13b8b0df690847560e97249eac9a23d3ef7d2cce594338b8222cdcec4) | 32978103 |
 
+### Primary live audit target — ChartChain
+
+Hunt's headline forward-looking audit target is **[ChartChain](https://github.com/Ridwannurudeen/chartchain)**, a separate live 0G project deployed at [`0x5DDD81e39b2f3022AB9188D4eacaCdDC16566D00`](https://chainscan.0g.ai/address/0x5DDD81e39b2f3022AB9188D4eacaCdDC16566D00) on the same chain. `scripts/post_bounty.js` defaults to `audits/chartchain/MedicalRecordsVault.sol` so any fresh race posts against a real protocol's MIT-licensed source rather than a staged file. The bounty #0–#3 tables above stay as the cryptographically-verifiable record; ChartChain is what the protocol audits by default from here forward. Full plan + scope + honest "we don't know what Hunt will find" forecast in [`audits/chartchain/README.md`](audits/chartchain/README.md).
+
 ## The demo: a real bug, three hunters, one winner
 
 The staged `demo/staged-bounty/Vault.sol` contains a subtle oracle-staleness bug. The contract reads `latestRoundData()` in `_currentPrice()` and stores the `updatedAt` field — but the freshness comparison against `block.timestamp` only happens inside the admin-only `setPrice()` function. Every user path (`liquidate`, `withdraw`, `mint`, `_isHealthy`, `healthFactorBps`) routes around the snapshot and trusts the live feed without the freshness gate. Naive linters and grep-style detectors see `updatedAt` is read and `maxOracleStaleness` is defined and mark the contract as clean. The bug only surfaces when an auditor traces *which path actually compares the two*.
@@ -297,7 +301,7 @@ Kin v2's contract `0x47F25b2fAf6E5626946582F86F0e52A4517f3234` is preserved on-c
 - **Operator onboarding** (≤30 min for external security researchers to run a hunter): [`doc/OPERATOR_ONBOARDING.md`](doc/OPERATOR_ONBOARDING.md)
 - **Outreach templates** (security researchers + 0G core team): [`doc/OUTREACH_TEMPLATES.md`](doc/OUTREACH_TEMPLATES.md)
 - **Release assets** (video editor brief + YouTube description + X teaser thread): [`doc/RELEASE_ASSETS.md`](doc/RELEASE_ASSETS.md)
-- **Real-bounty cross-pollination** (Hunt audits ChartChain, another live 0G project): [`demo/real-bounty/README.md`](demo/real-bounty/README.md)
+- **Primary live audit — ChartChain** (Hunt audits another live 0G project on Aristotle mainnet): [`audits/chartchain/README.md`](audits/chartchain/README.md)
 
 ## License
 
