@@ -293,6 +293,7 @@ Kin v2's contract `0x47F25b2fAf6E5626946582F86F0e52A4517f3234` is preserved on-c
 - **Operator onboarding** (≤30 min for external security researchers to run a hunter): [`doc/OPERATOR_ONBOARDING.md`](doc/OPERATOR_ONBOARDING.md)
 - **Outreach templates** (security researchers + 0G core team): [`doc/OUTREACH_TEMPLATES.md`](doc/OUTREACH_TEMPLATES.md)
 - **Release assets** (video editor brief + YouTube description + X teaser thread): [`doc/RELEASE_ASSETS.md`](doc/RELEASE_ASSETS.md)
+- **Real-bounty cross-pollination** (Hunt audits ChartChain, another live 0G project): [`demo/real-bounty/README.md`](demo/real-bounty/README.md)
 
 ## License
 
