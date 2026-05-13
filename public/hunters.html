@@ -103,15 +103,18 @@ function specialtyMatches(declared, empiricalCls) {
 }
 
 async function loadHunterCard(hunt, id) {
-  const h = await hunt.getHunter(id);
+  const h = await window.withRetry(() => hunt.getHunter(id));
   if (h.owner === ethers.ZeroAddress) return null;
 
-  // For each canonical CWE, fetch class rep; show only those with wins > 0.
+  // For each canonical CWE, fetch class rep; show only those with wins > 0. Each
+  // call is retried up to 2× — with 12 CWE classes × 2 calls per hunter, the
+  // total per-hunter fan-out is 24 RPC reads and we'd rather not lose the whole
+  // card to one dropped fetch.
   const repPromises = window.CANONICAL_CWES.map(async (cls) => {
     const bytes32 = window.cweToBytes32(cls);
     const [rep, avg] = await Promise.all([
-      hunt.getClassRep(id, bytes32),
-      hunt.classAvg(id, bytes32),
+      window.withRetry(() => hunt.getClassRep(id, bytes32)),
+      window.withRetry(() => hunt.classAvg(id, bytes32)),
     ]);
     return { cls, rep, avg };
   });
@@ -186,28 +189,37 @@ function escapeHtml(s) {
     return;
   }
 
-  try {
-    const provider = new ethers.JsonRpcProvider(window.RPC_URL);
-    const hunt = new ethers.Contract(window.HUNT_ADDRESS, window.HUNT_ABI, provider);
-    const total = Number(await hunt.totalHunters());
-    if (total === 0) {
-      $('grid').innerHTML = `<p class="empty">No hunters minted yet &mdash; be the first.</p>`;
-      return;
+  async function load() {
+    try {
+      const provider = window.mkProvider();
+      const hunt = new ethers.Contract(window.HUNT_ADDRESS, window.HUNT_ABI, provider);
+      const total = Number(await window.withRetry(() => hunt.totalHunters()));
+      if (total === 0) {
+        $('grid').innerHTML = `<p class="empty">No hunters minted yet &mdash; be the first.</p>`;
+        return;
+      }
+      const ids = Array.from({ length: total }, (_, i) => i);
+      const cards = (await Promise.all(ids.map(id => loadHunterCard(hunt, id).catch(e => {
+        console.error('hunter', id, e);
+        return null;
+      })))).filter(Boolean);
+      if (cards.length === 0) {
+        $('grid').innerHTML = `<p class="empty">No hunters minted yet &mdash; be the first.</p>`;
+        return;
+      }
+      $('grid').innerHTML = cards.map(renderCard).join('');
+    } catch (e) {
+      console.error(e);
+      $('grid').innerHTML = `<p class="empty">
+        Could not read from 0G RPC: ${escapeHtml(e.message)}<br>
+        <span style="font-size:13px; color:var(--ink-mute);">0G's public endpoint is occasionally slow under load. Try again, or inspect the contract on
+        <a href="${window.CHAINSCAN_URL}/address/${window.HUNT_ADDRESS}" target="_blank">chainscan</a>.</span><br>
+        <button onclick="document.dispatchEvent(new CustomEvent('hunters-retry'))" class="btn ghost" style="margin-top:12px; font-size:12px; padding:6px 14px;">retry</button>
+      </p>`;
     }
-    const ids = Array.from({ length: total }, (_, i) => i);
-    const cards = (await Promise.all(ids.map(id => loadHunterCard(hunt, id).catch(e => {
-      console.error('hunter', id, e);
-      return null;
-    })))).filter(Boolean);
-    if (cards.length === 0) {
-      $('grid').innerHTML = `<p class="empty">No hunters minted yet &mdash; be the first.</p>`;
-      return;
-    }
-    $('grid').innerHTML = cards.map(renderCard).join('');
-  } catch (e) {
-    console.error(e);
-    $('grid').innerHTML = `<p class="empty">Error reading from chain: ${escapeHtml(e.message)}</p>`;
   }
+  document.addEventListener('hunters-retry', load);
+  await load();
 })();
 </script>
 </body>

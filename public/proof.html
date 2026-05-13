@@ -155,11 +155,12 @@ async function render(bountyId, provider, hunt) {
   const root = $('root');
   root.innerHTML = `<p class="empty">loading bounty #${bountyId}&hellip;</p>`;
 
-  // Pull everything in parallel.
+  // Pull everything in parallel, each call retried up to 2× to ride out transient
+  // "Failed to fetch" hiccups from 0G's public RPC.
   const [bounty, findings, teeSigner] = await Promise.all([
-    hunt.getBounty(bountyId),
-    hunt.getFindings(bountyId),
-    hunt.teeSigner(),
+    window.withRetry(() => hunt.getBounty(bountyId)),
+    window.withRetry(() => hunt.getFindings(bountyId)),
+    window.withRetry(() => hunt.teeSigner()),
   ]);
 
   if (bounty.poster === ethers.ZeroAddress) {
@@ -192,8 +193,8 @@ async function render(bountyId, provider, hunt) {
   // ── Per-CWE rep AFTER settlement, for the winning hunter + class ──
   let postRep = null, postAvg = null;
   if (winningFinding) {
-    postRep = await hunt.getClassRep(winningFinding.hunterId, winningFinding.cweClass);
-    postAvg = await hunt.classAvg(winningFinding.hunterId, winningFinding.cweClass);
+    postRep = await window.withRetry(() => hunt.getClassRep(winningFinding.hunterId, winningFinding.cweClass));
+    postAvg = await window.withRetry(() => hunt.classAvg(winningFinding.hunterId, winningFinding.cweClass));
   }
 
   // ── Render ──
@@ -361,8 +362,17 @@ node scripts/verify_bounty.js ${bountyId}</div>
     return;
   }
 
-  const provider = new ethers.JsonRpcProvider(window.RPC_URL);
+  const provider = window.mkProvider();
   const hunt = new ethers.Contract(window.HUNT_ADDRESS, window.HUNT_ABI, provider);
+
+  function renderError(e, id) {
+    return `<p class="empty">
+      Could not read bounty #${escapeHtml(String(id))}: ${escapeHtml(e.message)}<br>
+      <span style="font-size:13px; color:var(--ink-mute);">0G's public RPC occasionally drops requests under load. Try again, or inspect the contract on
+      <a href="${window.CHAINSCAN_URL}/address/${window.HUNT_ADDRESS}" target="_blank">chainscan</a>.</span><br>
+      <button onclick="document.getElementById('loadBtn').click()" class="btn ghost" style="margin-top:12px; font-size:12px; padding:6px 14px;">retry</button>
+    </p>`;
+  }
 
   $('loadBtn').addEventListener('click', async () => {
     const id = $('bountyInput').value;
@@ -373,7 +383,7 @@ node scripts/verify_bounty.js ${bountyId}</div>
       await render(id, provider, hunt);
     } catch (e) {
       console.error(e);
-      $('root').innerHTML = `<p class="empty">error: ${escapeHtml(e.message)}</p>`;
+      $('root').innerHTML = renderError(e, id);
     }
   });
 
@@ -381,7 +391,7 @@ node scripts/verify_bounty.js ${bountyId}</div>
     try { await render(bountyId, provider, hunt); }
     catch (e) {
       console.error(e);
-      $('root').innerHTML = `<p class="empty">error: ${escapeHtml(e.message)}</p>`;
+      $('root').innerHTML = renderError(e, bountyId);
     }
   }
 })();

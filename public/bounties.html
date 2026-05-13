@@ -234,9 +234,9 @@ async function loadAll() {
   }
 
   try {
-    const provider = new ethers.JsonRpcProvider(window.RPC_URL);
+    const provider = window.mkProvider();
     const hunt = new ethers.Contract(window.HUNT_ADDRESS, window.HUNT_ABI, provider);
-    const total = Number(await hunt.totalBounties());
+    const total = Number(await window.withRetry(() => hunt.totalBounties()));
     if (total === 0) {
       $('grid').innerHTML = `<p class="empty">No bounties posted yet.</p>`;
       return;
@@ -244,8 +244,8 @@ async function loadAll() {
     const ids = Array.from({ length: total }, (_, i) => i);
     const rows = await Promise.all(ids.map(async (id) => {
       const [b, findings] = await Promise.all([
-        hunt.getBounty(id),
-        hunt.getFindings(id),
+        window.withRetry(() => hunt.getBounty(id)),
+        window.withRetry(() => hunt.getFindings(id)),
       ]);
       return { id, b, findings };
     }));
@@ -268,12 +268,17 @@ async function loadAll() {
     tickCountdowns();
   } catch (e) {
     console.error(e);
-    $('grid').innerHTML = `<p class="empty">Error reading from chain: ${escapeHtml(e.message)}</p>`;
+    $('grid').innerHTML = `<p class="empty">
+      Could not read from 0G RPC: ${escapeHtml(e.message)}<br>
+      <span style="font-size:13px; color:var(--ink-mute);">0G's public endpoint is occasionally slow under load. Try again in a moment, or inspect the contract directly on
+      <a href="${window.CHAINSCAN_URL}/address/${window.HUNT_ADDRESS}" target="_blank">chainscan</a>.</span><br>
+      <button onclick="loadAll()" class="btn ghost" style="margin-top:12px; font-size:12px; padding:6px 14px;">retry</button>
+    </p>`;
   }
 }
 
 setInterval(tickCountdowns, 1000);
-setInterval(loadAll, 30_000);
+setInterval(loadAll, 60_000);
 loadAll();
 </script>
 </body>
