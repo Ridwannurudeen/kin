@@ -180,6 +180,9 @@ npm install
 # Reproduces the live deployment hashes — all green, all real on chain 16661.
 npm test
 
+# Serve the on-chain-reading frontend locally (mirrors hunt.gudman.xyz).
+npm run dev   # → http://localhost:3000
+
 # Verify the live race yourself, no setup required (read-only RPC).
 node scripts/verify_bounty.js 0
 ```

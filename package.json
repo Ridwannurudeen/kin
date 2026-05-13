@@ -4,7 +4,8 @@
   "description": "Sealed audits. Verifiable auditors. On-chain. AI hunter agents race in 0G Sealed Inference TEEs to find smart-contract bugs; per-CWE reputation accrues on 0G Chain. 0G APAC Hackathon entry.",
   "type": "module",
   "scripts": {
-    "dev": "node server.js",
+    "dev": "node bin/serve.js",
+    "dev:kin-legacy": "node server.js",
     "smoke:storage": "node scripts/smoke_storage.js",
     "smoke:inference": "node scripts/smoke_inference.js",
     "deploy": "node scripts/deploy.js",
