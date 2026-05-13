@@ -1,0 +1,132 @@
+SYNTHETIC PATHOLOGY REPORT — patterns modeled on the public discordance
+literature for second-opinion pathology review (Anticancer Research,
+ASCO 2021, PMC PMC5265198 on radiology error rates). All names, MRNs,
+accession numbers, dates, and laboratory identifiers are fabricated.
+The diagnostic ambiguity captured in this report is representative of
+the 14% major-discordance rate documented in general surgical pathology
+second opinions and the 11-15% rate in breast core biopsy review.
+
+------------------------------------------------------------------------
+SURGICAL PATHOLOGY REPORT
+ACME REGIONAL MEDICAL CENTER · Anatomic Pathology
+------------------------------------------------------------------------
+Patient:           [PATIENT NAME]
+MRN:               R-XXXXXXX
+DOB:               [DOB]
+Accession:         SP-26-XXXXXX
+Date of Procedure: [DATE]
+Specimen Source:   Right breast, ultrasound-guided core needle biopsy,
+                   12 o'clock position, 4 cm from nipple
+Ordering Provider: [PHYSICIAN]
+Clinical History:  46-year-old female with palpable mass and BI-RADS 4B
+                   imaging finding (heterogeneous, ill-defined,
+                   spiculated, 1.2 cm). Family history: maternal aunt
+                   with breast cancer at 58, BRCA testing pending.
+
+------------------------------------------------------------------------
+GROSS DESCRIPTION
+------------------------------------------------------------------------
+Three (3) tan-pink fibrofatty cores ranging 0.8 to 1.4 cm in greatest
+dimension. Submitted entirely in cassettes A1-A3. Sectioned at multiple
+levels with H&E.
+
+------------------------------------------------------------------------
+MICROSCOPIC DESCRIPTION
+------------------------------------------------------------------------
+Sections show breast parenchyma with proliferative changes including:
+
+- Florid ductal epithelial hyperplasia with focal architectural
+  complexity, including bridging and tufting
+- Areas with monotonous proliferation of small uniform cells with
+  loss of polarity, partially filling involved spaces (approximately
+  60-70% of cross-sectional area in 2 of 3 cores)
+- Background of fibrocystic change with apocrine metaplasia
+- Focal microcalcifications (psammomatous type) in associated stroma
+- No definite necrosis identified
+- No invasive component identified in submitted material
+
+Immunohistochemistry performed:
+
+- E-cadherin: retained (membranous staining preserved throughout)
+- p63 / SMM-HC: highlight intact myoepithelial layer around all
+  glandular structures examined
+- Ki-67: ~4-6% in proliferative areas (low)
+- ER: strongly positive (>95% nuclei, Allred 8/8)
+- PR: positive (~75% nuclei, Allred 7/8)
+- HER2 IHC: 1+ (negative; no reflex FISH indicated by current ASCO/CAP
+  guideline at 1+ on biopsy)
+
+------------------------------------------------------------------------
+DIAGNOSIS
+------------------------------------------------------------------------
+RIGHT BREAST, CORE NEEDLE BIOPSY:
+- ATYPICAL DUCTAL HYPERPLASIA (ADH)
+- Florid usual ductal hyperplasia with focal atypia
+- Fibrocystic change with apocrine metaplasia
+- Microcalcifications, benign (psammomatous, stromal)
+- See COMMENT.
+
+------------------------------------------------------------------------
+COMMENT
+------------------------------------------------------------------------
+The findings show a proliferative lesion with cytologic and architectural
+features that partially overlap with both atypical ductal hyperplasia
+(ADH) and low-grade ductal carcinoma in situ (DCIS). Specifically:
+
+- The clonal monotonous population involves 60-70% of cross-sectional
+  area in 2 of 3 cores, which approaches but does not clearly exceed
+  the historic 2 mm / 2 ducts threshold separating ADH from low-grade
+  DCIS in core biopsy material.
+- E-cadherin is retained, ruling out lobular neoplasia.
+- Ki-67 of 4-6% is low, supporting ADH over high-grade lesion.
+- Myoepithelial layer is intact (p63/SMM-HC), excluding invasion in the
+  submitted material.
+
+The distinction between ADH and low-grade DCIS in core biopsy material
+is recognized to have substantial interobserver variability. Excisional
+biopsy is recommended for definitive characterization and to evaluate
+the full extent of the lesion.
+
+------------------------------------------------------------------------
+NOTE TO HUNT'S READERS
+------------------------------------------------------------------------
+This synthetic report exhibits the diagnostic features documented in
+the breast-pathology second-opinion discordance literature as the
+single hardest interobserver call: ADH-vs-DCIS borderline lesions on
+core needle biopsy material. Published series report:
+
+- ~14% major-disagreement rate in general surgical pathology second
+  opinions (Anticancer Research, 2018)
+- ~11-15% major-disagreement specifically in breast core biopsy
+  review (multiple ASCO and CAP-tracked series)
+- ADH-vs-low-grade-DCIS is the single most-revised diagnostic
+  category in breast-pathology Q&A audits.
+
+A Hunt specialist panel posting against this report would surface
+questions for the treating physician to consider, NOT a competing
+diagnosis. Plausible questions a Records-Reader specialist would
+flag for the patient to ask:
+
+  (a) Whether the 60-70% involvement noted in 2 of 3 cores meets the
+      institution's threshold for upgrade-on-excision risk, and
+      whether wire-localized excisional biopsy is being scheduled
+      based on that risk stratification.
+  (b) Whether second-opinion pathology review (institutional or
+      external) has been requested before treatment planning, given
+      the documented discordance rate on this exact lesion type.
+  (c) Whether the patient's pending BRCA result and family history
+      change the recommended surveillance interval after excision,
+      independent of the final diagnosis.
+  (d) Whether Ki-67 ~5% and Allred 8/8 ER status affect the choice
+      of any post-excision risk-reduction discussion (e.g., tamoxifen
+      vs. anastrozole risk-benefit conversation under the NSABP P-1
+      and IBIS-II evidence base).
+
+NONE of (a)-(d) is a diagnosis. All are questions a patient should
+already be asking; the protocol's job is to surface them when the
+report's complexity makes them invisible to a non-specialist reader.
+
+DISCLAIMER: For research demonstration only. Not a medical device.
+Not a diagnosis. Not clinical decision support. Patients must
+discuss their actual pathology reports with their treating physician
+and a qualified pathologist.

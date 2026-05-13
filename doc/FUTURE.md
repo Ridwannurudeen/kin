@@ -68,7 +68,12 @@ Verification caveat: this pillar was not directly verified against Nexus/Sherloc
 
 ## Pillar 5 — Hunt beyond crypto (v2/v3, post-Pillar-2)
 
-Hunt's primitives — sealed inference, multi-specialist competition, on-chain per-domain reputation — are not actually about smart contracts. They are about **verifiable adversarial AI on private data.** The first non-crypto vertical is **health-insurance claim-denial defense.**
+Hunt's primitives — sealed inference, multi-specialist competition, on-chain per-domain reputation — are not actually about smart contracts. They are about **verifiable AI on private data.** Two non-crypto verticals are positioned:
+
+- **Pillar 5a — insurance-claim-denial defense** (defends citizens *against* opaque AI). Lead vertical; framing below.
+- **Pillar 5b — medical Records Reader** (gives citizens *better* verifiable AI than they could afford). Full plan in [`audits/medical/README.md`](../audits/medical/README.md). Same Hunt machinery, opposite face of the same primitive: where insurance is adversarial, medical is cooperative. Specialists surface *questions to ask your physician*, never a diagnosis — scoped strictly inside 21st Century Cures CDS exemption + FDA Jan 2026 enforcement-discretion guidance to avoid Class II/IIa device classification. Documented per-specialty disagreement rates (11-15% in breast pathology, 20-32% in radiology oncologic CT, up to 52% in neuro-oncology) are the **empirical ground-truth signal** that makes per-specialty reputation accrual meaningful in this domain — an empirical claim smart-contract auditing cannot make.
+
+### Pillar 5a — health-insurance claim-denial defense
 
 Why this is the right next vertical, in order of fit:
 
