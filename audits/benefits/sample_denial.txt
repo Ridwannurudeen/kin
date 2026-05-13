@@ -1,0 +1,154 @@
+SYNTHETIC SSDI DENIAL LETTER — patterns modeled on the standard SSA-1561
+"Notice of Disapproved Claim" template and the publicly documented
+medical-vocational decision-tree at 20 C.F.R. § 404.1505 et seq. All
+names, SSNs, claim numbers, and dates are fabricated. The structure,
+language, and reasoning patterns are representative of denial letters
+the Social Security Administration issues at the initial determination
+stage. Approximately 60-70% of initial SSDI applications are denied
+each year; appeal-success rates with representation exceed 50% at the
+ALJ hearing stage. As of January 2026, ~330,000 cases are pending an
+ALJ hearing with an average wait of 274 days.
+
+------------------------------------------------------------------------
+Social Security Administration
+Notice of Disapproved Claim
+
+Date:               [DATE]
+Claim Number:       XXX-XX-XXXX HA
+Claimant:           [CLAIMANT NAME]
+Wage Earner:        Self
+------------------------------------------------------------------------
+
+We are writing to tell you about the decision on the Social Security
+disability claim you filed on [DATE].
+
+WE FOUND THAT YOU ARE NOT DISABLED UNDER OUR RULES.
+
+This decision was based on the information you and your doctors gave us.
+
+  Information About Your Condition
+  --------------------------------
+  You said you cannot work because of degenerative disc disease of the
+  lumbar spine, chronic radicular pain, controlled type 2 diabetes
+  mellitus, and major depressive disorder. The medical evidence shows
+  that you have these conditions. We considered the medical and other
+  information, your age, education, training, and work experience in
+  determining how your condition affects your ability to work.
+
+  Listing of Impairments
+  ----------------------
+  We considered whether your conditions meet or medically equal any of
+  the impairments listed in 20 C.F.R. Part 404, Subpart P, Appendix 1
+  (the "Listing of Impairments"). The Listings describe, for each of
+  the major body systems, impairments that are considered severe
+  enough to prevent a person from doing any gainful activity. We
+  determined that your conditions, considered singly and in
+  combination, do not meet or medically equal the requirements of
+  any listed impairment, including Listing 1.15 (disorders of the
+  skeletal spine resulting in compromise of a nerve root) or
+  Listing 12.04 (depressive, bipolar, and related disorders).
+
+  Residual Functional Capacity
+  ----------------------------
+  We assessed your residual functional capacity (RFC) — the most you
+  can still do despite your limitations. Based on the medical
+  evidence, we found that you have the RFC to perform LIGHT WORK as
+  defined in 20 C.F.R. § 404.1567(b), with the following limitations:
+
+    - Lift and carry up to 20 pounds occasionally, 10 pounds frequently
+    - Stand and/or walk for 6 hours in an 8-hour workday
+    - Sit for 6 hours in an 8-hour workday
+    - Occasional climbing of ramps and stairs; no climbing of ladders,
+      ropes, or scaffolds
+    - Occasional stooping, kneeling, crouching, and crawling
+    - Avoid concentrated exposure to vibration and workplace hazards
+    - Limited to simple, routine, repetitive tasks
+
+  Past Relevant Work
+  ------------------
+  Your past relevant work includes work as a Warehouse Worker (DOT
+  922.687-058, Medium, SVP 2), performed from [YEAR] to [YEAR]. Based
+  on the RFC above, we found you can no longer perform your past
+  relevant work.
+
+  Adjustment to Other Work
+  ------------------------
+  Although you cannot perform your past relevant work, we considered
+  whether you can adjust to other work that exists in significant
+  numbers in the national economy. Given your age (52, "approaching
+  advanced age"), education (high school), work experience, and the
+  RFC stated above, we determined under Medical-Vocational Guideline
+  Rule 202.14 that you ARE NOT DISABLED. Representative occupations
+  include Cashier II (DOT 211.462-010, Light, SVP 2), Office Helper
+  (DOT 239.567-010, Light, SVP 2), and Ticket Taker (DOT 344.667-010,
+  Light, SVP 2), each existing in significant numbers nationally.
+
+If You Disagree With This Decision
+----------------------------------
+You have the right to appeal. If you do not appeal within 60 days, this
+decision will become final. To appeal, you must file a Request for
+Reconsideration (Form SSA-561) within 60 days of receiving this notice.
+
+You may have a representative help you with your claim. We can give
+you the names of organizations that can help. You can find more at
+www.ssa.gov/disability.
+
+------------------------------------------------------------------------
+NOTE TO HUNT'S BENEFITS SPECIALIST PANEL
+------------------------------------------------------------------------
+
+This synthetic denial letter exhibits seven defect patterns that
+recur in initial SSDI denials at the determination stage. A Hunt
+specialist panel posting against this denial would be expected to
+surface defects (a)-(d) via the medical-listing and RFC specialists,
+defect (e) via the vocational-expert specialist, and defects (f)-(g)
+via the procedural and combined-impairments specialists:
+
+  (a) **Failure to consider Listing 1.15 medical equivalence**, not just
+      meets-or-equals. Where MRI evidence shows nerve-root impingement
+      with corresponding radiculopathy, medical equivalence to Listing
+      1.15 must be evaluated affirmatively, with a stated rationale
+      under 20 C.F.R. § 404.1526.
+  (b) **RFC stooping limitation conflict with Light Work definition**.
+      The "occasional stooping" limitation is not supported by SSR
+      83-10 for unrestricted Light Work where stooping is more than
+      occasional; this combination is internally inconsistent and the
+      RFC must be re-examined.
+  (c) **No analysis of combined effect of MDD + chronic pain on
+      concentration, persistence, and pace** as required by SSR 96-8p.
+      A bare "simple, routine, repetitive tasks" limitation does not
+      satisfy the SSR 96-8p narrative-discussion requirement when MDD
+      and chronic radicular pain are documented and co-occurring.
+  (d) **Diabetic peripheral neuropathy and visual function not
+      addressed**. The record shows controlled DM2; complications
+      including neuropathy (Listing 11.14) and diabetic retinopathy
+      (Listing 2.00) must be evaluated even on "controlled" disease.
+  (e) **Medical-Vocational Guideline 202.14 misapplied at age 52**.
+      The claimant is "closely approaching advanced age" under
+      § 404.1563(d), which alters the disposition under Rule 202.06
+      where transferable skills are limited. A Vocational Expert (VE)
+      testimony at the ALJ stage would re-evaluate skill transferability
+      and DOT occupational base.
+  (f) **DOT-RFC conflict at Ticket Taker (DOT 344.667-010)**. The cited
+      job is classified as Light (frequent reaching, occasional
+      stooping). The claimant's RFC limits stooping to "occasional"
+      and limits exposure to workplace hazards — Ticket Taker stations
+      often involve security/crowd-management duties that exceed the
+      RFC. The conflict between RFC and DOT must be resolved per SSR
+      00-4p.
+  (g) **No discussion of treating-physician opinion weight**. Under
+      20 C.F.R. § 404.1520c (post-2017 claims), the determination
+      must articulate consideration of supportability + consistency
+      for each medical opinion. No such articulation is present.
+
+NONE of these is a competing diagnosis. All are legal/procedural
+appeal grounds rooted in the SSA's own regulations and Social Security
+Rulings. The protocol's job is to surface these defects from a denial
+letter that a non-lawyer pro-se claimant has no way to identify on
+their own.
+
+DISCLAIMER: For research demonstration only. Not legal advice. Not a
+substitute for representation by an attorney or accredited
+representative under 20 C.F.R. § 404.1705. Claimants should retain a
+qualified attorney or non-attorney representative before filing an
+appeal.

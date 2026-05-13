@@ -183,9 +183,17 @@ What judges can verify:
 
 ---
 
-## Q12 — Two non-crypto verticals (insurance + medical) are positioned in the submission. Isn't that scope creep?
+## Q12 — Three non-crypto verticals (insurance + benefits + medical) are positioned in the submission. Isn't that scope creep?
 
-**No. They're proof-of-generalization, not a competing v1 claim. The depth of 0G integration on the smart-contract substrate is unchanged; the new verticals reuse that substrate without diluting it.**
+**No. They're proof-of-generalization, not a competing v1 claim. The depth of 0G integration on the smart-contract substrate is unchanged; the new verticals reuse that substrate without diluting it. Three counterparties, one primitive.**
+
+The three verticals are deliberately distinct counterparties, not three flavors of the same thing:
+
+- **Insurance** defends citizens against *private-payor* opaque AI (UnitedHealth's nH Predict, Cigna's PXDX).
+- **Benefits** defends elderly, retired, and disabled citizens against *public-payor* opaque adjudication (SSA's 330K-case backlog, 274-day wait, structural representation gap).
+- **Medical** gives citizens *better* verifiable AI reads of their own records (cooperative, not adversarial — surfaces questions for the physician, scope-locked to FDA Jan 2026 CDS enforcement-discretion).
+
+Together they cover the full citizen-facing AI accountability landscape: opaque denial by private corps, opaque denial by government, and proactive verifiable second-opinion on private data. That's a coherent map, not scope salad.
 
 The strict line: anything that *modifies* v1's on-chain story is risky 3 days before submission. Anything that *reuses* v1's exact primitives in a documented v2 form is the opposite — it proves the substrate is general-purpose rather than narrow.
 
@@ -203,13 +211,15 @@ The v1 smart-contract narrative is still the load-bearing demo. The new vertical
 
 ## Q13 — How do I know the new-vertical positioning isn't just a manifesto? Where's the working substrate?
 
-**Three places, all runnable today without an on-chain transaction:**
+**Four places, all runnable today without an on-chain transaction:**
 
 1. **`node scripts/insurance_specialist_brief.js`** — constructs the v2 insurance-specialist system prompt, builds the structured brief over `audits/insurance/sample_denial.txt`, hashes the six denial-defect classes via the same `keccak256(utf8(name))` primitive as `lib/cwe.js`, computes a real attestation digest using the v1 `findingDigest` ABI encoding, and writes the full structured output to `audits/insurance/demo_output.json`. The digest construction is byte-for-byte identical to what `Hunt.submitFinding` would `ecrecover` if the v2 vertical were live.
 
-2. **`node scripts/medical_specialist_brief.js`** — the medical equivalent. The system prompt is **locked to "questions for the treating physician" + "second-opinion flags"** by the output schema itself, and the self-eval rationale must explicitly confirm scope discipline (no diagnosis / no treatment recommendation). Hashes six reading classes calibrated against published per-specialty disagreement rates (ASCO 2021, PMC PMC5265198). Writes `audits/medical/demo_output.json`.
+2. **`node scripts/benefits_specialist_brief.js`** — the SSDI/SSI/senior-benefits equivalent. Hashes seven defect classes mapped to the SSA's own sequential-evaluation regulations (20 C.F.R. § 404.1520 et seq.). System prompt explicitly forbids hallucinated C.F.R./SSR/POMS cites and requires the self-eval rationale to confirm scope discipline (no outcome guarantee, no representation claim). Writes `audits/benefits/demo_output.json`. Consumes a synthetic SSDI denial modeled on the SSA-1561 template with seven annotated defect patterns.
 
-3. **The two READMEs** (`audits/insurance/README.md`, `audits/medical/README.md`) — each contains a **runnable data-flow ASCII diagram** showing where 0G Storage, 0G Sealed Inference, and 0G Chain plug into the new vertical exactly as they plug into v1. Each contains an honest v1-privacy caveat citing the shared-hunter-network-key gap and the per-hunter ECDH envelope that closes it in v2. Each has a public-data validation plan (CMS QIO external-review outcomes for insurance; MIMIC-CXR / TCGA / NIH ChestX-ray14 / CAMELYON for medical).
+3. **`node scripts/medical_specialist_brief.js`** — the medical equivalent. The system prompt is **locked to "questions for the treating physician" + "second-opinion flags"** by the output schema itself, and the self-eval rationale must explicitly confirm scope discipline (no diagnosis / no treatment recommendation). Hashes six reading classes calibrated against published per-specialty disagreement rates (ASCO 2021, PMC PMC5265198). Writes `audits/medical/demo_output.json`.
+
+4. **The three READMEs** (`audits/insurance/README.md`, `audits/benefits/README.md`, `audits/medical/README.md`) — each contains a **runnable data-flow ASCII diagram** showing where 0G Storage, 0G Sealed Inference, and 0G Chain plug into the new vertical exactly as they plug into v1. Each contains an honest v1-privacy caveat citing the shared-hunter-network-key gap and the per-hunter ECDH envelope that closes it in v2. Each has a public-data validation plan (CMS QIO external-review outcomes for insurance; SSA POMS/SSR + ALJ disposition data for benefits; MIMIC-CXR / TCGA / NIH ChestX-ray14 / CAMELYON for medical).
 
 What is **not** claimed for the May 2026 submission:
 

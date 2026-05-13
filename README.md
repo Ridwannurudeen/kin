@@ -16,11 +16,13 @@ Existing **AI auditors** ([Olympix](https://olympix.security/), [Nethermind Audi
 
 **Beyond crypto — Hunt as a general verifiable-AI primitive.** The same machinery (sealed inference, multi-specialist competition, on-chain per-domain reputation) applies anywhere ordinary people need verifiable AI on their private data. Two non-crypto verticals are positioned for v2:
 
-- **Defending citizens against opaque AI denials — [`audits/insurance/`](audits/insurance/README.md).** 73M ACA enrollees had in-network claims denied in 2023; <1% appealed; appeal-success was 40–75% when they did. Three live AI-appeal products (Counterforce Health, Claimable, Fight Health Insurance) have validated the category at 70–80% reversal — *none* ship TEE attestation, *all* route patient records through OpenAI/Anthropic. Regulatory frame already exists (Colorado SB24-205/SB26-189, EU AI Act Annex III). Architecture transfers 1:1; full plan + synthetic denial letter modeled on the public *Estate of Lokken v. UnitedHealth* pleadings in the README.
+- **Defending citizens against private-payor AI denials — [`audits/insurance/`](audits/insurance/README.md).** 73M ACA enrollees had in-network claims denied in 2023; <1% appealed; appeal-success was 40–75% when they did. Three live AI-appeal products (Counterforce Health, Claimable, Fight Health Insurance) have validated the category at 70–80% reversal — *none* ship TEE attestation, *all* route patient records through OpenAI/Anthropic. Regulatory frame already exists (Colorado SB24-205/SB26-189, EU AI Act Annex III). Architecture transfers 1:1; full plan + synthetic denial letter modeled on the public *Estate of Lokken v. UnitedHealth* pleadings in the README.
+
+- **Defending elderly, retired, and disabled citizens against public-payor adjudication — [`audits/benefits/`](audits/benefits/README.md).** ~330K SSDI cases pending an ALJ hearing as of Jan 2026 (the largest adjudication backlog in any US administrative system); 274-day average wait; 60-70% initial denial rate; appeal-success >50% with representation. Attorney contingency capped at 25% under 42 U.S.C. § 406 — economically rational for lawyers, structurally exclusionary for low-income claimants. Hunt's seven-class defect registry (medical-listing misapplication, RFC error, vocational-expert misclassification, duration-rule misapplication, SGA miscalculation, combined-impairments omission, treating-physician opinion-weight failure) maps to the SSA's own sequential-evaluation regulations. Same architecture; secondary surfaces for Medicare reconsideration + VA claims. Synthetic SSDI denial modeled on the SSA-1561 template with seven annotated defect patterns in the README.
 
 - **Giving citizens verifiable multi-specialist medical reads — [`audits/medical/`](audits/medical/README.md).** Published per-specialty disagreement rates (~14% major in general surgical pathology, 20–32% in radiology oncologic CT, up to 52% in neuro-oncology) are the empirical ground-truth signal that calibrates a "race of specialists" architecture in this domain — stronger than smart-contract auditing can claim. Scoped strictly as a *"Records Reader"* (surfaces questions to ask your physician, never diagnoses) to stay inside 21st Century Cures CDS exemptions + FDA Jan 2026 enforcement-discretion guidance. Full plan + a synthetic pathology report exhibiting the hardest interobserver call in breast biopsy (ADH vs. low-grade DCIS) in the README.
 
-The two verticals are opposite faces of the same primitive: insurance defends citizens *against* unaccountable AI; medical gives them *better* AI than they could afford. Same Hunt machinery, same TEE attestation, same per-domain reputation.
+The three verticals are different faces of the same primitive: **insurance** defends citizens against *private-payor* opaque AI; **benefits** defends them against *public-payor* opaque adjudication; **medical** gives them *better* verifiable AI than they could otherwise afford. Same Hunt machinery, same TEE attestation, same per-domain reputation — three counterparties, one substrate.
 
 ## Honesty notes — read first
 
@@ -266,6 +268,7 @@ scripts/
   settle_bounty.js         — pick winner + rating, settle
   verify_bounty.js         — standalone verifier (no project setup needed)
   insurance_specialist_brief.js  — v2 vertical demo: builds the insurance-defense brief + computes the v1 attestation digest against audits/insurance/sample_denial.txt
+  benefits_specialist_brief.js   — v2 vertical demo: builds the SSDI/SSI/senior-benefits defense brief + computes the v1 attestation digest against audits/benefits/sample_denial.txt
   medical_specialist_brief.js    — v2 vertical demo: builds the Records-Reader brief (scope-locked to "questions for physician") + computes the v1 attestation digest against audits/medical/sample_pathology_report.txt
 public/
   index.html               — landing
@@ -331,7 +334,8 @@ Kin v2's contract `0x47F25b2fAf6E5626946582F86F0e52A4517f3234` is preserved on-c
 - **Outreach templates** (security researchers + 0G core team): [`doc/OUTREACH_TEMPLATES.md`](doc/OUTREACH_TEMPLATES.md)
 - **Release assets** (video editor brief + YouTube description + X teaser thread): [`doc/RELEASE_ASSETS.md`](doc/RELEASE_ASSETS.md)
 - **Primary live audit — ChartChain** (Hunt audits another live 0G project on Aristotle mainnet): [`audits/chartchain/README.md`](audits/chartchain/README.md)
-- **v2 vertical — insurance-claim-denial defense** (verifiable AI defending citizens against opaque AI denials; full plan + runnable demonstration script + synthetic Lokken-pattern denial letter): [`audits/insurance/README.md`](audits/insurance/README.md)
+- **v2 vertical — insurance-claim-denial defense** (verifiable AI defending citizens against private-payor opaque AI denials; full plan + runnable demonstration script + synthetic Lokken-pattern denial letter): [`audits/insurance/README.md`](audits/insurance/README.md)
+- **v2 vertical — Disability + Senior Benefits defense** (verifiable AI defending pro-se elderly, retired, and disabled claimants against public-payor opaque adjudication — SSDI/SSI/Medicare reconsideration/VA; full plan + runnable demonstration script + synthetic SSDI denial letter with 7 annotated defect patterns): [`audits/benefits/README.md`](audits/benefits/README.md)
 - **v2 vertical — medical Records Reader** (verifiable multi-specialist medical reads for ordinary patients; scope-locked to "questions for your physician" inside FDA Jan 2026 CDS guidance; full plan + runnable demonstration script + synthetic ADH/DCIS-borderline pathology report): [`audits/medical/README.md`](audits/medical/README.md)
 
 ## License
