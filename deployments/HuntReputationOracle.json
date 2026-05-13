@@ -1,0 +1,572 @@
+{
+  "name": "HuntReputationOracle",
+  "address": "0xdf2f9587D5746cd1358d40804bE7885BDaaE45d2",
+  "txHash": "0x4aed32227e18172d003b3d7512ed2d36de93b1cac260dcca4f14731179eb3b26",
+  "blockNumber": 33143749,
+  "chainId": 16661,
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "huntAddress",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "domain",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "classBytes32",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "name": "ClassRegistered",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "domain",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "name": "DomainRegistered",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "HUNT",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "admin",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "domain",
+          "type": "bytes32"
+        }
+      ],
+      "name": "aggregateDomain",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "totalWins",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "totalSubmissions",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "totalEarnedWei",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "hunterCount",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct HuntReputationOracle.AggregateView",
+          "name": "v",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "className",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "domainClasses",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "domainName",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "domains",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "domain",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getClasses",
+      "outputs": [
+        {
+          "internalType": "bytes32[]",
+          "name": "",
+          "type": "bytes32[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getDomains",
+      "outputs": [
+        {
+          "internalType": "bytes32[]",
+          "name": "",
+          "type": "bytes32[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "hunterId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "classBytes32",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getReputationByClass",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "wins",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint32",
+              "name": "submissions",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "totalEarnedWei",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint64",
+              "name": "sumSeverityCalibration",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint64",
+              "name": "sumPrecision",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint64",
+              "name": "sumCoverage",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint64",
+              "name": "sumExploitability",
+              "type": "uint64"
+            }
+          ],
+          "internalType": "struct IHunt.ClassRep",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "domain",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "classNameStr",
+          "type": "string"
+        }
+      ],
+      "name": "registerClass",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "name": "registerDomain",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newAdmin",
+          "type": "address"
+        }
+      ],
+      "name": "transferAdmin",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "huntAddress": "0xD4Fe5127d519B775a9a581A54ED0719BBFf0d68C",
+  "registeredDomains": [
+    {
+      "name": "smart-contract-audit",
+      "id": "0xc4a346a75b526cba73f819a16269383b2fff92ec27edcd3c3b831c627e312766",
+      "txHash": "0xa1058a05fadac2ee5faa37635deabda80554c80c557ce9c9e125131b832db7da",
+      "blockNumber": 33143764,
+      "classes": [
+        {
+          "name": "swc-107-reentrancy",
+          "id": "0x2718a86f1a0631b3255fbb8a520ed17cbd749a5ec62879f8186597283a7e8a79",
+          "txHash": "0x02d0727cb595d29fc6e40fc53fe55c12838e14a4a8b7dcaa5f70e7eea8221c4e",
+          "blockNumber": 33143779
+        },
+        {
+          "name": "swc-115-tx-origin",
+          "id": "0xb0233f3ebbab1b80a2f3608f2ce4278c553223953a021c550e2b31c6c2531afd",
+          "txHash": "0x83b46032ac61f9c487675a86bea6b804c9efc83e761cedef26a1cc214dbc7bfb",
+          "blockNumber": 33143793
+        },
+        {
+          "name": "access-control",
+          "id": "0x64617ee3c6a0361a9a8223334a8f2dacd3fe2087125e4536dd1d8f73178934e8",
+          "txHash": "0x337d339375dad98e5753a295657f588e62a9b6374556fe616ec04ce696101520",
+          "blockNumber": 33143809
+        },
+        {
+          "name": "oracle-manipulation",
+          "id": "0xc795f89684cfeaba17f209c8cb9090615e430dba6f6cd32dec8d24fe7c677be7",
+          "txHash": "0x25c27293d97fef56aa630bc3cbd1a2ef71c7cf815a719192d1d2e8bfb71a39dc",
+          "blockNumber": 33143827
+        },
+        {
+          "name": "swc-101-int-overflow",
+          "id": "0x9d8f7d303e6edebb3b5ea1e568b5886646959547af4d86bb6ce96040cda47db9",
+          "txHash": "0x09302d3c6c952035e2e0dfe72e46a8e60a0ae2b894963c3d6c1b64b44c3a42b2",
+          "blockNumber": 33143846
+        },
+        {
+          "name": "storage-collision",
+          "id": "0xd2098c7b76108871b5cf01355a16ecd47ac563e9e5d83dd5d3341b4db3e4abf5",
+          "txHash": "0x5f32ae069c80c8f3722647f3a1a6772334778cf075c5b459ab02c97858f56a76",
+          "blockNumber": 33143862
+        },
+        {
+          "name": "unchecked-external-call",
+          "id": "0x8f0ccbbac731194cc8fe78f73a544d5f42fd842bdc9c55cb3ccdfee160607cdf",
+          "txHash": "0xed027b0b76b625e454ca52680d41ea051ae6fa2e85323a99f1d989684502206b",
+          "blockNumber": 33143880
+        },
+        {
+          "name": "front-running",
+          "id": "0xdd6c3aa619067047120e0e7e65b7d5d59836e1786bd4d73ceeea65e28a73fc2a",
+          "txHash": "0xc5f0fd44f350d216db19d4b254840ca6c43ab1eadaf0cb6d039dbbe327e1baba",
+          "blockNumber": 33143894
+        },
+        {
+          "name": "price-manipulation",
+          "id": "0xd78f8ee75409ed5513d3a4b70fee6da3bd6d129b94cdd77cf30b57374ded9075",
+          "txHash": "0xca67a4cfae489314360bd7f74dff8dffa1d35589f084df8ea36b14d35826fc70",
+          "blockNumber": 33143913
+        },
+        {
+          "name": "signature-replay",
+          "id": "0x07d6d737f59831c013d0df90d6bc16f76028ea7b94ff052867799602882fe3f6",
+          "txHash": "0x137c239b3b0eb9ee4c6a9def063ebe7cf643e07ca837c732a6e3639ecd048d51",
+          "blockNumber": 33143928
+        },
+        {
+          "name": "unsafe-delegatecall",
+          "id": "0xd3666279e036afeceae456cd1d3177cf43573e1d1e04b1ede73ec8738a7476ce",
+          "txHash": "0x9b13b9bce48b14626caefc9474e69ac0e0878fa8b1542659c16b831054deff29",
+          "blockNumber": 33143947
+        },
+        {
+          "name": "denial-of-service",
+          "id": "0x982b44adb06f1fbec29560225bb6079dc9f6c278530568c914dc4618b0dc2e4d",
+          "txHash": "0x5c042b4d55d0538a97e226272fcc4ee423f90e579ea61856cb352f815d106dcc",
+          "blockNumber": 33143962
+        }
+      ]
+    },
+    {
+      "name": "insurance-claim-denial-defense",
+      "id": "0x9b0dc095d37c1f39077516624bddfd1309e228675bcd3cfb44e9c90e50d59480",
+      "txHash": "0xdf1e3e5cff365798103d059ba1975c64455fe9e8b2d1a390e07690d2f9453646",
+      "blockNumber": 33143980,
+      "classes": [
+        {
+          "name": "medical-necessity-misapplication",
+          "id": "0xe800115b708b002008b4a8f2b82724d57d0c6d7cd330e68d2f6ec4b3e43b96bd",
+          "txHash": "0xbba30f049e40de18ce04b40db522ec2c7065ff244bd4d83b3062595590fc8d37",
+          "blockNumber": 33143995
+        },
+        {
+          "name": "coding-cpt-error",
+          "id": "0xe33af34b8b32ee3aef74273839a6f2659aabe5dd3974dbc4612b8ea90ac7c0ba",
+          "txHash": "0x92998a75381ab382fe5db2ea2871a80ac1302ae4acb981d94690025a3b890638",
+          "blockNumber": 33144015
+        },
+        {
+          "name": "prior-auth-overreach",
+          "id": "0xd3ff44c161257824727b36a1a4d734fac9681e74ebc1613559c0fe4e5e9b169f",
+          "txHash": "0xed1e284321f799ba31c23cc8137193390f0388a27f6a79cc38178eefdb02da39",
+          "blockNumber": 33144028
+        },
+        {
+          "name": "network-adequacy-violation",
+          "id": "0x957dbb55e8c6ba383d754022900edd7f2431f00e2d345d7c0c8e108d53fba38b",
+          "txHash": "0x9d87df1726392ecf29ab0bde943ea465762af512029bd8bbb864073630a6f2e6",
+          "blockNumber": 33144047
+        },
+        {
+          "name": "erisa-procedural-defect",
+          "id": "0x0d26d734e5dea947b2799df63316bd924eb83031980e5a1d94ad84c40f6e8015",
+          "txHash": "0x48d1e23738219f048ce9cc72287c14d93b624402d8b97c0342c9314724b120ca",
+          "blockNumber": 33144063
+        },
+        {
+          "name": "state-external-review-misclassification",
+          "id": "0x63aecb6311f2d4c619214b0a5b5f09e65ca229b3df1facca23940479ab33f1b9",
+          "txHash": "0x30b12b36c7dfda7caba3f25433fb1b774cb3c22790fac2177f51c2e9ca6cbec2",
+          "blockNumber": 33144076
+        }
+      ]
+    },
+    {
+      "name": "benefits-defense",
+      "id": "0x9b30845563e63cb8d06b0e8b5cd18955dcc1075a0c63a7d759009425c87442cc",
+      "txHash": "0x4f242bf2aa22a407df68e9a4846fc7f38328799f400a945f83f9d730faf77d91",
+      "blockNumber": 33144096,
+      "classes": [
+        {
+          "name": "medical-listing-misapplication",
+          "id": "0xd366d7a2d42f0fb404314c10d0216d8ee4bc61da52999155f1914fc7db0b138e",
+          "txHash": "0x126003134f0399628f925dcd5d19fe408ea2f4f2ad9d7bca728c9292e9b65a45",
+          "blockNumber": 33144109
+        },
+        {
+          "name": "residual-functional-capacity-error",
+          "id": "0x4f2669b141e90988750df6e7ffc3e3aa36aef4246d066ad20b989448c688459d",
+          "txHash": "0xdffc9c0d10b9ceb7e53e0a26f54cf7c1eecedcddf48f835162670528ca0c696d",
+          "blockNumber": 33144125
+        },
+        {
+          "name": "vocational-expert-misclassification",
+          "id": "0xf3c1b138322bfb741f98aa3c7d39b3c528bc5cd330070c5d8e1b1878a8d0a1bd",
+          "txHash": "0x941add4dad91fa1faad8d11d67225299e8a7577d7d2ba0d2b40fd36d6206ed9a",
+          "blockNumber": 33144143
+        },
+        {
+          "name": "duration-requirement-misapplication",
+          "id": "0x6de00648cc33e444d79d6fc88d4c50c82e24edcd98e9788ea0b3766c4104fe92",
+          "txHash": "0xd795f382c9ba9faa2437b18157065e72ba2bc1bd40730e4d0ebe2e2389ffaf11",
+          "blockNumber": 33144157
+        },
+        {
+          "name": "substantial-gainful-activity-miscalculation",
+          "id": "0xae7d7d1cb82ea3bf023b47ffa4a7a8840b81f59a70c46753abddb896180b0e63",
+          "txHash": "0x192e0edb6e693089adc8c36576ec899ea5742b7e6d4864de892b8ba2cce85cf0",
+          "blockNumber": 33144176
+        },
+        {
+          "name": "combined-impairments-omission",
+          "id": "0x97143178213934f26774f477c1dae1963c36dd16ddee96ddd3d02b3b0721567a",
+          "txHash": "0x02bb2dba03c5b907807cae1950999e6cfb33765feb222f3d83a695ac90a9daef",
+          "blockNumber": 33144191
+        },
+        {
+          "name": "treating-physician-opinion-weight",
+          "id": "0x0dfb4fed39bd2eda339a6d8abaaa236ae36091f2ba1c5dacb6128faaa474a48a",
+          "txHash": "0x91a22411c7eb6211e00776336e5a9e185a2b40b20e95068895aec0e687882f2c",
+          "blockNumber": 33144202
+        }
+      ]
+    },
+    {
+      "name": "medical-records-reader",
+      "id": "0x0d833bbf04dccd2d82ef56217ec5ab1673af09447e0d97d60f407f5b15cfc776",
+      "txHash": "0x21de4f9f7d200c9789db9d1374350319f4915df0ff904e5931f4245269c3d53c",
+      "blockNumber": 33144217,
+      "classes": [
+        {
+          "name": "pathology-borderline-interpretation",
+          "id": "0xfa4d5ffc9a836116018eeeeea8eda9a259da3b2858be14dcf5dda2a1715218aa",
+          "txHash": "0xca1b60afa449203cb1c515bf93e44a3926fc9782a29ecae1054a2b76bf7d18ef",
+          "blockNumber": 33144230
+        },
+        {
+          "name": "radiology-second-read-discrepancy",
+          "id": "0x382f323340b4971e123b114a341689ccb411d79fbe75a36924d95bdfe71f8ed4",
+          "txHash": "0x49a8920ce7189619011c98d6330f46f3c9864b03035224d34e7743605f81964e",
+          "blockNumber": 33144246
+        },
+        {
+          "name": "oncology-staging-revision",
+          "id": "0xd3fac70d4670d1f047aefd1bc8b012c4c83993c3eb47589a6d7dd1dfa2ae7424",
+          "txHash": "0xc6d28cb1a7545d3bd4a79bd3f63be24e98f7326fbb960c37cdc9cddbe2cdb30a",
+          "blockNumber": 33144264
+        },
+        {
+          "name": "cardiology-ecg-echo-revision",
+          "id": "0x64925d38c0f5afa6f6e9972021956c3979731107621be1816152a93ab9a146c7",
+          "txHash": "0xfe05eee95d1b46cb84228d243ef3e1689d20ace44bd2dec8668662d73674d1a7",
+          "blockNumber": 33144286
+        },
+        {
+          "name": "dermatology-pigmented-lesion-revision",
+          "id": "0x1f04f06194583a7c91947cd0a318ad2586df6c6b91aaf25e5c8a02e9e2a47b21",
+          "txHash": "0x9a1206e3201fa938e71ff370ea297c7f79351461fcd04f1b8b104b5d75ac6fa6",
+          "blockNumber": 33144299
+        },
+        {
+          "name": "hematology-flow-cytometry-discordance",
+          "id": "0x7e0582ec8b84f9856507bfb7ce0ae4467d96349bda9b249327122c2c3e3baf20",
+          "txHash": "0x6c86547ce2ef0b1272092f2e80a2fbb5b8b1ce0510b386fb305066ed2e62c3a4",
+          "blockNumber": 33144320
+        }
+      ]
+    }
+  ],
+  "deployer": "0xc9c0754fDB2C22Fd19B5B649e1e60eE9d1Ccca3f",
+  "deployedAt": "2026-05-13T16:30:26.128Z"
+}
