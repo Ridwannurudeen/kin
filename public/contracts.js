@@ -1,9 +1,10 @@
 // Hunt — browser-side contract metadata + small helpers.
 //
 // Loaded as a classic <script> before page logic. Exposes globals:
-//   HUNT_ABI, HUNT_ADDRESS, NOTARY_ABI, NOTARY_ADDRESS, RPC_URL, CHAIN_ID, CHAINSCAN_URL,
+//   HUNT_ABI, HUNT_ADDRESS, NOTARY_ABI, NOTARY_ADDRESS, ORACLE_ABI, ORACLE_ADDRESS,
+//   RPC_URL, CHAIN_ID, CHAINSCAN_URL,
 //   CANONICAL_CWES, cweToBytes32, bytes32ToCwe, severityLabel, statusLabel,
-//   loadDeployment(), loadNotaryDeployment().
+//   loadDeployment(), loadNotaryDeployment(), loadOracleDeployment().
 //
 // ABI is hand-curated from contracts/Hunt.sol (matches solc output verbatim — only the
 // functions + events the UI calls are kept; admin-only setters were dropped).
@@ -15,6 +16,7 @@ window.CHAINSCAN_URL = "https://chainscan.0g.ai";
 // Placeholder — overridden at runtime by loadDeployment() if deployments/Hunt.json exists.
 window.HUNT_ADDRESS = "0x0000000000000000000000000000000000000000";
 window.NOTARY_ADDRESS = "0x0000000000000000000000000000000000000000";
+window.ORACLE_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 // Mirror lib/cwe.js CANONICAL_CWES exactly.
 window.CANONICAL_CWES = Object.freeze([
@@ -102,6 +104,21 @@ window.loadNotaryDeployment = async function () {
     const j = await r.json();
     if (j && j.address) window.NOTARY_ADDRESS = j.address;
     if (j && j.abi) window.NOTARY_ABI = j.abi;
+    return j;
+  } catch {
+    return null;
+  }
+};
+
+window.loadOracleDeployment = async function () {
+  try {
+    const r = await fetch("/deployments/HuntReputationOracle.json", {
+      cache: "no-store",
+    });
+    if (!r.ok) return null;
+    const j = await r.json();
+    if (j && j.address) window.ORACLE_ADDRESS = j.address;
+    if (j && j.abi) window.ORACLE_ABI = j.abi;
     return j;
   } catch {
     return null;
@@ -452,6 +469,68 @@ window.NOTARY_ABI = [
       { indexed: false, name: "domain", type: "bytes32" },
       { indexed: false, name: "attestedAt", type: "uint64" },
       { indexed: false, name: "sealedInputRoot", type: "bytes32" },
+    ],
+  },
+];
+
+window.ORACLE_ABI = [
+  {
+    type: "function",
+    stateMutability: "view",
+    name: "HUNT",
+    inputs: [],
+    outputs: [{ type: "address" }],
+  },
+  {
+    type: "function",
+    stateMutability: "view",
+    name: "admin",
+    inputs: [],
+    outputs: [{ type: "address" }],
+  },
+  {
+    type: "function",
+    stateMutability: "view",
+    name: "getDomains",
+    inputs: [],
+    outputs: [{ type: "bytes32[]" }],
+  },
+  {
+    type: "function",
+    stateMutability: "view",
+    name: "getClasses",
+    inputs: [{ name: "domain", type: "bytes32" }],
+    outputs: [{ type: "bytes32[]" }],
+  },
+  {
+    type: "function",
+    stateMutability: "view",
+    name: "domainName",
+    inputs: [{ name: "domain", type: "bytes32" }],
+    outputs: [{ type: "string" }],
+  },
+  {
+    type: "function",
+    stateMutability: "view",
+    name: "className",
+    inputs: [{ name: "classBytes32", type: "bytes32" }],
+    outputs: [{ type: "string" }],
+  },
+  {
+    type: "function",
+    stateMutability: "view",
+    name: "aggregateDomain",
+    inputs: [{ name: "domain", type: "bytes32" }],
+    outputs: [
+      {
+        type: "tuple",
+        components: [
+          { name: "totalWins", type: "uint256" },
+          { name: "totalSubmissions", type: "uint256" },
+          { name: "totalEarnedWei", type: "uint256" },
+          { name: "hunterCount", type: "uint256" },
+        ],
+      },
     ],
   },
 ];

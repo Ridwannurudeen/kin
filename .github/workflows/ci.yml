@@ -1,0 +1,27 @@
+name: ci
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: node --test test/*.test.js
+        working-directory: packages/sdk
+      - run: |
+          for f in examples/*.js; do
+            node "$f"
+          done
+        working-directory: packages/sdk
+      - run: npm run test:static
