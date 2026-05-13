@@ -1,0 +1,77 @@
+{
+  "vertical": "medical-records-reader",
+  "status": "v2-demonstration (no on-chain action; no PHI; synthetic input only)",
+  "scopeDiscipline": "Records Reader only — surfaces questions for the treating physician + second-opinion flags. NEVER a diagnosis, NEVER treatment, NEVER prognosis. Operates under 21st Century Cures CDS exemption + FDA Jan 2026 enforcement-discretion guidance. Outside EU AI Act Annex III SaMD scope.",
+  "specialistBriefModelVersion": "hunt-medical-records-reader-v0",
+  "canonicalClasses": [
+    {
+      "name": "pathology-borderline-interpretation",
+      "bytes32": "0xfa4d5ffc9a836116018eeeeea8eda9a259da3b2858be14dcf5dda2a1715218aa"
+    },
+    {
+      "name": "radiology-second-read-discrepancy",
+      "bytes32": "0x382f323340b4971e123b114a341689ccb411d79fbe75a36924d95bdfe71f8ed4"
+    },
+    {
+      "name": "oncology-staging-revision",
+      "bytes32": "0xd3fac70d4670d1f047aefd1bc8b012c4c83993c3eb47589a6d7dd1dfa2ae7424"
+    },
+    {
+      "name": "cardiology-ecg-echo-revision",
+      "bytes32": "0x64925d38c0f5afa6f6e9972021956c3979731107621be1816152a93ab9a146c7"
+    },
+    {
+      "name": "dermatology-pigmented-lesion-revision",
+      "bytes32": "0x1f04f06194583a7c91947cd0a318ad2586df6c6b91aaf25e5c8a02e9e2a47b21"
+    },
+    {
+      "name": "hematology-flow-cytometry-discordance",
+      "bytes32": "0x7e0582ec8b84f9856507bfb7ce0ae4467d96349bda9b249327122c2c3e3baf20"
+    }
+  ],
+  "brief": {
+    "systemPrompt": "You are an autonomous medical Records Reader specialist on Hunt.\n\nABSOLUTE SCOPE LIMIT — read this twice:\n  - You DO NOT diagnose. You DO NOT recommend treatment. You DO NOT recommend medication. You DO NOT predict prognosis.\n  - You DO surface \"questions a patient should ask their treating physician\" and \"findings worth flagging for a human specialist second opinion\".\n  - You CITE published guidelines (NCCN, ACS, USPSTF, ACR appropriateness criteria, CAP, ASCO) when you reference what is or is not standard of care — and never claim you ARE applying them, only that they are worth discussing.\n  - If the report is unambiguous and aligned with standard practice, the correct output is \"findings\": [] with a rationale explaining the report appears internally consistent.\n  - You are operating under 21st Century Cures CDS exemption + FDA Jan 2026 CDS enforcement-discretion guidance. Output framed as differential-diagnosis-replacement falls outside that exemption.\n\nYou will receive:\n  - up to 5 sample Records-Reader outputs from this specialist's prior history\n  - a structured record brief containing the patient's clinical context (de-identified or synthetic), the source report, and the in-scope reading classes for the bounty\n\nPRODUCE one strict JSON object — no prose outside it, no markdown fences. Shape:\n\n{\n  \"findings\": [\n    {\n      \"readingClass\": \"<kebab-case from MEDICAL_READING_CLASSES>\",\n      \"severity\": \"critical\" | \"high\" | \"medium\" | \"low\",\n      \"questionForPhysician\": \"<the specific question the patient should ask — phrased as a question, not a statement>\",\n      \"reportAnchor\": \"<section / line / image-finding the question relates to>\",\n      \"publishedGuidelineCitation\": \"<guideline + section, e.g. 'NCCN Breast Cancer Screening v3.2025 §BS-1' — must be real or omit>\",\n      \"secondOpinionTrigger\": \"<reason this finding is worth a human specialist second-opinion call, or null if not>\"\n    }\n  ],\n  \"selfEval\": {\n    \"severityCalibrationBps\":  <0..10000>,\n    \"precisionBps\":            <0..10000>,\n    \"coverageBps\":             <0..10000>,\n    \"exploitabilityBps\":       <0..10000>,\n    \"rationale\": \"<one paragraph: where strong / where weak, and an explicit note on scope discipline — confirm you did NOT diagnose>\"\n  }\n}\n\nCRITERIA for self-eval:\n  - severityCalibration: how accurately the question urgency tracks the published disagreement-rate baseline for that reading class\n  - precision:           false-positive rate — hallucinated guidelines are a critical failure; lower precision honestly if any citation is uncertain\n  - coverage:            did the analysis hit each in-scope reading class against the report\n  - exploitabilityBps:   does each question lead to a concrete next step (specific physician conversation, specific second-opinion specialty, specific guideline lookup)\n\nBe honest. The patient may bring these questions into their next physician visit. A hallucinated guideline citation is worse than no citation. If unsure of the exact NCCN/ASCO/ACR section, omit the citation field rather than guess.\n\nA \"questions to ask\" output that contains a diagnosis is a scope-discipline failure regardless of accuracy. Self-eval rationale MUST confirm scope discipline was held.",
+    "userPrompt": "(no sample Records Reader outputs provided — cold-start specialist)\n\n── BOUNTY BRIEF ──\nSpecialty:        Pathology (breast core needle biopsy)\nRecord type:      Surgical pathology report\nClinical context: 46-year-old female with palpable mass and BI-RADS 4B imaging finding; ADH-vs-low-grade-DCIS interobserver-borderline lesion on core biopsy — the single most-revised diagnostic category in breast pathology Q&A audits\n\nIn-scope reading classes (specialist must analyse against each):\n  - pathology-borderline-interpretation\n  - radiology-second-read-discrepancy\n  - oncology-staging-revision\n  - cardiology-ecg-echo-revision\n  - dermatology-pigmented-lesion-revision\n  - hematology-flow-cytometry-discordance\n\nREPORT (sealed; decrypted only inside this specialist's TEE):\n\"\"\"\nSYNTHETIC PATHOLOGY REPORT — patterns modeled on the public discordance\nliterature for second-opinion pathology review (Anticancer Research,\nASCO 2021, PMC PMC5265198 on radiology error rates). All names, MRNs,\naccession numbers, dates, and laboratory identifiers are fabricated.\nThe diagnostic ambiguity captured in this report is representative of\nthe 14% major-discordance rate documented in general surgical pathology\nsecond opinions and the 11-15% rate in breast core biopsy review.\n\n------------------------------------------------------------------------\nSURGICAL PATHOLOGY REPORT\nACME REGIONAL MEDICAL CENTER · Anatomic Pathology\n------------------------------------------------------------------------\nPatient:           [PATIENT NAME]\nMRN:               R-XXXXXXX\nDOB:               [DOB]\nAccession:         SP-26-XXXXXX\nDate of Procedure: [DATE]\nSpecimen Source:   Right breast, ultrasound-guided core needle biopsy,\n                   12 o'clock position, 4 cm from nipple\nOrdering Provider: [PHYSICIAN]\nClinical History:  46-year-old female with palpable mass and BI-RADS 4B\n                   imaging finding (heterogeneous, ill-defined,\n                   spiculated, 1.2 cm). Family history: maternal aunt\n                   with breast cancer at 58, BRCA testing pending.\n\n------------------------------------------------------------------------\nGROSS DESCRIPTION\n------------------------------------------------------------------------\nThree (3) tan-pink fibrofatty cores ranging 0.8 to 1.4 cm in greatest\ndimension. Submitted entirely in cassettes A1-A3. Sectioned at multiple\nlevels with H&E.\n\n------------------------------------------------------------------------\nMICROSCOPIC DESCRIPTION\n------------------------------------------------------------------------\nSections show breast parenchyma with proliferative changes including:\n\n- Florid ductal epithelial hyperplasia with focal architectural\n  complexity, including bridging and tufting\n- Areas with monotonous proliferation of small uniform cells with\n  loss of polarity, partially filling involved spaces (approximately\n  60-70% of cross-sectional area in 2 of 3 cores)\n- Background of fibrocystic change with apocrine metaplasia\n- Focal microcalcifications (psammomatous type) in associated stroma\n- No definite necrosis identified\n- No invasive component identified in submitted material\n\nImmunohistochemistry performed:\n\n- E-cadherin: retained (membranous staining preserved throughout)\n- p63 / SMM-HC: highlight intact myoepithelial layer around all\n  glandular structures examined\n- Ki-67: ~4-6% in proliferative areas (low)\n- ER: strongly positive (>95% nuclei, Allred 8/8)\n- PR: positive (~75% nuclei, Allred 7/8)\n- HER2 IHC: 1+ (negative; no reflex FISH indicated by current ASCO/CAP\n  guideline at 1+ on biopsy)\n\n------------------------------------------------------------------------\nDIAGNOSIS\n------------------------------------------------------------------------\nRIGHT BREAST, CORE NEEDLE BIOPSY:\n- ATYPICAL DUCTAL HYPERPLASIA (ADH)\n- Florid usual ductal hyperplasia with focal atypia\n- Fibrocystic change with apocrine metaplasia\n- Microcalcifications, benign (psammomatous, stromal)\n- See COMMENT.\n\n------------------------------------------------------------------------\nCOMMENT\n------------------------------------------------------------------------\nThe findings show a proliferative lesion with cytologic and architectural\nfeatures that partially overlap with both atypical ductal hyperplasia\n(ADH) and low-grade ductal carcinoma in situ (DCIS). Specifically:\n\n- The clonal monotonous population involves 60-70% of cross-sectional\n  area in 2 of 3 cores, which approaches but does not clearly exceed\n  the historic 2 mm / 2 ducts threshold separating ADH from low-grade\n  DCIS in core biopsy material.\n- E-cadherin is retained, ruling out lobular neoplasia.\n- Ki-67 of 4-6% is low, supporting ADH over high-grade lesion.\n- Myoepithelial layer is intact (p63/SMM-HC), excluding invasion in the\n  submitted material.\n\nThe distinction between ADH and low-grade DCIS in core biopsy material\nis recognized to have substantial interobserver variability. Excisional\nbiopsy is recommended for definitive characterization and to evaluate\nthe full extent of the lesion.\n\n------------------------------------------------------------------------\nNOTE TO HUNT'S READERS\n------------------------------------------------------------------------\nThis synthetic report exhibits the diagnostic features documented in\nthe breast-pathology second-opinion discordance literature as the\nsingle hardest interobserver call: ADH-vs-DCIS borderline lesions on\ncore needle biopsy material. Published series report:\n\n- ~14% major-disagreement rate in general surgical pathology second\n  opinions (Anticancer Research, 2018)\n- ~11-15% major-disagreement specifically in breast core biopsy\n  review (multiple ASCO and CAP-tracked series)\n- ADH-vs-low-grade-DCIS is the single most-revised diagnostic\n  category in breast-pathology Q&A audits.\n\nA Hunt specialist panel posting against this report would surface\nquestions for the treating physician to consider, NOT a competing\ndiagnosis. Plausible questions a Records-Reader specialist would\nflag for the patient to ask:\n\n  (a) Whether the 60-70% involvement noted in 2 of 3 cores meets the\n      institution's threshold for upgrade-on-excision risk, and\n      whether wire-localized excisional biopsy is being scheduled\n      based on that risk stratification.\n  (b) Whether second-opinion pathology review (institutional or\n      external) has been requested before treatment planning, given\n      the documented discordance rate on this exact lesion type.\n  (c) Whether the patient's pending BRCA result and family history\n      change the recommended surveillance interval after excision,\n      independent of the final diagnosis.\n  (d) Whether Ki-67 ~5% and Allred 8/8 ER status affect the choice\n      of any post-excision risk-reduction discussion (e.g., tamoxifen\n      vs. anastrozole risk-benefit conversation under the NSABP P-1\n      and IBIS-II evidence base).\n\nNONE of (a)-(d) is a diagnosis. All are questions a patient should\nalready be asking; the protocol's job is to surface them when the\nreport's complexity makes them invisible to a non-specialist reader.\n\nDISCLAIMER: For research demonstration only. Not a medical device.\nNot a diagnosis. Not clinical decision support. Patients must\ndiscuss their actual pathology reports with their treating physician\nand a qualified pathologist.\n\n\"\"\"\n\nPRIOR READINGS (this specialist, this reading class):\n  (cold start — no prior outputs)\n\nREMINDER: questions for the physician, NOT diagnoses.\n"
+  },
+  "expectedOutputSchema": {
+    "findings": [
+      {
+        "readingClass": "string (kebab-case from MEDICAL_READING_CLASSES)",
+        "severity": "critical | high | medium | low",
+        "questionForPhysician": "string (PHRASED AS A QUESTION, not a statement)",
+        "reportAnchor": "string (section / line / image-finding)",
+        "publishedGuidelineCitation": "string (real NCCN/ASCO/ACR/USPSTF/ACS/CAP cite, or omitted)",
+        "secondOpinionTrigger": "string or null"
+      }
+    ],
+    "selfEval": {
+      "severityCalibrationBps": "0..10000",
+      "precisionBps": "0..10000",
+      "coverageBps": "0..10000",
+      "exploitabilityBps": "0..10000",
+      "rationale": "string — MUST confirm scope discipline (no diagnosis / no treatment recommendation)"
+    }
+  },
+  "attestationConstruction": {
+    "note": "Identical to v1 lib/credential.js findingDigest — same ABI encoding, same keccak, same on-chain ecrecover gate. Only the canonical class strings differ.",
+    "inputs": {
+      "bountyId": "0",
+      "recordRoot": "0x6124d55752532cfb38e30a56b2991e45142d524900e38008da4d3cc73b345eea",
+      "specialistId": "0",
+      "readingClass": "0xfa4d5ffc9a836116018eeeeea8eda9a259da3b2858be14dcf5dda2a1715218aa",
+      "readingClassDecoded": "pathology-borderline-interpretation",
+      "severity": 3,
+      "findingRoot": "0x4ecf33cf903d902cd88afc6196fc41373834e00c0c6156dbd04bece481002528",
+      "modelDigest": "0x12e61589ac1fc35fd9c38c6cdad7e62041285dfce4bce0a8e500fe2df9a77090",
+      "teeTimestamp": "0",
+      "selfEvalBps": {
+        "severityCalibration": 0,
+        "precision": 0,
+        "coverage": 0,
+        "exploitability": 0
+      }
+    },
+    "digest": "0x4fc12192e83d69c44b84df339dae0f9258cecf82becfeb48d41f3dac5c0c8313"
+  },
+  "disclaimer": "For research demonstration only. Not a medical device. Not a diagnosis. Not clinical decision support. Patients must discuss their actual reports with their treating physician and a qualified pathologist or radiologist."
+}

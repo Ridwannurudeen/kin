@@ -4,6 +4,24 @@ This directory is the forward-looking second vertical for Hunt: defending ordina
 
 This is a v2 plan, not a live on-chain demo. Hunt's mainnet contract is unchanged; the existing bounty #0–#6 history on Aristotle stays the cryptographically-verifiable record. The first on-chain insurance bounty fires post-hackathon once the model + specialist briefs are tuned for legal/clinical-policy reasoning.
 
+## Data flow at a glance
+
+```
+  patient            0G Storage           Hunt contract        specialist hunters             patient
+  ─────────         ───────────────────  ──────────────       ─────────────────────────       ─────────
+  denial+EOB ──AES─▶ denialRoot          postBounty           run race in TEE                  attested
+  encrypted ▲        (encrypted)         (escrow + scope) ──▶ each specialist independently    appeal letter
+            │              │                   │              decrypts inside TEE, calls 0G    + on-chain
+            │              ▼                   ▼              Sealed Inference, surfaces       receipt for
+            │       0G Chain settles ◀── submitDefense        appeal grounds + cited authority insurance
+            │       per-defect rep ◀────────── (ecrecover                                      commissioner
+            │       (backtested vs.          attestation                                       / state IRO
+            │       CMS QIO outcomes)        digest)
+            └──────── ECIES envelope, finding decrypts only to patient pubkey ─────────────────┘
+```
+
+Run [`scripts/insurance_specialist_brief.js`](../../scripts/insurance_specialist_brief.js) to see the structured brief + output schema + attestation digest construction this vertical produces. The script uses the **same** `findingDigest` primitive as v1 ([`lib/credential.js`](../../lib/credential.js)) — only the canonical class strings differ.
+
 ## Why this is the right v2
 
 73 million ACA enrollees had in-network claims denied in 2023. **Less than 1% appealed.** Of those who did, **40–75% won.** The architecture today: an algorithm denies care in 1.2 seconds (Cigna PXDX, [CBS News](https://www.cbsnews.com/news/cigna-algorithm-patient-claims-lawsuit/)); a patient with no legal training has no way to challenge it; the AI that denied them is unverifiable; the AI that *could* defend them is unverifiable in the same way. Both sides black-boxed, only one side has lawyers.
@@ -57,6 +75,15 @@ The new contract surface area is small: a new bounty-domain enum (`SMART_CONTRAC
 4. **Best-grounded defense wins the bounty.** Findings are uploaded to 0G Storage encrypted to the patient's wallet pubkey via ECIES.
 5. **Patient receives a signed attestation** they can attach to their formal appeal to the insurance commissioner or state IRO.
 6. **Reputation accrues per specialty** when the appeal is later granted (signal sourced from CMS QIO external-review outcomes).
+
+## Honest v1 privacy caveat (inherited from Hunt's v1 architecture)
+
+Hunt v1 ships an **operator-relayed attestation layer over real 0G Sealed Inference** — documented in the main README's Honesty notes. The insurance vertical inherits both halves of that posture:
+
+- **Sealed-from-third-parties, not sealed-from-the-specialist.** v1 encrypts the bounty payload with a **shared hunter-network key**: every registered specialist hunter holds it and can decrypt every posted bounty. For the insurance vertical that means a registered medical-necessity-specialist could in principle decrypt other patients' denial letters too. This is bounded to *registered hunters who have minted with verified credentials* — not the public, not OpenAI, not the storage operators — but it is not per-patient confidentiality. v2's per-hunter ECDH envelope on the `Bounty` struct (documented in [`doc/FUTURE.md`](../../doc/FUTURE.md) Decentralisation roadmap) closes this gap: each specialist receives a separately-encrypted envelope, so a single specialist's compromise doesn't expose other patients' records.
+- **Operator-relayed attestation in v1.** The on-chain digest `ecrecover`s against an operator-held `teeSigner`. The hunter daemon validates the `ZG-Res-Key` attestation off-chain but the chain doesn't witness that validation in v1. v2's TEE-attestation-verifying signer set makes the bind chain-enforced.
+
+Both gaps are real. Both are documented. Both have concrete v2 closures. The v2 insurance vertical waits on the v2 contract upgrade before serving real patient data — that's a feature of the sequencing, not a hidden caveat.
 
 ## Why we are NOT shipping this on-chain for the May 2026 submission
 

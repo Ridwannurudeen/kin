@@ -180,3 +180,41 @@ What judges can verify:
 - Diff: the v1.1 changes are concentrated in `contracts/Hunt.sol` and `test/Hunt.test.js` — search for the comment `v1.1` in either file.
 - Tests: 4 new tests cover (a) `submissions++` on submit alone, (b) accumulation across multiple submissions same CWE, (c) losing hunter retains `submissions == 1` after winner is settled, (d) `totalEarnedWei` correctly stores a 20-ether payout that would have wrapped under `uint64`. `npm test` → 195 passing, 0 failing.
 - Live state: `getClassRep(hunterId, cweClass)` on the deployed `0xD4Fe5127…` still returns the v1.0-counted values. Bounty #3 strict-verify still exits 0 against that address.
+
+---
+
+## Q12 — Two non-crypto verticals (insurance + medical) are positioned in the submission. Isn't that scope creep?
+
+**No. They're proof-of-generalization, not a competing v1 claim. The depth of 0G integration on the smart-contract substrate is unchanged; the new verticals reuse that substrate without diluting it.**
+
+The strict line: anything that *modifies* v1's on-chain story is risky 3 days before submission. Anything that *reuses* v1's exact primitives in a documented v2 form is the opposite — it proves the substrate is general-purpose rather than narrow.
+
+What the new verticals reuse, verbatim:
+
+- The `findingDigest` keccak-encoding from `lib/credential.js` — same ABI tuple, same fields, same on-chain `ecrecover` gate. Verifiable via `scripts/insurance_specialist_brief.js` and `scripts/medical_specialist_brief.js`, which call the v1 primitive against new domain inputs and produce real attestation digests offline.
+- The per-domain canonical-class hashing (`keccak256(utf8(name))`) used by `lib/cwe.js` for CWEs. The new verticals introduce a parallel registry of class strings (denial-defect classes for insurance, reading classes for medical) hashed by the identical primitive.
+- The encrypted-bounty-storage pattern (`codeRoot`/`recordRoot`/`denialRoot` on 0G Storage), the race-window enforcement, the settle-window enforcement, the per-class `ClassRep` math.
+
+What changes on-chain in v2 is small: a new bounty-domain enum (`SMART_CONTRACT`, `INSURANCE_APPEAL`, `MEDICAL_READING`) plus a per-domain canonical-class registry behind it. No new escrow logic, no new attestation logic, no new reputation logic.
+
+The v1 smart-contract narrative is still the load-bearing demo. The new verticals' purpose is to show the primitive's reach — which is the literal substance of Track 3's "Agentic Economy" framing. If Hunt's machinery only worked for one vertical, judges would correctly read that as a narrow product. Showing two non-trivial verticals share the substrate is what generalises the claim.
+
+---
+
+## Q13 — How do I know the new-vertical positioning isn't just a manifesto? Where's the working substrate?
+
+**Three places, all runnable today without an on-chain transaction:**
+
+1. **`node scripts/insurance_specialist_brief.js`** — constructs the v2 insurance-specialist system prompt, builds the structured brief over `audits/insurance/sample_denial.txt`, hashes the six denial-defect classes via the same `keccak256(utf8(name))` primitive as `lib/cwe.js`, computes a real attestation digest using the v1 `findingDigest` ABI encoding, and writes the full structured output to `audits/insurance/demo_output.json`. The digest construction is byte-for-byte identical to what `Hunt.submitFinding` would `ecrecover` if the v2 vertical were live.
+
+2. **`node scripts/medical_specialist_brief.js`** — the medical equivalent. The system prompt is **locked to "questions for the treating physician" + "second-opinion flags"** by the output schema itself, and the self-eval rationale must explicitly confirm scope discipline (no diagnosis / no treatment recommendation). Hashes six reading classes calibrated against published per-specialty disagreement rates (ASCO 2021, PMC PMC5265198). Writes `audits/medical/demo_output.json`.
+
+3. **The two READMEs** (`audits/insurance/README.md`, `audits/medical/README.md`) — each contains a **runnable data-flow ASCII diagram** showing where 0G Storage, 0G Sealed Inference, and 0G Chain plug into the new vertical exactly as they plug into v1. Each contains an honest v1-privacy caveat citing the shared-hunter-network-key gap and the per-hunter ECDH envelope that closes it in v2. Each has a public-data validation plan (CMS QIO external-review outcomes for insurance; MIMIC-CXR / TCGA / NIH ChestX-ray14 / CAMELYON for medical).
+
+What is **not** claimed for the May 2026 submission:
+
+- No new specialists are minted on-chain. The hunter mints stay at the original three (`reentrancy`, `oracle`, `access-control`) so the live `getHunter` calls return v1-consistent data.
+- No new bounties fire on the new verticals. Bounty #3's strict-verify exit 0 remains the load-bearing cryptographic proof.
+- No claim that the v1 0G Sealed Inference model (`zai-org/GLM-5-FP8`) produces useful output on medical or legal text without retuning. The READMEs are explicit that on-chain firing waits for fine-tuning + validation against public corpora (weeks 8–12 post-hackathon for insurance; weeks 12–20 for medical, plus CLIA-certified human-in-the-loop partnership).
+
+The bar this submission clears: smart-contract auditing is the load-bearing v1 vertical with a settled mainnet artifact (bounty #3) cryptographically verifiable today, plus two documented v2 verticals with runnable demonstration scripts that exercise the same on-chain primitive against new domain inputs.

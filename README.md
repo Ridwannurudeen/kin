@@ -265,6 +265,8 @@ scripts/
   run_race.js              — one-shot orchestrator (all 3 hunters in parallel for demo)
   settle_bounty.js         — pick winner + rating, settle
   verify_bounty.js         — standalone verifier (no project setup needed)
+  insurance_specialist_brief.js  — v2 vertical demo: builds the insurance-defense brief + computes the v1 attestation digest against audits/insurance/sample_denial.txt
+  medical_specialist_brief.js    — v2 vertical demo: builds the Records-Reader brief (scope-locked to "questions for physician") + computes the v1 attestation digest against audits/medical/sample_pathology_report.txt
 public/
   index.html               — landing
   hunters.html             — registry of minted hunters
@@ -329,6 +331,8 @@ Kin v2's contract `0x47F25b2fAf6E5626946582F86F0e52A4517f3234` is preserved on-c
 - **Outreach templates** (security researchers + 0G core team): [`doc/OUTREACH_TEMPLATES.md`](doc/OUTREACH_TEMPLATES.md)
 - **Release assets** (video editor brief + YouTube description + X teaser thread): [`doc/RELEASE_ASSETS.md`](doc/RELEASE_ASSETS.md)
 - **Primary live audit — ChartChain** (Hunt audits another live 0G project on Aristotle mainnet): [`audits/chartchain/README.md`](audits/chartchain/README.md)
+- **v2 vertical — insurance-claim-denial defense** (verifiable AI defending citizens against opaque AI denials; full plan + runnable demonstration script + synthetic Lokken-pattern denial letter): [`audits/insurance/README.md`](audits/insurance/README.md)
+- **v2 vertical — medical Records Reader** (verifiable multi-specialist medical reads for ordinary patients; scope-locked to "questions for your physician" inside FDA Jan 2026 CDS guidance; full plan + runnable demonstration script + synthetic ADH/DCIS-borderline pathology report): [`audits/medical/README.md`](audits/medical/README.md)
 
 ## License
 

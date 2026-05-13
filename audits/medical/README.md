@@ -6,6 +6,30 @@ This directory is the second non-crypto vertical for Hunt, positioned alongside 
 
 Like insurance, this is positioning + plan for the May 2026 submission. No on-chain bounty fires yet — the first medical bounty post-hackathon ships only after specialist briefs are tuned and validated against public benchmark datasets (MIMIC-CXR, TCGA, NIH ChestX-ray14).
 
+## Data flow at a glance
+
+```
+  patient            0G Storage           Hunt contract        Records-Reader specialists       patient
+  ─────────         ───────────────────  ──────────────       ─────────────────────────────     ─────────
+  report ────AES──▶ recordRoot           postBounty           each specialist independently     attested
+  encrypted ▲        (encrypted; sealed   (escrow + scope) ──▶ decrypts inside TEE, calls 0G    "questions to
+            │        from third-parties,                       Sealed Inference, returns        ask your doctor"
+            │        not from registered                       QUESTIONS + guideline citations  + on-chain
+            │        specialists in v1)                       NEVER a diagnosis                 receipt
+            │              │                   │                       │
+            │              ▼                   ▼                       ▼
+            │       0G Chain settles ◀── submitReading              (records reader output)
+            │       per-class rep ◀────── (ecrecover                      │
+            │       (backtested vs.        attestation                    │
+            │       published per-         digest)                        │
+            │       specialty disagreement                                │
+            │       rates: ASCO 2021,                                     │
+            │       PMC PMC5265198)                                       │
+            └──────── ECIES envelope, output decrypts only to patient pubkey ─────────────────────┘
+```
+
+Run [`scripts/medical_specialist_brief.js`](../../scripts/medical_specialist_brief.js) to see the structured brief + strict "questions-not-diagnoses" output schema + attestation digest construction this vertical produces. The script uses the **same** `findingDigest` primitive as v1 ([`lib/credential.js`](../../lib/credential.js)) — only the canonical class strings differ. The system prompt locks the model to "questions for the physician" output and explicitly forbids diagnosis or treatment recommendations.
+
 ## Why medical records second-opinion fits Hunt's architecture
 
 Three reasons the protocol maps even more naturally to medical second-opinion than to smart-contract audit:
@@ -51,6 +75,16 @@ The contract delta is the same as for insurance: a new domain enum (`SMART_CONTR
 4. **Best-grounded reading wins.** Encrypted findings uploaded to 0G Storage; patient gets a TEE-attested receipt.
 5. **Patient brings the questions to their physician** — not a competing AI diagnosis, an informed question-list that a non-specialist family couldn't have generated alone.
 6. **Reputation accrues per specialty** when the patient (or a verifying second pathologist / radiologist) confirms which reading was useful.
+
+## Honest v1 privacy caveat (inherited from Hunt's v1 architecture)
+
+Medical records carry the highest privacy stakes of any vertical Hunt could enter, so the v1 caveats matter more here than anywhere else. Two specific gaps inherit from v1 and have concrete v2 closures:
+
+- **Sealed-from-third-parties, not sealed-from-the-specialist.** v1 encrypts the bounty payload with a **shared hunter-network key** held by every registered specialist. For medical, that means every registered pathology-specialist could in principle decrypt other patients' pathology reports posted to the same shared network. The exposure surface is bounded to verified-credential hunters (not the public, not OpenAI, not 0G's storage operators), but it is not per-patient confidentiality. v2's **per-hunter ECDH envelope** on the `Bounty` struct ([`doc/FUTURE.md`](../../doc/FUTURE.md) Decentralisation roadmap) closes the gap: each specialist receives a separately-encrypted envelope, so one specialist's compromise doesn't expose other patients' records.
+- **Operator-relayed attestation in v1.** The on-chain digest `ecrecover`s against an operator-held `teeSigner`. The hunter daemon validates the 0G `ZG-Res-Key` attestation off-chain but the chain doesn't witness it. v2's TEE-attestation-verifying signer set makes that bind chain-enforced.
+- **Plus: medical-specific data minimisation.** The on-chain bounty stores only the `recordRoot` (keccak hash of the encrypted blob) — never the plaintext, never PHI. The patient's pubkey is the only party that can decrypt the specialist's output (ECIES envelope). De-identification happens client-side before encryption. PHI never crosses the network in plaintext at any point.
+
+The v2 medical vertical waits on **both** the v2 contract upgrade *and* CLIA-certified human-in-the-loop partnership before serving real patient data. The sequencing is deliberate, not a hidden caveat.
 
 ## Why we are NOT shipping this on-chain for the May 2026 submission
 

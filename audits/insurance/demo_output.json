@@ -1,0 +1,75 @@
+{
+  "vertical": "insurance-claim-denial-defense",
+  "status": "v2-demonstration (no on-chain action)",
+  "specialistBriefModelVersion": "hunt-insurance-defense-v0",
+  "canonicalClasses": [
+    {
+      "name": "medical-necessity-misapplication",
+      "bytes32": "0xe800115b708b002008b4a8f2b82724d57d0c6d7cd330e68d2f6ec4b3e43b96bd"
+    },
+    {
+      "name": "coding-cpt-error",
+      "bytes32": "0xe33af34b8b32ee3aef74273839a6f2659aabe5dd3974dbc4612b8ea90ac7c0ba"
+    },
+    {
+      "name": "prior-auth-overreach",
+      "bytes32": "0xd3ff44c161257824727b36a1a4d734fac9681e74ebc1613559c0fe4e5e9b169f"
+    },
+    {
+      "name": "network-adequacy-violation",
+      "bytes32": "0x957dbb55e8c6ba383d754022900edd7f2431f00e2d345d7c0c8e108d53fba38b"
+    },
+    {
+      "name": "erisa-procedural-defect",
+      "bytes32": "0x0d26d734e5dea947b2799df63316bd924eb83031980e5a1d94ad84c40f6e8015"
+    },
+    {
+      "name": "state-external-review-misclassification",
+      "bytes32": "0x63aecb6311f2d4c619214b0a5b5f09e65ca229b3df1facca23940479ab33f1b9"
+    }
+  ],
+  "brief": {
+    "systemPrompt": "You are an autonomous insurance-appeals specialist on Hunt. You will receive:\n  - up to 5 sample appeal letters from this specialist's prior history (showing their voice + the regulatory authorities they cite)\n  - a structured denial brief describing the insurer, the patient's plan type, the disputed service, the denial rationale, and the in-scope denial-defect classes for the bounty\n\nPRODUCE one strict JSON object — no prose outside it, no markdown fences. Shape:\n\n{\n  \"findings\": [\n    {\n      \"defectClass\": \"<kebab-case denial-defect class, e.g. 'medical-necessity-misapplication', 'coding-cpt-error', 'prior-auth-overreach', 'network-adequacy-violation', 'erisa-procedural-defect', 'state-external-review-misclassification'>\",\n      \"severity\": \"critical\" | \"high\" | \"medium\" | \"low\",\n      \"loc\": \"<denial letter section anchor; e.g. 'NOMNC para 2'>\",\n      \"issue\": \"<specific defect — concrete, not vague — citing the regulatory or clinical-policy text that the denial misapplies or omits>\",\n      \"remedyPath\": \"<concrete next step: which appeal channel (insurer internal, state IRO, ERISA external review, QIO fast-track), within what window>\",\n      \"supportingAuthority\": \"<cited authority: LCD/NCD identifier, 42 C.F.R. section, 29 C.F.R. § 2560.503-1 subsection, state-law statute, controlling case>\"\n    }\n  ],\n  \"selfEval\": {\n    \"severityCalibrationBps\":  <0..10000>,\n    \"precisionBps\":            <0..10000>,\n    \"coverageBps\":             <0..10000>,\n    \"exploitabilityBps\":       <0..10000>,\n    \"rationale\": \"<one paragraph: where strong / where weak>\"\n  }\n}\n\nCRITERIA for self-eval (calibrated to insurance-appeals domain):\n  - severityCalibration: how accurately defects are graded against the appeal-success precedent base rate for that defect class\n  - precision:           false-positive rate — flag if a \"defect\" might survive review\n  - coverage:            did the analysis hit each in-scope defect class against the denial letter\n  - exploitabilityBps:   does each defect have a concrete appeal-channel + deadline + cited authority, not hand-waving\n\nBe honest. The patient is going to take this appeal letter to a state insurance commissioner or IRO. Hallucinated authorities are worse than no finding. Cite real regulations or do not cite. If unsure, lower the precision score.\n\nIf you find no actionable defects, return {\"findings\": [], \"selfEval\": {...}} with a rationale explaining why — coverage + exploitability must reflect honestly whether each in-scope class was checked.",
+    "userPrompt": "(no sample appeal letters provided — cold-start specialist)\n\n── BOUNTY BRIEF ──\nInsurer:          ACME Medicare Advantage Plan (synthetic, Lokken-pattern)\nPlan type:        Medicare Advantage PPO\nService in dispute: Skilled nursing facility coverage continuation, post-acute\nDate of denial:   [DATE]\nPatient clinical context: 46-year-old female; post-acute SNF stay following hip-fracture repair; therapy minutes and Section GG plateau cited as grounds for discharge\n\nIn-scope denial-defect classes (specialist must analyse against each):\n  - medical-necessity-misapplication\n  - coding-cpt-error\n  - prior-auth-overreach\n  - network-adequacy-violation\n  - erisa-procedural-defect\n  - state-external-review-misclassification\n\nDENIAL LETTER (sealed; decrypted only inside this specialist's TEE):\n\"\"\"\nSYNTHETIC DENIAL LETTER — modeled on patterns documented in Estate of\nLokken v. UnitedHealth Group (D. Minn., Case No. 0:23-cv-03514) and\nrelated class actions challenging algorithmic claim denials. All names,\nmember IDs, policy numbers, and dates are fabricated. The structure,\nlanguage, and clinical-policy citations are representative of denial\nletters at issue in those public cases.\n\n------------------------------------------------------------------------\n[Insurer Letterhead]\nACME MEDICARE ADVANTAGE PLAN\nMember Services / Coverage Determinations\n\nDate:           [DATE]\nMember:         [MEMBER NAME]\nMember ID:      AMA-XXXXXXXXX\nPolicy:         Medicare Advantage PPO\nClaim Number:   CLM-2026-XXXXXXX\nProvider:       [SKILLED NURSING FACILITY NAME]\nService Dates:  Day 17 - Day 100 of post-acute skilled nursing care\nService Code:   SNF (CPT/HCPCS as billed)\n------------------------------------------------------------------------\n\nDETERMINATION: COVERAGE TERMINATED EFFECTIVE DAY 17.\n\nWe have reviewed your continued stay at the above skilled nursing\nfacility following discharge from inpatient hospitalization for hip\nfracture (S72.001A) with surgical repair. Our coverage determination\napplies the Medicare benefit policy at LCD L33635 and our predictive\nlength-of-stay model, which estimates that members with your clinical\nprofile typically require 16.4 days of skilled nursing care.\n\nBased on this estimate and our review of the daily nursing notes, we\nhave determined that:\n\n  1. Your therapy minutes have declined below the threshold required\n     to demonstrate \"active rehabilitation.\"\n  2. Your functional improvement (as measured by Section GG of the\n     MDS) has plateaued over the prior 3 days.\n  3. The level of services you are receiving could, in our judgment,\n     be safely provided in a lower level of care.\n\nAccordingly, skilled nursing facility coverage for the dates of service\nbeginning on Day 17 and continuing is DENIED as not medically necessary\nunder the terms of your Medicare Advantage coverage.\n\nYou have the right to appeal this decision. You may request a fast-track\nappeal through your state's Quality Improvement Organization (QIO)\nwithin 24 hours of receiving this notice if you disagree with the\ndischarge date. Standard appeals must be filed within 60 days.\n\n------------------------------------------------------------------------\nATTACHED: Notice of Medicare Non-Coverage (NOMNC).\n\nNOTE TO HUNT'S AUDITORS: This synthetic letter exhibits four denial-\ndefect patterns that the public Lokken complaint alleges UnitedHealth's\nnH Predict tool systematically introduces:\n\n  (a) Substitution of an algorithmic length-of-stay estimate for the\n      individualized medical-necessity review required under 42 C.F.R.\n      § 422.101(b) and CMS Medicare Managed Care Manual Ch. 4.\n  (b) Reliance on LCD/NCD citations that do not, on their face, govern\n      the clinical question (LCD L33635 is a wound-care policy; it does\n      not establish the threshold for SNF medical necessity).\n  (c) Citation of \"therapy minute\" and \"Section GG plateau\" criteria\n      that the QIO standards for skilled-nursing termination expressly\n      reject as the sole grounds for discharge.\n  (d) Omission of the procedural disclosures required by ERISA § 503\n      and 29 C.F.R. § 2560.503-1 for adverse benefit determinations\n      under employer-sponsored Medicare Advantage plans — including the\n      specific clinical rationale, the qualifications of the reviewer,\n      and notice of the member's right to all documents relevant to\n      the claim.\n\nA Hunt specialist panel posting against this denial would be expected\nto surface at least defects (a)-(c) via the medical-necessity and\nstate-external-review specialists, and defect (d) via the ERISA\nspecialist if the underlying plan is an employer-sponsored Medicare\nAdvantage product.\n\n\"\"\"\n\nPRIOR APPEAL OUTCOMES (this specialist, this insurer, this defect class):\n  (cold start — no prior outcomes)\n"
+  },
+  "expectedOutputSchema": {
+    "findings": [
+      {
+        "defectClass": "string (kebab-case from INSURANCE_DEFECT_CLASSES)",
+        "severity": "critical | high | medium | low",
+        "loc": "string (denial-letter section anchor)",
+        "issue": "string (concrete defect citing regulatory text)",
+        "remedyPath": "string (appeal channel + deadline)",
+        "supportingAuthority": "string (LCD/NCD/CFR/case)"
+      }
+    ],
+    "selfEval": {
+      "severityCalibrationBps": "0..10000",
+      "precisionBps": "0..10000",
+      "coverageBps": "0..10000",
+      "exploitabilityBps": "0..10000",
+      "rationale": "string"
+    }
+  },
+  "attestationConstruction": {
+    "note": "Identical to v1 lib/credential.js findingDigest — same ABI encoding, same keccak, same on-chain ecrecover gate. Only the canonical class strings differ.",
+    "inputs": {
+      "bountyId": "0",
+      "denialRoot": "0x4713a0e6e237bc3342ab414250a8cc5988cad75dc5045f9ec5834e8ec7ed1105",
+      "specialistId": "0",
+      "defectClass": "0xe800115b708b002008b4a8f2b82724d57d0c6d7cd330e68d2f6ec4b3e43b96bd",
+      "defectClassDecoded": "medical-necessity-misapplication",
+      "severity": 3,
+      "findingRoot": "0x4ecf33cf903d902cd88afc6196fc41373834e00c0c6156dbd04bece481002528",
+      "modelDigest": "0x16db1f5507a0b297df5b7f975365ce9bde9300ea14da9f2a74b61c76637851a9",
+      "teeTimestamp": "0",
+      "selfEvalBps": {
+        "severityCalibration": 0,
+        "precision": 0,
+        "coverage": 0,
+        "exploitability": 0
+      }
+    },
+    "digest": "0xa168772db1780ae2d5d75beb464d259c054c9363174cb17bf70e0b303dfc6b4f"
+  }
+}
