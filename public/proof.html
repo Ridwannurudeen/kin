@@ -6,52 +6,139 @@
 <title>Judge Proof &mdash; Hunt</title>
 <link rel="stylesheet" href="/styles.css">
 <style>
-  .brand em { color: var(--red); }
-  .proof-section { margin-bottom: 48px; }
-  .proof-section .head { font-family: var(--mono); font-size: 11px; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; align-items: center; }
-  .proof-section .head .right { color: var(--ink); font-family: var(--mono); }
-  .kv-grid { display: grid; grid-template-columns: 180px 1fr; gap: 8px 24px; font-family: var(--mono); font-size: 13px; }
+  .proof-section { margin-bottom: 56px; }
+  .proof-section .head {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--brand);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 500;
+  }
+  .proof-section .head .right { color: var(--text); font-family: var(--mono); }
+  .kv-grid { display: grid; grid-template-columns: 180px 1fr; gap: 10px 24px; font-family: var(--mono); font-size: 13px; }
   @media (max-width: 600px) { .kv-grid { grid-template-columns: 1fr; gap: 4px; } }
-  .kv-grid .k { color: var(--ink-mute); }
-  .kv-grid .v { color: var(--ink); word-break: break-all; }
-  .kv-grid .v a { color: var(--gold); }
+  .kv-grid .k { color: var(--text-mute); text-transform: uppercase; font-size: 11px; letter-spacing: 0.1em; }
+  .kv-grid .v { color: var(--text); word-break: break-all; }
+  .kv-grid .v a { color: var(--brand); }
   .kv-grid .v.mono { font-family: var(--mono); }
-  .status-pill { font-family: var(--mono); font-size: 11px; padding: 3px 10px; border-radius: 100px; text-transform: uppercase; letter-spacing: 0.1em; }
-  .status-pill.open    { background: #d9e8d3; color: var(--green); }
-  .status-pill.settled { background: var(--gold-tint); color: var(--gold); }
-  .status-pill.expired { background: var(--paper-soft); color: var(--ink-mute); }
-  .timeline { position: relative; height: 64px; background: var(--paper-soft); border: 1px solid var(--rule); border-radius: 2px; margin: 16px 0 28px; }
-  .timeline .axis { position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--ink-mute); }
-  .timeline .label { position: absolute; bottom: -22px; font-family: var(--mono); font-size: 10px; color: var(--ink-mute); }
-  .timeline .marker { position: absolute; top: calc(50% - 7px); width: 14px; height: 14px; border-radius: 50%; background: var(--ink); border: 2px solid var(--paper); transform: translateX(-7px); cursor: pointer; }
-  .timeline .marker.winner { background: var(--gold); box-shadow: 0 0 0 3px var(--gold-tint); width: 18px; height: 18px; top: calc(50% - 9px); transform: translateX(-9px); }
+  .status-pill { font-family: var(--mono); font-size: 11px; padding: 4px 11px; border-radius: var(--r-pill); text-transform: uppercase; letter-spacing: 0.12em; font-weight: 500; }
+  .status-pill.open    { background: var(--brand-glow-soft); color: var(--brand); border: 1px solid var(--brand-glow); }
+  .status-pill.settled { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(245,200,66,0.3); }
+  .status-pill.expired { background: var(--bg-elev-2); color: var(--text-mute); border: 1px solid var(--border); }
+  .timeline {
+    position: relative;
+    height: 72px;
+    background: var(--bg-elev-1);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    margin: 16px 0 32px;
+  }
+  .timeline .axis { position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--border-strong); }
+  .timeline .label { position: absolute; bottom: -24px; font-family: var(--mono); font-size: 10px; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.1em; }
+  .timeline .marker {
+    position: absolute;
+    top: calc(50% - 7px);
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--text-soft);
+    border: 2px solid var(--bg);
+    transform: translateX(-7px);
+    cursor: pointer;
+    transition: all 200ms var(--ease);
+  }
+  .timeline .marker:hover { transform: translateX(-7px) scale(1.2); }
+  .timeline .marker.winner {
+    background: var(--brand);
+    box-shadow: 0 0 0 4px var(--brand-glow), 0 0 24px var(--brand);
+    width: 18px;
+    height: 18px;
+    top: calc(50% - 9px);
+    transform: translateX(-9px);
+  }
+  .timeline .marker.winner:hover { transform: translateX(-9px) scale(1.15); }
   .timeline .marker:hover::after {
     content: attr(data-tip);
-    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-    background: var(--ink); color: var(--paper); padding: 6px 10px; border-radius: 2px;
-    font-family: var(--mono); font-size: 11px; white-space: nowrap; z-index: 10;
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-elev-3);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--border-strong);
+    font-family: var(--mono);
+    font-size: 11px;
+    white-space: nowrap;
+    z-index: 10;
   }
-  table.findings { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; margin-top: 12px; }
-  table.findings th { text-align: left; padding: 8px 8px; font-size: 10px; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid var(--ink); font-weight: 500; }
-  table.findings td { padding: 8px 8px; border-bottom: 1px dashed var(--rule); vertical-align: top; }
-  table.findings tr.winner { background: var(--gold-tint); }
-  table.findings tr.winner td { font-weight: 500; }
-  .sev-critical { color: var(--red); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.08em; }
-  .sev-high     { color: #b3691f; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.08em; }
-  .sev-medium   { color: var(--ink); font-weight: 500; text-transform: uppercase; font-size: 11px; letter-spacing: 0.08em; }
-  .sev-low      { color: var(--ink-mute); text-transform: uppercase; font-size: 11px; letter-spacing: 0.08em; }
-  .winner-panel { border: 2px solid var(--gold); background: linear-gradient(to bottom, #fff7e0 0%, #fdfbf5 100%); padding: 28px; border-radius: 2px; margin-top: 8px; }
-  .winner-panel .crown { font-family: var(--serif); font-size: 28px; font-weight: 600; margin-bottom: 8px; }
-  .winner-panel .crown em { color: var(--gold); font-style: italic; }
-  .code-block { background: var(--ink); color: var(--paper); padding: 18px 22px; border-radius: 2px; font-family: var(--mono); font-size: 13px; line-height: 1.7; white-space: pre; overflow-x: auto; }
-  .input-bar { display: flex; gap: 12px; align-items: center; margin-bottom: 24px; }
-  .input-bar input { max-width: 200px; }
+  table.findings { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; margin-top: 14px; }
+  table.findings th { text-align: left; padding: 10px 10px; font-size: 10px; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--border-strong); font-weight: 500; }
+  table.findings td { padding: 10px 10px; border-bottom: 1px dashed var(--border); vertical-align: top; color: var(--text-soft); }
+  table.findings tr:hover td { background: var(--bg-elev-1); color: var(--text); }
+  table.findings tr.winner { background: var(--brand-glow-soft); }
+  table.findings tr.winner td { font-weight: 500; color: var(--text); }
+  .sev-critical { color: var(--red); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.1em; }
+  .sev-high     { color: var(--warning); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.1em; }
+  .sev-medium   { color: var(--text); font-weight: 500; text-transform: uppercase; font-size: 11px; letter-spacing: 0.1em; }
+  .sev-low      { color: var(--text-mute); text-transform: uppercase; font-size: 11px; letter-spacing: 0.1em; }
+  .winner-panel {
+    border: 1px solid var(--brand-glow);
+    background:
+      radial-gradient(ellipse at top, var(--brand-glow-soft), transparent 60%),
+      var(--bg-elev-1);
+    padding: 32px;
+    border-radius: var(--r-lg);
+    margin-top: 8px;
+    box-shadow: 0 12px 40px var(--brand-glow-soft);
+  }
+  .winner-panel .crown { font-family: var(--display); font-size: 28px; font-weight: 700; margin-bottom: 12px; color: var(--text); letter-spacing: -0.01em; }
+  .winner-panel .crown em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--brand), var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .code-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+    padding: 20px 24px;
+    border-radius: var(--r-md);
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.7;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .code-block .ok { color: var(--brand); }
+  .input-bar { display: flex; gap: 12px; align-items: center; margin-bottom: 28px; }
+  .input-bar input { max-width: 220px; }
   .scope-list { font-family: var(--mono); font-size: 12px; }
-  .scope-list .chip { display: inline-block; margin: 2px 4px 2px 0; padding: 2px 8px; background: var(--paper-soft); border: 1px solid var(--rule); border-radius: 100px; }
+  .scope-list .chip {
+    display: inline-block;
+    margin: 3px 4px 3px 0;
+    padding: 3px 10px;
+    background: var(--bg-elev-2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-pill);
+    color: var(--text-soft);
+    text-transform: lowercase;
+  }
   .rep-table { width: 100%; font-family: var(--mono); font-size: 12px; border-collapse: collapse; }
-  .rep-table td { padding: 6px 0; border-bottom: 1px dashed var(--rule); }
-  .rep-table td.k { color: var(--ink-mute); width: 220px; }
-  .empty { padding: 48px 0; text-align: center; color: var(--ink-mute); font-style: italic; font-family: var(--serif); font-size: 17px; }
+  .rep-table td { padding: 8px 0; border-bottom: 1px dashed var(--border); color: var(--text-soft); }
+  .rep-table td.k { color: var(--text-mute); width: 220px; text-transform: uppercase; font-size: 11px; letter-spacing: 0.1em; }
+  .rep-table td.v { color: var(--brand); }
+  .empty { padding: 64px 0; text-align: center; color: var(--text-mute); font-family: var(--serif); font-style: italic; font-size: 18px; }
 </style>
 </head>
 <body>

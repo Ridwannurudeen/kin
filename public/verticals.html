@@ -7,50 +7,160 @@
 <meta name="description" content="Hunt is verifiable AI on private data. Smart-contract auditing is v1, live on Aristotle mainnet. Three v2 verticals extend the same primitive: insurance-claim-denial defense, disability + senior benefits defense, medical Records Reader.">
 <link rel="stylesheet" href="/styles.css">
 <style>
-  body { background: var(--paper); }
-  .v-hero { padding: 48px 0 32px; border-bottom: 1px solid var(--rule); margin-bottom: 40px; }
-  .v-hero h1 { font-family: var(--serif); font-size: 56px; font-weight: 500; line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 16px; }
-  .v-hero h1 em { color: var(--ink); border-bottom: 4px solid var(--gold); font-style: normal; padding-bottom: 2px; }
-  @media (max-width: 600px) { .v-hero h1 { font-size: 36px; } }
-  .v-hero .lede { font-family: var(--serif); font-size: 21px; line-height: 1.4; color: var(--ink-soft); max-width: 760px; }
-  .v-hero .lede strong { color: var(--ink); font-weight: 600; }
+  .v-hero { padding: 64px 0 48px; border-bottom: 1px solid var(--border); margin-bottom: 48px; }
+  .v-hero h1 {
+    font-family: var(--display);
+    font-size: 64px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    margin-bottom: 24px;
+    background: linear-gradient(180deg, var(--text) 0%, var(--text-soft) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .v-hero h1 em {
+    font-style: normal;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--brand) 0%, var(--cyan) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  @media (max-width: 600px) { .v-hero h1 { font-size: 40px; } }
+  .v-hero .lede { font-family: var(--sans); font-size: 20px; line-height: 1.5; color: var(--text-soft); max-width: 800px; }
+  .v-hero .lede strong { color: var(--text); font-weight: 600; }
 
-  .section-title { font-family: var(--serif); font-size: 28px; font-weight: 500; margin: 56px 0 8px; letter-spacing: -0.01em; }
-  .section-title em { color: var(--gold); font-style: italic; }
-  .section-sub { font-family: var(--serif); font-size: 17px; color: var(--ink-soft); margin-bottom: 24px; line-height: 1.5; max-width: 760px; }
+  .section-title { font-family: var(--display); font-size: 32px; font-weight: 600; margin: 64px 0 12px; letter-spacing: -0.025em; color: var(--text); }
+  .section-title em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--brand), var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .section-sub { font-family: var(--sans); font-size: 17px; color: var(--text-soft); margin-bottom: 28px; line-height: 1.5; max-width: 800px; }
+  .section-sub code { font-family: var(--mono); font-size: 13px; background: var(--brand-glow-soft); color: var(--brand); padding: 2px 6px; border-radius: var(--r-sm); border: 1px solid var(--brand-glow); }
 
   /* Architecture diagram */
-  .arch-frame { background: #fdfbf5; border: 1px solid var(--rule); border-radius: 2px; padding: 32px 24px; margin: 16px 0 32px; overflow-x: auto; }
+  .arch-frame {
+    background:
+      radial-gradient(ellipse at top left, var(--brand-glow-soft), transparent 40%),
+      radial-gradient(ellipse at bottom right, var(--cyan-glow), transparent 40%),
+      var(--bg-elev-1);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 32px 24px;
+    margin: 16px 0 40px;
+    overflow-x: auto;
+  }
   .arch-frame svg { display: block; width: 100%; max-width: 920px; height: auto; margin: 0 auto; }
-  .arch-caption { font-family: var(--mono); font-size: 11px; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 16px; text-align: center; }
+  .arch-caption { font-family: var(--mono); font-size: 11px; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.12em; margin-top: 20px; text-align: center; }
 
   /* Vertical grid */
-  .v-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 16px; }
+  .v-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 16px; }
   @media (max-width: 880px) { .v-grid { grid-template-columns: 1fr; } }
-  .v-card { background: #fdfbf5; border: 1px solid var(--rule); border-radius: 2px; padding: 28px 24px; display: flex; flex-direction: column; }
-  .v-card .meta { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-  .v-card .tag { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; padding: 3px 9px; border-radius: 100px; }
-  .v-card .tag.live { background: #d9e8d3; color: var(--green); }
-  .v-card .tag.v2 { background: var(--gold-tint); color: var(--gold); }
-  .v-card .counterparty { font-family: var(--mono); font-size: 11px; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.08em; }
-  .v-card h3 { font-family: var(--serif); font-size: 26px; font-weight: 500; line-height: 1.15; margin-bottom: 10px; letter-spacing: -0.01em; }
-  .v-card .summary { font-family: var(--serif); font-size: 15px; color: var(--ink-soft); line-height: 1.55; margin-bottom: 18px; flex-grow: 1; }
-  .v-card .stat-row { display: grid; grid-template-columns: 1fr; gap: 8px; padding: 12px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin-bottom: 16px; }
-  .v-card .stat { font-family: var(--mono); font-size: 12px; color: var(--ink-soft); }
-  .v-card .stat .v { color: var(--ink); font-weight: 600; }
-  .v-card .links { display: flex; gap: 12px; flex-wrap: wrap; }
-  .v-card .links a { font-family: var(--mono); font-size: 12px; padding: 6px 12px; border: 1px solid var(--ink); border-radius: 2px; text-decoration: none; }
-  .v-card .links a:hover { background: var(--ink); color: var(--paper); }
-  .v-card .links a.script { border-color: var(--gold); color: var(--gold); }
-  .v-card .links a.script:hover { background: var(--gold); color: var(--paper); }
+  .v-card {
+    background: var(--surface-glass);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    transition: all 280ms var(--ease);
+    position: relative;
+    overflow: hidden;
+  }
+  .v-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--brand-glow), transparent);
+    opacity: 0;
+    transition: opacity 280ms var(--ease);
+  }
+  .v-card:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 0 1px var(--brand-glow);
+  }
+  .v-card:hover::before { opacity: 1; }
+  .v-card .meta { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .v-card .tag { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; padding: 4px 10px; border-radius: var(--r-pill); font-weight: 500; }
+  .v-card .tag.live { background: var(--brand-glow-soft); color: var(--brand); border: 1px solid var(--brand-glow); }
+  .v-card .tag.v2 { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(245,200,66,0.3); }
+  .v-card .counterparty { font-family: var(--mono); font-size: 10px; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.1em; }
+  .v-card h3 { font-family: var(--display); font-size: 26px; font-weight: 600; line-height: 1.15; margin-bottom: 12px; letter-spacing: -0.02em; color: var(--text); }
+  .v-card .summary { font-family: var(--sans); font-size: 14px; color: var(--text-soft); line-height: 1.6; margin-bottom: 20px; flex-grow: 1; }
+  .v-card .summary strong { color: var(--brand); }
+  .v-card .summary code { font-family: var(--mono); font-size: 12px; color: var(--brand); background: var(--brand-glow-soft); padding: 1px 5px; border-radius: var(--r-sm); }
+  .v-card .stat-row { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+  .v-card .stat { font-family: var(--mono); font-size: 12px; color: var(--text-soft); }
+  .v-card .stat .v { color: var(--brand); font-weight: 600; text-shadow: 0 0 12px var(--brand-glow); }
+  .v-card .stat code { font-family: var(--mono); font-size: 11px; color: var(--text-mute); }
+  .v-card .links { display: flex; gap: 10px; flex-wrap: wrap; }
+  .v-card .links a {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 7px 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-md);
+    text-decoration: none;
+    color: var(--text-soft);
+    text-transform: lowercase;
+    letter-spacing: 0.02em;
+    transition: all 200ms var(--ease);
+  }
+  .v-card .links a:hover { background: var(--bg-elev-2); color: var(--text); border-color: var(--text-soft); }
+  .v-card .links a.script { border-color: var(--brand-glow); color: var(--brand); }
+  .v-card .links a.script:hover { background: var(--brand); color: var(--bg); border-color: var(--brand); }
 
   /* Pitch row */
-  .pitch { background: #fdfbf5; border-left: 4px solid var(--gold); padding: 24px 28px; margin: 48px 0; font-family: var(--serif); font-size: 18px; line-height: 1.5; color: var(--ink); }
-  .pitch em { color: var(--gold); font-style: italic; font-weight: 600; }
+  .pitch {
+    background: var(--surface-glass);
+    backdrop-filter: blur(16px);
+    border-left: 3px solid var(--brand);
+    border-top: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    border-radius: 0 var(--r-lg) var(--r-lg) 0;
+    padding: 28px 32px;
+    margin: 56px 0;
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--text);
+    box-shadow: -4px 0 24px var(--brand-glow-soft);
+  }
+  .pitch strong { color: var(--brand); font-weight: 600; }
+  .pitch em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--brand), var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 600;
+  }
 
   /* Footer note */
-  .v-note { font-family: var(--mono); font-size: 11px; color: var(--ink-mute); margin: 32px 0; padding: 16px 20px; background: var(--paper-soft); border-radius: 2px; line-height: 1.6; }
-  .v-note strong { color: var(--ink); }
+  .v-note {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-mute);
+    margin: 32px 0;
+    padding: 20px 24px;
+    background: var(--bg-elev-1);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    line-height: 1.7;
+  }
+  .v-note strong { color: var(--text); }
+  .v-note code { font-family: var(--mono); font-size: 11px; background: var(--brand-glow-soft); color: var(--brand); padding: 1px 5px; border-radius: var(--r-sm); }
 </style>
 </head>
 <body>
@@ -89,19 +199,19 @@
     <svg viewBox="0 0 920 580" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hunt architecture: 0G primitives fan out into four verticals">
       <defs>
         <style>
-          .lbl { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; fill: #0e0d0a; }
-          .lbl-mute { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; fill: #7d786b; text-transform: uppercase; letter-spacing: 0.1em; }
-          .lbl-vh { font-family: 'Fraunces', serif; font-size: 15px; fill: #0e0d0a; font-weight: 600; }
-          .lbl-vs { font-family: 'Fraunces', serif; font-size: 11px; fill: #3d3a32; }
-          .lbl-tag { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9px; letter-spacing: 0.08em; }
-          .box-0g { fill: #ede2c7; stroke: #9c7c2e; stroke-width: 1.5; }
-          .box-0g-text { font-family: 'Fraunces', serif; font-size: 14px; fill: #9c7c2e; font-weight: 600; }
-          .box-v1 { fill: #d9e8d3; stroke: #2d5e44; stroke-width: 1.5; }
-          .box-v2 { fill: #fdfbf5; stroke: #d4cdb9; stroke-width: 1.5; }
-          .arrow { stroke: #7d786b; stroke-width: 1; fill: none; }
+          .lbl { font-family: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; fill: #aeb2bd; }
+          .lbl-mute { font-family: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; fill: #6a6f7d; }
+          .lbl-vh { font-family: 'Geist', 'Inter', sans-serif; font-size: 15px; fill: #f5f6f9; font-weight: 600; }
+          .lbl-vs { font-family: 'Geist', 'Inter', sans-serif; font-size: 11px; fill: #aeb2bd; }
+          .lbl-tag { font-family: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace; font-size: 9px; letter-spacing: 0.12em; font-weight: 500; }
+          .box-0g { fill: rgba(0,255,157,0.06); stroke: #00ff9d; stroke-width: 1.5; }
+          .box-0g-text { font-family: 'Geist', 'Inter', sans-serif; font-size: 14px; fill: #00ff9d; font-weight: 600; }
+          .box-v1 { fill: rgba(0,255,157,0.08); stroke: #00ff9d; stroke-width: 1.5; }
+          .box-v2 { fill: rgba(255,255,255,0.02); stroke: rgba(255,255,255,0.15); stroke-width: 1.5; }
+          .arrow { stroke: #00ff9d; stroke-width: 1; fill: none; opacity: 0.5; }
         </style>
         <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-          <polygon points="0 0, 10 3.5, 0 7" fill="#7d786b"/>
+          <polygon points="0 0, 10 3.5, 0 7" fill="#00ff9d"/>
         </marker>
       </defs>
 
@@ -120,7 +230,7 @@
 
       <!-- v1 — Smart contracts (live, green) -->
       <rect x="40" y="250" width="200" height="280" rx="3" class="box-v1"/>
-      <text x="56" y="278" class="lbl-tag" fill="#2d5e44">V1 — LIVE ARISTOTLE</text>
+      <text x="56" y="278" class="lbl-tag" fill="#00ff9d">V1 — LIVE ARISTOTLE</text>
       <text x="56" y="306" class="lbl-vh">Smart-contract</text>
       <text x="56" y="322" class="lbl-vh">bug-bounty audit</text>
       <text x="56" y="350" class="lbl-vs">Sealed Solidity in,</text>
@@ -135,7 +245,7 @@
 
       <!-- v2 — Insurance -->
       <rect x="260" y="250" width="200" height="280" rx="3" class="box-v2"/>
-      <text x="276" y="278" class="lbl-tag" fill="#9c7c2e">V2 — INSURANCE</text>
+      <text x="276" y="278" class="lbl-tag" fill="#f5c842">V2 — INSURANCE</text>
       <text x="276" y="306" class="lbl-vh">Defense against</text>
       <text x="276" y="322" class="lbl-vh">private-payor AI</text>
       <text x="276" y="350" class="lbl-vs">UnitedHealth nH Predict.</text>
@@ -150,7 +260,7 @@
 
       <!-- v2 — Benefits -->
       <rect x="480" y="250" width="200" height="280" rx="3" class="box-v2"/>
-      <text x="496" y="278" class="lbl-tag" fill="#9c7c2e">V2 — BENEFITS</text>
+      <text x="496" y="278" class="lbl-tag" fill="#f5c842">V2 — BENEFITS</text>
       <text x="496" y="306" class="lbl-vh">Defense against</text>
       <text x="496" y="322" class="lbl-vh">public-payor AI</text>
       <text x="496" y="350" class="lbl-vs">SSDI / SSI / VA. Elderly,</text>
@@ -165,7 +275,7 @@
 
       <!-- v2 — Medical -->
       <rect x="700" y="250" width="200" height="280" rx="3" class="box-v2"/>
-      <text x="716" y="278" class="lbl-tag" fill="#9c7c2e">V2 — MEDICAL</text>
+      <text x="716" y="278" class="lbl-tag" fill="#f5c842">V2 — MEDICAL</text>
       <text x="716" y="306" class="lbl-vh">Cooperative</text>
       <text x="716" y="322" class="lbl-vh">multi-specialist read</text>
       <text x="716" y="350" class="lbl-vs">Pathology, radiology,</text>

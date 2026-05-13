@@ -6,40 +6,75 @@
 <title>Bounties &mdash; Hunt</title>
 <link rel="stylesheet" href="/styles.css">
 <style>
-  .brand em { color: var(--red); }
   .bounty-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 32px; }
-  .bounty-card { background: #fdfbf5; border: 1px solid var(--rule); border-radius: 2px; padding: 20px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .bounty-card {
+    background: var(--surface-glass);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 22px 26px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    transition: all 240ms var(--ease);
+    position: relative;
+    overflow: hidden;
+  }
+  .bounty-card:hover { border-color: var(--border-strong); transform: translateY(-1px); }
   @media (max-width: 720px) { .bounty-card { grid-template-columns: 1fr; gap: 16px; } }
-  .bounty-card.open { border-left: 3px solid var(--green); }
-  .bounty-card.settled { border-left: 3px solid var(--gold); }
-  .bounty-card.expired { border-left: 3px solid var(--ink-mute); opacity: 0.75; }
-  .bounty-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px; }
-  .bounty-head .id { font-family: var(--serif); font-size: 22px; font-weight: 600; }
-  .bounty-head .id .hash { color: var(--gold); font-style: italic; }
-  .status-badge { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; padding: 3px 10px; border-radius: 100px; }
-  .status-badge.open    { background: #d9e8d3; color: var(--green); }
-  .status-badge.settled { background: var(--gold-tint); color: var(--gold); }
-  .status-badge.expired { background: var(--paper-soft); color: var(--ink-mute); }
-  .meta-line { font-family: var(--mono); font-size: 12px; color: var(--ink-soft); margin: 4px 0; }
-  .meta-line .k { color: var(--ink-mute); }
-  .scope { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
-  .scope .chip { font-family: var(--mono); font-size: 10px; padding: 3px 8px; background: var(--paper-soft); border: 1px solid var(--rule); border-radius: 100px; color: var(--ink-soft); }
-  .countdown { font-family: var(--serif); font-size: 28px; font-weight: 600; letter-spacing: -0.02em; }
-  .countdown.urgent { color: var(--red); }
-  .countdown .pulse { margin-right: 8px; background: var(--red); animation: pulse 0.8s ease-in-out infinite; }
-  .findings-list { margin-top: 12px; }
-  .findings-list .row { display: grid; grid-template-columns: 60px 1fr 70px 70px 60px; gap: 8px; padding: 6px 0; font-family: var(--mono); font-size: 12px; border-bottom: 1px dashed var(--rule); }
-  .findings-list .row.head { font-size: 10px; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid var(--rule); }
-  .findings-list .row.winning { background: var(--gold-tint); padding: 6px 8px; margin: 0 -8px; }
-  .findings-list .sev { text-transform: uppercase; font-size: 10px; letter-spacing: 0.08em; }
+  .bounty-card.open    { box-shadow: inset 3px 0 0 var(--brand), 0 0 0 0 var(--brand-glow); }
+  .bounty-card.open:hover { box-shadow: inset 3px 0 0 var(--brand), 0 8px 24px var(--brand-glow-soft); }
+  .bounty-card.settled { box-shadow: inset 3px 0 0 var(--gold); }
+  .bounty-card.expired { box-shadow: inset 3px 0 0 var(--text-mute); opacity: 0.78; }
+  .bounty-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 12px; }
+  .bounty-head .id { font-family: var(--display); font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+  .bounty-head .id .hash { color: var(--brand); text-shadow: 0 0 16px var(--brand-glow); font-weight: 600; }
+  .status-badge { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; padding: 4px 10px; border-radius: var(--r-pill); font-weight: 500; }
+  .status-badge.open    { background: var(--brand-glow-soft); color: var(--brand); border: 1px solid var(--brand-glow); }
+  .status-badge.settled { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(245,200,66,0.3); }
+  .status-badge.expired { background: var(--bg-elev-2); color: var(--text-mute); border: 1px solid var(--border); }
+  .meta-line { font-family: var(--mono); font-size: 11px; color: var(--text-soft); margin: 5px 0; }
+  .meta-line .k { color: var(--text-mute); text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em; margin-right: 6px; }
+  .scope { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+  .scope .chip {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 4px 9px;
+    background: var(--bg-elev-2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-pill);
+    color: var(--text-soft);
+    text-transform: lowercase;
+  }
+  .countdown { font-family: var(--display); font-size: 30px; font-weight: 600; letter-spacing: -0.02em; color: var(--brand); text-shadow: 0 0 24px var(--brand-glow); }
+  .countdown.urgent { color: var(--red); text-shadow: 0 0 24px var(--red-glow); }
+  .countdown .pulse { margin-right: 10px; background: var(--brand); animation: pulse 0.8s ease-in-out infinite; }
+  .countdown.urgent .pulse { background: var(--red); box-shadow: 0 0 12px var(--red); }
+  .findings-list { margin-top: 14px; }
+  .findings-list .row { display: grid; grid-template-columns: 60px 1fr 70px 70px 60px; gap: 8px; padding: 8px 0; font-family: var(--mono); font-size: 12px; border-bottom: 1px dashed var(--border); }
+  .findings-list .row.head { font-size: 10px; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--border-strong); }
+  .findings-list .row.winning { background: var(--brand-glow-soft); padding: 8px; margin: 0 -8px; border-radius: var(--r-sm); }
+  .findings-list .sev { text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em; font-weight: 500; }
   .findings-list .sev.critical { color: var(--red); font-weight: 600; }
-  .findings-list .sev.high     { color: #b3691f; }
-  .findings-list .sev.medium   { color: var(--ink); }
-  .findings-list .sev.low      { color: var(--ink-mute); }
-  .panel-r { border-left: 1px solid var(--rule); padding-left: 24px; }
-  @media (max-width: 720px) { .panel-r { border-left: none; padding-left: 0; border-top: 1px solid var(--rule); padding-top: 16px; } }
-  .empty { padding: 64px 0; text-align: center; color: var(--ink-mute); font-style: italic; font-family: var(--serif); font-size: 18px; }
-  .won-pill { font-family: var(--mono); font-size: 10px; background: var(--gold); color: var(--paper); padding: 2px 8px; border-radius: 100px; text-transform: uppercase; letter-spacing: 0.1em; margin-left: 6px; }
+  .findings-list .sev.high     { color: var(--warning); }
+  .findings-list .sev.medium   { color: var(--text); }
+  .findings-list .sev.low      { color: var(--text-mute); }
+  .panel-r { border-left: 1px solid var(--border); padding-left: 24px; }
+  @media (max-width: 720px) { .panel-r { border-left: none; padding-left: 0; border-top: 1px solid var(--border); padding-top: 16px; } }
+  .empty { padding: 80px 0; text-align: center; color: var(--text-mute); font-family: var(--serif); font-style: italic; font-size: 19px; }
+  .won-pill {
+    font-family: var(--mono);
+    font-size: 9px;
+    background: var(--brand);
+    color: var(--bg);
+    padding: 3px 9px;
+    border-radius: var(--r-pill);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    margin-left: 8px;
+    font-weight: 600;
+    box-shadow: 0 0 16px var(--brand-glow);
+  }
 </style>
 </head>
 <body>
