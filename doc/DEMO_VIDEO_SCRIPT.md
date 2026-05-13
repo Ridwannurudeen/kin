@@ -138,9 +138,11 @@ Capture the returned `bountyId` (this becomes `<HERO_ID>` everywhere below) and 
 - Race result: 2 specialists ran real Sealed Inference end-to-end (9000bps + 10000bps), correctly declined out-of-domain; 3rd hit transient broker failure, fell back to local heuristic, also returned 0 in-scope. Per-CWE narrowing demonstrated end-to-end. Bug-finding question against ChartChain remains open. Detail in `audits/chartchain/README.md`.
 - **For the recording**: bounty #6 is the wrap-time extension showing Hunt audits real protocols; the hero race uses staged Vault.sol per Plan A above.
 
-**Bounty #5 — expired cleanup**
-- Post: race crashed mid-lifecycle on ECONNRESET 2026-05-13 morning, 0.1 OG escrow stuck.
-- Expire: [`0xeaf5d106e79a7e99902412779ca82ab758e43de7d8c88f50899d75830ffd46f6`](https://chainscan.0g.ai/tx/0xeaf5d106e79a7e99902412779ca82ab758e43de7d8c88f50899d75830ffd46f6) (block 33123369) — 0.1 OG refunded; bounties.html now clean.
+**Bounty #4 + #5 — expired cleanup (pre-recording polish)**
+- Both posted earlier sessions, never raced to completion (broker hiccups), escrow stuck OPEN past raceDeadline.
+- Expire #5: [`0xeaf5d106e79a7e99902412779ca82ab758e43de7d8c88f50899d75830ffd46f6`](https://chainscan.0g.ai/tx/0xeaf5d106e79a7e99902412779ca82ab758e43de7d8c88f50899d75830ffd46f6) (block 33123369) — 0.1 OG refunded.
+- Expire #4: [`0xebe6737a6e81d0b6da666474b0eb5d9c006b8c8b6df8f5fdc1a5261818d92c6f`](https://chainscan.0g.ai/tx/0xebe6737a6e81d0b6da666474b0eb5d9c006b8c8b6df8f5fdc1a5261818d92c6f) (block 33124224) — 0.05 OG refunded.
+- Result: bounties.html now shows 0 Open / 4 Settled / 3 Expired — clean page for the recording.
 
 **Bounty #0 — fallback-path original (preserved record)**
 - Post: `0xafa7c31ea102f4543ac851711fc822e41871d139220bd7bff7d9abcd831fb2df` · Submit: `0x371f2a328c5af8c0d75f867bda9f12048ba941e99efa6a210087c0b84a2cab8b` (block 32977952) · Settle: `0xe67459a13b8b0df690847560e97249eac9a23d3ef7d2cce594338b8222cdcec4` (block 32978103)
