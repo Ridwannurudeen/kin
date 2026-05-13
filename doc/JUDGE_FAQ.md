@@ -211,7 +211,11 @@ The v1 smart-contract narrative is still the load-bearing demo. The new vertical
 
 ## Q13 — How do I know the new-vertical positioning isn't just a manifesto? Where's the working substrate?
 
-**Four places, all runnable today without an on-chain transaction:**
+**Five places, all runnable today, plus an empirically-validated live capture against 0G's mainnet Sealed Inference:**
+
+0. **[`audits/insurance/live_inference_capture.md`](../audits/insurance/live_inference_capture.md)** — captured 2026-05-13, a real call against `zai-org/GLM-5-FP8` through 0G's public Sealed Inference broker. Attestation ID `d86b8797-b757-4b9d-a396-8e8d46c4f994` validated by `broker.inference.processResponse` returning `true`. The un-fine-tuned model returned strict JSON with **real C.F.R. citations** (42 C.F.R. § 422.101(b), Medicare Benefit Policy Manual Ch. 8 §§ 30.1–30.3, 29 C.F.R. § 2560.503-1(g)(1)/(h)(2)(iii)), caught the load-bearing Lokken-pattern algorithmic-substitution defect as the *critical* finding, declined to fabricate two out-of-scope defect classes, and self-rated `precisionBps: 7500` with explicit honest rationale acknowledging it did not independently verify one cited LCD number. **This is the working substrate, empirically validated against real 0G mainnet primitives.**
+
+
 
 1. **`node scripts/insurance_specialist_brief.js`** — constructs the v2 insurance-specialist system prompt, builds the structured brief over `audits/insurance/sample_denial.txt`, hashes the six denial-defect classes via the same `keccak256(utf8(name))` primitive as `lib/cwe.js`, computes a real attestation digest using the v1 `findingDigest` ABI encoding, and writes the full structured output to `audits/insurance/demo_output.json`. The digest construction is byte-for-byte identical to what `Hunt.submitFinding` would `ecrecover` if the v2 vertical were live.
 

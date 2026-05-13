@@ -24,6 +24,48 @@ Existing **AI auditors** ([Olympix](https://olympix.security/), [Nethermind Audi
 
 The three verticals are different faces of the same primitive: **insurance** defends citizens against *private-payor* opaque AI; **benefits** defends them against *public-payor* opaque adjudication; **medical** gives them *better* verifiable AI than they could otherwise afford. Same Hunt machinery, same TEE attestation, same per-domain reputation — three counterparties, one substrate.
 
+A visual architecture diagram + live four-vertical fan-out is on the deployed frontend at [`hunt.gudman.xyz/verticals`](https://hunt.gudman.xyz/verticals.html). ASCII equivalent for offline scanning:
+
+```
+                       ┌───────────────────────────────────────┐
+                       │              0G primitives            │
+                       │  Sealed Inference (TEE attestation)   │
+                       │  Storage  (sealed encrypted input)    │
+                       │  Chain    (escrow + ecrecover + rep)  │
+                       └─────┬──────────┬──────────┬───────┬───┘
+                             │          │          │       │
+              ┌──────────────┘    ┌─────┘    ┌─────┘   ┌───┘
+              ▼                   ▼          ▼         ▼
+     ┌────────────────┐ ┌─────────────────┐ ┌────────────┐ ┌────────────┐
+     │ V1 — LIVE      │ │ V2 — Insurance  │ │ V2 — Bene- │ │ V2 — Medi- │
+     │ Smart contracts│ │ Defense vs.     │ │ fits       │ │ cal Records│
+     │ on Aristotle   │ │ private-payor   │ │ Defense vs.│ │ Reader     │
+     │                │ │ opaque AI       │ │ public-    │ │ (coopera-  │
+     │ bounty #3      │ │ (UnitedHealth   │ │ payor adju-│ │ tive 2nd   │
+     │ strict-verify  │ │  nH Predict,    │ │ dication   │ │ opinion)   │
+     │ EXIT 0         │ │  Cigna PXDX)    │ │ (SSDI/SSI/ │ │            │
+     │                │ │                 │ │  VA)       │ │ pathology  │
+     │ 7 bounties     │ │ 73M denials/yr  │ │ 330K cases │ │ 14% major  │
+     │ 4 settled      │ │ <1% appealed    │ │ pending an │ │ disagree-  │
+     │ 3 expired      │ │ 40-75% reverse  │ │ ALJ hearing│ │ ment in    │
+     │                │ │ on appeal       │ │ (Jan 2026) │ │ surgical   │
+     │ bounty #6      │ │                 │ │            │ │ pathology  │
+     │ ChartChain     │ │ Colorado        │ │ 20 C.F.R.  │ │            │
+     │ cross-poll.    │ │ SB24-205 frame  │ │ § 404.1520 │ │ FDA Jan    │
+     │                │ │                 │ │ frame      │ │ 2026 CDS   │
+     │ counterparty:  │ │ counterparty:   │ │ counter-   │ │ frame      │
+     │ vulnerable     │ │ private-payor   │ │ party:     │ │            │
+     │ smart contracts│ │ AI denial       │ │ public-    │ │ counter-   │
+     │                │ │ algorithm       │ │ payor adju-│ │ party:     │
+     │                │ │                 │ │ dication   │ │ cooperative│
+     │                │ │                 │ │            │ │ 2nd opinion│
+     └────────────────┘ └─────────────────┘ └────────────┘ └────────────┘
+       v1 load-bearing   v2 positioning    v2 positioning  v2 positioning
+       (live on-chain)   + runnable demo   + runnable demo + runnable demo
+```
+
+Each v2 vertical ships a runnable specialist brief script (`scripts/{insurance,benefits,medical}_specialist_brief.js`) that exercises the v1 `findingDigest` primitive against new domain inputs and produces real attestation digests offline. See the [`/verticals`](https://hunt.gudman.xyz/verticals.html) page for the live SVG version + card grid + linked READMEs.
+
 ## Honesty notes — read first
 
 Three things you should know before reading the rest of this README.

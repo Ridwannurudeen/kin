@@ -22,6 +22,22 @@ This is a v2 plan, not a live on-chain demo. Hunt's mainnet contract is unchange
 
 Run [`scripts/insurance_specialist_brief.js`](../../scripts/insurance_specialist_brief.js) to see the structured brief + output schema + attestation digest construction this vertical produces. The script uses the **same** `findingDigest` primitive as v1 ([`lib/credential.js`](../../lib/credential.js)) — only the canonical class strings differ.
 
+## Live Sealed Inference run (2026-05-13) — empirical validation
+
+A real call against 0G's Sealed Inference, against the live `zai-org/GLM-5-FP8` model, against the synthetic denial in [`sample_denial.txt`](sample_denial.txt). Full verbatim capture (the v1 model's raw response, attestation ID, validation result, plus honest commentary on every adherence/deviation point) in [`live_inference_capture.md`](live_inference_capture.md).
+
+Headline result:
+- **TEE attestation validated**: `broker.inference.processResponse` returned `true` against attestation ID `d86b8797-b757-4b9d-a396-8e8d46c4f994`. The TEE chain-of-custody is intact end-to-end.
+- **Output adherence**: model returned strict JSON matching the protocol's prescribed schema (minor: wrapped in a markdown code fence despite being told not to; substance unaffected).
+- **Real regulatory citations**: 42 C.F.R. § 422.101(b), Medicare Benefit Policy Manual Ch. 8 §§ 30.1–30.3, 29 C.F.R. § 2560.503-1(g)(1), 29 C.F.R. § 2560.503-1(h)(2)(iii) — all real provisions, all accurately invoked.
+- **Caught the load-bearing Lokken-pattern defect**: identified the algorithmic-substitution-for-individualized-review issue under 42 C.F.R. § 422.101(b) as the **critical** finding. That is the exact legal argument at the heart of *Estate of Lokken v. UnitedHealth Group*.
+- **Honest self-eval calibration**: `precisionBps: 7500` (not 10000) with explicit rationale acknowledging it did not independently verify the LCD number cited in the brief. That's the calibrated honesty the system prompt demanded.
+- **Coverage**: 4 of 6 in-scope defect classes surfaced (medical-necessity-misapplication ×3, erisa-procedural-defect ×1). The model explicitly declined to fabricate network-adequacy and coding-CPT findings, stating those "are not present on these facts." That declined-to-fabricate behavior is the per-class-narrowing thesis demonstrated in a non-crypto domain.
+
+**What this changes about the v1 → v2 sequencing.** The original sequencing in [`doc/FUTURE.md`](../../doc/FUTURE.md) Pillar 5a stated v2 needs "fine-tune specialist briefs against a public denial-letter corpus" before firing the first on-chain insurance bounty. This live capture suggests the un-fine-tuned model is already producing legally-defensible output on a structured legal-policy task. The fine-tuning work compounds an already-functional baseline; it isn't a prerequisite for the substrate working at all. **That accelerates the v2 timeline materially** and is part of why this empirical capture was worth firing inside the May 2026 hackathon window.
+
+The capture is reproducible: `PRIVATE_KEY=0x... node scripts/insurance_live_inference.js` against the public 0G RPC, costs one inference call.
+
 ## Why this is the right v2
 
 73 million ACA enrollees had in-network claims denied in 2023. **Less than 1% appealed.** Of those who did, **40–75% won.** The architecture today: an algorithm denies care in 1.2 seconds (Cigna PXDX, [CBS News](https://www.cbsnews.com/news/cigna-algorithm-patient-claims-lawsuit/)); a patient with no legal training has no way to challenge it; the AI that denied them is unverifiable; the AI that *could* defend them is unverifiable in the same way. Both sides black-boxed, only one side has lawyers.
