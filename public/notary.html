@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Notary &mdash; Hunt</title>
+<meta name="description" content="Notarize an AI conversation on 0G Aristotle. Hunt Notary stores only hashes, model digest, domain, timestamp, and wallet provenance.">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .notary-shell { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr); gap: 28px; align-items: start; }
+  @media (max-width: 920px) { .notary-shell { grid-template-columns: 1fr; } }
+  .notary-panel {
+    background: var(--surface-glass);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .notary-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--brand-glow), transparent);
+  }
+  .hash-grid { display: grid; gap: 12px; margin-top: 18px; }
+  .hash-row {
+    display: grid;
+    grid-template-columns: 130px minmax(0, 1fr);
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  @media (max-width: 600px) { .hash-row { grid-template-columns: 1fr; gap: 4px; } }
+  .hash-row .k { color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.1em; font-size: 10px; }
+  .hash-row .v { color: var(--text); word-break: break-all; }
+  .hash-row .v a { color: var(--brand); }
+  .privacy-note {
+    margin-top: 20px;
+    padding: 16px 18px;
+    border: 1px solid var(--brand-glow);
+    background: var(--brand-glow-soft);
+    border-radius: var(--r-md);
+    color: var(--text-soft);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .receipt-empty {
+    min-height: 320px;
+    display: grid;
+    place-items: center;
+    color: var(--text-mute);
+    font-family: var(--serif);
+    font-size: 18px;
+    font-style: italic;
+    text-align: center;
+    padding: 32px;
+  }
+  .domain-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--r-md); overflow: hidden; margin-top: 24px; }
+  @media (max-width: 680px) { .domain-strip { grid-template-columns: 1fr; } }
+  .domain-strip div { background: var(--bg-elev-1); padding: 18px; }
+  .domain-strip .num { font-family: var(--display); font-size: 28px; color: var(--brand); line-height: 1; }
+  .domain-strip .lab { display: block; margin-top: 6px; font-family: var(--mono); font-size: 10px; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.12em; }
+  .status-line { margin-top: 12px; font-family: var(--mono); font-size: 12px; color: var(--text-mute); min-height: 20px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header class="masthead">
+    <div class="masthead-row">
+      <div>
+        <div class="brand">Hunt<em>.</em></div>
+        <div class="tagline">ai notary &middot; public receipt layer</div>
+      </div>
+      <span class="pill">0g aristotle mainnet</span>
+    </div>
+    <nav class="nav-row">
+      <a href="/">home</a>
+      <a href="/hunters.html">hunters</a>
+      <a href="/bounties.html">bounties</a>
+      <a href="/verticals.html">verticals</a>
+      <a href="/notary.html" class="active">notary</a>
+      <a href="/proof.html">judge proof</a>
+      <a href="https://github.com/Ridwannurudeen/hunt" target="_blank" rel="noreferrer">github &#x2197;</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="section-eyebrow">public-good receipt</div>
+    <h1>Notarize an AI <em>conversation.</em></h1>
+    <p class="lede">
+      Paste a transcript, choose the model and domain, and record a hash-only receipt on 0G Aristotle. Hunt Notary proves what content hash you committed to, which model name you declared, and when the chain saw it.
+    </p>
+    <div class="domain-strip">
+      <div><span class="num">0</span><span class="lab">plaintext bytes stored on-chain</span></div>
+      <div><span class="num">4</span><span class="lab">receipt fields per attestation</span></div>
+      <div><span class="num">16661</span><span class="lab">0G Aristotle chain id</span></div>
+    </div>
+  </section>
+
+  <main class="notary-shell">
+    <section class="notary-panel" style="padding-top:28px;">
+      <div class="section-eyebrow">create receipt</div>
+      <h2 class="section-title" style="font-size:34px;">Hash locally. <em>Attest publicly.</em></h2>
+      <form id="notaryForm">
+        <div class="field">
+          <label for="transcript">AI conversation transcript</label>
+          <textarea id="transcript" required placeholder="Paste the AI conversation exactly as you want to later prove it existed. The transcript is hashed in your browser and is not sent to the contract."></textarea>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="model">Model</label>
+            <input id="model" required placeholder="zai-org/GLM-5-FP8|notary-v1">
+          </div>
+          <div class="field">
+            <label for="domain">Domain</label>
+            <select id="domain">
+              <option value="general">general</option>
+              <option value="medical">medical</option>
+              <option value="legal">legal</option>
+              <option value="financial">financial</option>
+              <option value="other">other</option>
+            </select>
+          </div>
+        </div>
+        <div class="hash-grid" id="hashPreview">
+          <div class="hash-row"><span class="k">content hash</span><span class="v" id="contentHash">&mdash;</span></div>
+          <div class="hash-row"><span class="k">model digest</span><span class="v" id="modelDigest">&mdash;</span></div>
+          <div class="hash-row"><span class="k">domain hash</span><span class="v" id="domainHash">&mdash;</span></div>
+        </div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:20px;">
+          <button id="connectBtn" class="btn" type="button">connect wallet</button>
+          <button id="submitBtn" class="btn gold" type="submit">notarize on 0G &rarr;</button>
+        </div>
+        <div id="status" class="status-line"></div>
+      </form>
+      <div class="privacy-note">
+        This is a public-good attestation log. The contract does NOT store your content - only the keccak hash. Your content stays on your machine.
+      </div>
+    </section>
+
+    <aside class="notary-panel">
+      <div class="section-eyebrow">receipt</div>
+      <div id="receipt" class="receipt-empty">
+        Submit a transcript to create a receipt. The tx hash, content hash, model digest, domain hash, and timestamp will appear here.
+      </div>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <div class="row">
+      <span>Notary: <span id="notaryAddr" style="font-family: var(--mono); font-size: 13px;">&mdash;</span></span>
+      <a id="notaryLink" target="_blank" rel="noreferrer">chainscan &#x2197;</a>
+    </div>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+<script src="/contracts.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const ZERO_BYTES32 = '0x' + '00'.repeat(32);
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+function setStatus(msg, kind = '') {
+  $('status').className = kind ? `status-line ${kind}` : 'status-line';
+  $('status').textContent = msg;
+}
+
+function hashText(value) {
+  return ethers.keccak256(ethers.toUtf8Bytes(String(value)));
+}
+
+function refreshHashes() {
+  $('contentHash').textContent = hashText($('transcript').value || '');
+  $('modelDigest').textContent = hashText($('model').value || '');
+  $('domainHash').textContent = hashText($('domain').value || '');
+}
+
+async function ensureWallet() {
+  if (!window.ethereum) throw new Error('wallet not found');
+  const browserProvider = new ethers.BrowserProvider(window.ethereum);
+  const network = await browserProvider.getNetwork();
+  if (Number(network.chainId) !== window.CHAIN_ID) {
+    try {
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: ethers.toQuantity(window.CHAIN_ID) }],
+      });
+    } catch (e) {
+      if (e.code !== 4902) throw e;
+      await window.ethereum.request({
+        method: 'wallet_addEthereumChain',
+        params: [{
+          chainId: ethers.toQuantity(window.CHAIN_ID),
+          chainName: '0G Aristotle',
+          nativeCurrency: { name: 'OG', symbol: 'OG', decimals: 18 },
+          rpcUrls: [window.RPC_URL],
+          blockExplorerUrls: [window.CHAINSCAN_URL],
+        }],
+      });
+    }
+  }
+  await browserProvider.send('eth_requestAccounts', []);
+  const signer = await browserProvider.getSigner();
+  $('connectBtn').textContent = window.shortAddr(signer.address);
+  return signer;
+}
+
+function renderReceipt({ attestId, txHash, contentHash, modelDigest, domainHash, attestedAt, blockNumber, gasUsed, status }) {
+  const date = attestedAt ? new Date(Number(attestedAt) * 1000).toISOString() : 'pending';
+  $('receipt').className = 'hash-grid';
+  $('receipt').innerHTML = `
+    <div class="hash-row"><span class="k">attest id</span><span class="v">${escapeHtml(String(attestId))}</span></div>
+    <div class="hash-row"><span class="k">tx hash</span><span class="v"><a href="${window.CHAINSCAN_URL}/tx/${txHash}" target="_blank" rel="noreferrer">${txHash}</a></span></div>
+    <div class="hash-row"><span class="k">block number</span><span class="v">${escapeHtml(String(blockNumber))}</span></div>
+    <div class="hash-row"><span class="k">gas used</span><span class="v">${escapeHtml(String(gasUsed))}</span></div>
+    <div class="hash-row"><span class="k">status</span><span class="v">${escapeHtml(String(status))}</span></div>
+    <div class="hash-row"><span class="k">content hash</span><span class="v">${contentHash}</span></div>
+    <div class="hash-row"><span class="k">model digest</span><span class="v">${modelDigest}</span></div>
+    <div class="hash-row"><span class="k">domain</span><span class="v">${domainHash}</span></div>
+    <div class="hash-row"><span class="k">attested at</span><span class="v">${escapeHtml(String(attestedAt))} (${escapeHtml(date)})</span></div>
+  `;
+}
+
+(async function init() {
+  refreshHashes();
+  await window.loadNotaryDeployment();
+  const addr = window.NOTARY_ADDRESS;
+  $('notaryAddr').textContent = addr;
+  $('notaryLink').href = `${window.CHAINSCAN_URL}/address/${addr}`;
+  if (addr === ethers.ZeroAddress) {
+    setStatus('Notary deployment artifact not found yet. Deploy contracts/Notary.sol, then reload this page.');
+  }
+
+  ['transcript', 'model', 'domain'].forEach((id) => $(id).addEventListener('input', refreshHashes));
+  $('connectBtn').addEventListener('click', async () => {
+    try {
+      await ensureWallet();
+      setStatus('Wallet connected.');
+    } catch (err) {
+      setStatus(err?.shortMessage || err?.message || 'Wallet connection failed.');
+    }
+  });
+
+  $('notaryForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const transcript = $('transcript').value.trim();
+    const model = $('model').value.trim();
+    const domain = $('domain').value;
+    if (!transcript) return setStatus('Transcript is required.');
+    if (!model) return setStatus('Model name is required.');
+    if (window.NOTARY_ADDRESS === ethers.ZeroAddress) return setStatus('Notary is not deployed yet.');
+
+    const contentHash = hashText(transcript);
+    const modelDigest = hashText(model);
+    const domainHash = hashText(domain);
+
+    $('submitBtn').disabled = true;
+    setStatus('Waiting for wallet signature and transaction...');
+    try {
+      const signer = await ensureWallet();
+      const notary = new ethers.Contract(window.NOTARY_ADDRESS, window.NOTARY_ABI, signer);
+      const tx = await notary.attest(contentHash, modelDigest, domainHash, ZERO_BYTES32);
+      setStatus(`Submitted ${tx.hash}. Waiting for confirmation...`);
+      const receipt = await tx.wait();
+      const parsed = receipt.logs
+        .map((log) => {
+          try { return notary.interface.parseLog(log); } catch { return null; }
+        })
+        .find((log) => log?.name === 'AttestationRecorded');
+      const attestId = parsed ? parsed.args.attestId : await notary.totalAttestations() - 1n;
+      const onChain = await notary.getAttestation(attestId);
+      renderReceipt({
+        attestId,
+        txHash: tx.hash,
+        contentHash,
+        modelDigest,
+        domainHash,
+        attestedAt: onChain.attestedAt,
+        blockNumber: receipt.blockNumber,
+        gasUsed: receipt.gasUsed,
+        status: receipt.status,
+      });
+      setStatus('Receipt confirmed on 0G Aristotle.');
+    } catch (err) {
+      setStatus(err?.shortMessage || err?.message || 'Notary transaction failed.');
+    } finally {
+      $('submitBtn').disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>

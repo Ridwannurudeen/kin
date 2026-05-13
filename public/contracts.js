@@ -1,9 +1,9 @@
 // Hunt — browser-side contract metadata + small helpers.
 //
 // Loaded as a classic <script> before page logic. Exposes globals:
-//   HUNT_ABI, HUNT_ADDRESS, RPC_URL, CHAIN_ID, CHAINSCAN_URL,
+//   HUNT_ABI, HUNT_ADDRESS, NOTARY_ABI, NOTARY_ADDRESS, RPC_URL, CHAIN_ID, CHAINSCAN_URL,
 //   CANONICAL_CWES, cweToBytes32, bytes32ToCwe, severityLabel, statusLabel,
-//   loadDeployment().
+//   loadDeployment(), loadNotaryDeployment().
 //
 // ABI is hand-curated from contracts/Hunt.sol (matches solc output verbatim — only the
 // functions + events the UI calls are kept; admin-only setters were dropped).
@@ -14,6 +14,7 @@ window.CHAINSCAN_URL = "https://chainscan.0g.ai";
 
 // Placeholder — overridden at runtime by loadDeployment() if deployments/Hunt.json exists.
 window.HUNT_ADDRESS = "0x0000000000000000000000000000000000000000";
+window.NOTARY_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 // Mirror lib/cwe.js CANONICAL_CWES exactly.
 window.CANONICAL_CWES = Object.freeze([
@@ -88,6 +89,19 @@ window.loadDeployment = async function () {
     if (!r.ok) return null;
     const j = await r.json();
     if (j && j.address) window.HUNT_ADDRESS = j.address;
+    return j;
+  } catch {
+    return null;
+  }
+};
+
+window.loadNotaryDeployment = async function () {
+  try {
+    const r = await fetch("/deployments/Notary.json", { cache: "no-store" });
+    if (!r.ok) return null;
+    const j = await r.json();
+    if (j && j.address) window.NOTARY_ADDRESS = j.address;
+    if (j && j.abi) window.NOTARY_ABI = j.abi;
     return j;
   } catch {
     return null;
@@ -383,6 +397,61 @@ window.HUNT_ABI = [
       { indexed: true, name: "githubHandleHash", type: "bytes32" },
       { indexed: false, name: "specialty", type: "string" },
       { indexed: false, name: "fingerprintOverallBps", type: "uint16" },
+    ],
+  },
+];
+
+window.NOTARY_ABI = [
+  {
+    type: "function",
+    stateMutability: "nonpayable",
+    name: "attest",
+    inputs: [
+      { name: "contentHash", type: "bytes32" },
+      { name: "modelDigest", type: "bytes32" },
+      { name: "domain", type: "bytes32" },
+      { name: "sealedInputRoot", type: "bytes32" },
+    ],
+    outputs: [{ name: "attestId", type: "uint256" }],
+  },
+  {
+    type: "function",
+    stateMutability: "view",
+    name: "getAttestation",
+    inputs: [{ name: "attestId", type: "uint256" }],
+    outputs: [
+      {
+        type: "tuple",
+        components: [
+          { name: "user", type: "address" },
+          { name: "contentHash", type: "bytes32" },
+          { name: "modelDigest", type: "bytes32" },
+          { name: "domain", type: "bytes32" },
+          { name: "attestedAt", type: "uint64" },
+          { name: "sealedInputRoot", type: "bytes32" },
+        ],
+      },
+    ],
+  },
+  {
+    type: "function",
+    stateMutability: "view",
+    name: "totalAttestations",
+    inputs: [],
+    outputs: [{ type: "uint256" }],
+  },
+  {
+    type: "event",
+    name: "AttestationRecorded",
+    anonymous: false,
+    inputs: [
+      { indexed: true, name: "attestId", type: "uint256" },
+      { indexed: true, name: "user", type: "address" },
+      { indexed: true, name: "modelDigest", type: "bytes32" },
+      { indexed: false, name: "contentHash", type: "bytes32" },
+      { indexed: false, name: "domain", type: "bytes32" },
+      { indexed: false, name: "attestedAt", type: "uint64" },
+      { indexed: false, name: "sealedInputRoot", type: "bytes32" },
     ],
   },
 ];
