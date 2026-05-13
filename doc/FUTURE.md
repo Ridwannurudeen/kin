@@ -74,6 +74,17 @@ Hunt's primitives — sealed inference, multi-specialist competition, on-chain p
 - **Pillar 5b — Disability + Senior Benefits defense** (defends elderly, retired, and disabled citizens *against* public-payor opaque adjudication). Full plan in [`audits/benefits/README.md`](../audits/benefits/README.md). The largest adjudication backlog in any US administrative system: ~330K SSDI cases pending an ALJ hearing as of Jan 2026 ([SSA performance data](https://www.ssa.gov/ssa-performance/disability-appeals-time)), 274-day average wait, 60-70% initial denial rate, appeal-success >50% with representation but representation gated by 25%-contingency math under [42 U.S.C. § 406](https://www.law.cornell.edu/uscode/text/42/406). Seven-class defect registry mapped to the SSA's own sequential-evaluation regulations (`medical-listing-misapplication`, `residual-functional-capacity-error`, `vocational-expert-misclassification`, `duration-requirement-misapplication`, `substantial-gainful-activity-miscalculation`, `combined-impairments-omission`, `treating-physician-opinion-weight`). Secondary surfaces: Medicare reconsideration appeals, VA disability claims.
 - **Pillar 5c — medical Records Reader** (gives citizens *better* verifiable AI reads of their own records than they could afford). Full plan in [`audits/medical/README.md`](../audits/medical/README.md). The cooperative face of the primitive — specialists surface *questions to ask your physician*, never a diagnosis. Scoped strictly inside 21st Century Cures CDS exemption + FDA Jan 2026 enforcement-discretion guidance to avoid Class II/IIa device classification. Documented per-specialty disagreement rates (11-15% in breast pathology, 20-32% in radiology oncologic CT, up to 52% in neuro-oncology) are the **empirical ground-truth signal** that makes per-specialty reputation accrual meaningful in this domain — an empirical claim smart-contract auditing cannot make.
 
+Status: **Pillar 5a**, **Pillar 5b**, and **Pillar 5c** are **v2 verticals positioned**. They have public plans, runnable specialist briefs, and class registries, but they intentionally do not mint new live vertical-specific bounties until validation corpora and human-in-the-loop partners are in place.
+
+### Pillar 5d — protocol infrastructure layer (L1-L4 shipped 2026-05-13)
+
+The post-hackathon infrastructure layer is now live alongside Hunt v1:
+
+- **Layer 1 SDK**: [`packages/sdk/`](../packages/sdk/) extracts Hunt's digest, canonical-class hashing, ECIES envelope, attestation signing, verification, and Notary helpers into `@hunt-protocol/verifiable-ai`.
+- **Layer 2 Notary**: [`contracts/Notary.sol`](../contracts/Notary.sol), [`audits/notary/`](../audits/notary/README.md), and [`doc/NOTARY_INTEGRATION.md`](NOTARY_INTEGRATION.md) ship a public-good hash-only AI conversation receipt log on Aristotle.
+- **Layer 3 Partnership playbook**: [`doc/INSTITUTIONAL_PARTNERSHIP.md`](INSTITUTIONAL_PARTNERSHIP.md) packages Hunt-as-a-Service for regulators, audit desks, consumer advocates, and ecosystem partners that need verifiable AI over their own domain registry.
+- **Layer 4 Reputation Oracle**: [`contracts/HuntReputationOracle.sol`](../contracts/HuntReputationOracle.sol) and [`doc/REPUTATION_ORACLE.md`](REPUTATION_ORACLE.md) expose live Hunt per-domain reputation through a stable read-only interface for other apps and future cross-chain consumers.
+
 ### Pillar 5a — health-insurance claim-denial defense
 
 Why this is the right next vertical, in order of fit:
