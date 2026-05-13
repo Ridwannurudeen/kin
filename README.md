@@ -14,6 +14,8 @@ Existing **AI auditors** ([Olympix](https://olympix.security/), [Nethermind Audi
 
 **Hunt v1 ships the verifiable substrate**: an operator-relayed attestation layer over real 0G Sealed Inference + per-CWE on-chain reputation, both proven live on Aristotle mainnet. **Hunt v2 (post-hackathon, weeks 2–10)** replaces the operator with a TEE-attestation-verifying signer set (so the on-chain digest is chain-enforced rather than relayed) and adds stake-backed adversarial falsification + always-on guardian network for post-deploy monitoring — both verified unbuilt in this space as of May 2026. Pillar-by-pillar plan with primary-source citations in [`doc/FUTURE.md`](doc/FUTURE.md).
 
+**Beyond crypto — Hunt as a general verifiable-AI primitive.** The same machinery (sealed inference, multi-specialist competition, on-chain per-domain reputation) applies anywhere ordinary people need to challenge an opaque AI decision on their own data. The clearest v2 vertical is **insurance-claim-denial defense**: 73 million ACA enrollees had in-network claims denied in 2023, less than 1% appealed, and appeal-success rates of those who did were 40–75%. Three live AI-appeal products (Counterforce Health, Claimable, Fight Health Insurance) have validated the category at 70–80% reversal — *none* ship TEE attestation, *all* route patient records through OpenAI/Anthropic. Hunt's architecture transfers 1:1. Full plan, specialist subdomain map, regulatory framing (Colorado SB24-205/SB26-189, EU AI Act Annex III), and a synthetic denial letter modeled on the public *Estate of Lokken v. UnitedHealth* pleadings in [`audits/insurance/README.md`](audits/insurance/README.md).
+
 ## Honesty notes — read first
 
 Three things you should know before reading the rest of this README.

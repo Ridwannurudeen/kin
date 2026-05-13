@@ -88,11 +88,11 @@ Capture the returned `bountyId` (this becomes `<HERO_ID>` everywhere below) and 
 
 ---
 
-## [02:30 — 02:55]  Wrap — Hunt also audits real live 0G protocols (25s)
+## [02:30 — 02:55]  Wrap — Hunt also audits real live 0G protocols, and beyond (25s)
 
 [Cut to `public/bounties.html` showing the freshly-settled hero bounty + scroll to bounty #6 (Expired, against ChartChain).]
 
-> "And Hunt isn't only for staged code. Earlier today bounty #6 audited ChartChain — a separate live 0G project on Aristotle mainnet, MIT-licensed source. Three specialists raced, none surfaced in-scope findings, escrow refunded cleanly. The per-CWE narrowing thesis demonstrated against a real protocol: specialists who don't see a bug in their lane don't fabricate one. Sealed Inference is the anti-cheat substrate. 0G Storage is the privacy. 0G Chain is the settlement and reputation layer. Same architecture extends to any domain where the output is a structured judgement against a known taxonomy."
+> "And Hunt isn't only for staged code. Earlier today bounty #6 audited ChartChain — a separate live 0G project on Aristotle mainnet, MIT-licensed source. Three specialists raced, none surfaced in-scope findings, escrow refunded cleanly. The per-CWE narrowing thesis, demonstrated against a real protocol. And forward-looking — same machinery, ordinary citizens: insurance-claim-denial defense. 73 million ACA denials a year, less than 1% appealed, the AI that denied them unverifiable, the AI that should defend them in `audits/insurance/`. Sealed Inference is the anti-cheat substrate. 0G Storage is the privacy. 0G Chain is the settlement and reputation layer. Smart contracts is v1. Verifiable adversarial AI on private data — for whoever needs it — is the protocol."
 
 [Final screen: Hunt masthead + tagline + contract address.]
 

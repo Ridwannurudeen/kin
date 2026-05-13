@@ -1,0 +1,78 @@
+SYNTHETIC DENIAL LETTER — modeled on patterns documented in Estate of
+Lokken v. UnitedHealth Group (D. Minn., Case No. 0:23-cv-03514) and
+related class actions challenging algorithmic claim denials. All names,
+member IDs, policy numbers, and dates are fabricated. The structure,
+language, and clinical-policy citations are representative of denial
+letters at issue in those public cases.
+
+------------------------------------------------------------------------
+[Insurer Letterhead]
+ACME MEDICARE ADVANTAGE PLAN
+Member Services / Coverage Determinations
+
+Date:           [DATE]
+Member:         [MEMBER NAME]
+Member ID:      AMA-XXXXXXXXX
+Policy:         Medicare Advantage PPO
+Claim Number:   CLM-2026-XXXXXXX
+Provider:       [SKILLED NURSING FACILITY NAME]
+Service Dates:  Day 17 - Day 100 of post-acute skilled nursing care
+Service Code:   SNF (CPT/HCPCS as billed)
+------------------------------------------------------------------------
+
+DETERMINATION: COVERAGE TERMINATED EFFECTIVE DAY 17.
+
+We have reviewed your continued stay at the above skilled nursing
+facility following discharge from inpatient hospitalization for hip
+fracture (S72.001A) with surgical repair. Our coverage determination
+applies the Medicare benefit policy at LCD L33635 and our predictive
+length-of-stay model, which estimates that members with your clinical
+profile typically require 16.4 days of skilled nursing care.
+
+Based on this estimate and our review of the daily nursing notes, we
+have determined that:
+
+  1. Your therapy minutes have declined below the threshold required
+     to demonstrate "active rehabilitation."
+  2. Your functional improvement (as measured by Section GG of the
+     MDS) has plateaued over the prior 3 days.
+  3. The level of services you are receiving could, in our judgment,
+     be safely provided in a lower level of care.
+
+Accordingly, skilled nursing facility coverage for the dates of service
+beginning on Day 17 and continuing is DENIED as not medically necessary
+under the terms of your Medicare Advantage coverage.
+
+You have the right to appeal this decision. You may request a fast-track
+appeal through your state's Quality Improvement Organization (QIO)
+within 24 hours of receiving this notice if you disagree with the
+discharge date. Standard appeals must be filed within 60 days.
+
+------------------------------------------------------------------------
+ATTACHED: Notice of Medicare Non-Coverage (NOMNC).
+
+NOTE TO HUNT'S AUDITORS: This synthetic letter exhibits four denial-
+defect patterns that the public Lokken complaint alleges UnitedHealth's
+nH Predict tool systematically introduces:
+
+  (a) Substitution of an algorithmic length-of-stay estimate for the
+      individualized medical-necessity review required under 42 C.F.R.
+      § 422.101(b) and CMS Medicare Managed Care Manual Ch. 4.
+  (b) Reliance on LCD/NCD citations that do not, on their face, govern
+      the clinical question (LCD L33635 is a wound-care policy; it does
+      not establish the threshold for SNF medical necessity).
+  (c) Citation of "therapy minute" and "Section GG plateau" criteria
+      that the QIO standards for skilled-nursing termination expressly
+      reject as the sole grounds for discharge.
+  (d) Omission of the procedural disclosures required by ERISA § 503
+      and 29 C.F.R. § 2560.503-1 for adverse benefit determinations
+      under employer-sponsored Medicare Advantage plans — including the
+      specific clinical rationale, the qualifications of the reviewer,
+      and notice of the member's right to all documents relevant to
+      the claim.
+
+A Hunt specialist panel posting against this denial would be expected
+to surface at least defects (a)-(c) via the medical-necessity and
+state-external-review specialists, and defect (d) via the ERISA
+specialist if the underlying plan is an employer-sponsored Medicare
+Advantage product.

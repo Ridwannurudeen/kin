@@ -66,6 +66,36 @@ Positioning: Hunt becomes infrastructure *under* the insurance economy, not a co
 
 Verification caveat: this pillar was not directly verified against Nexus/Sherlock product roadmaps in the May 2026 competitive scan. Pursue after Pillar 3 with validation conversations.
 
+## Pillar 5 — Hunt beyond crypto (v2/v3, post-Pillar-2)
+
+Hunt's primitives — sealed inference, multi-specialist competition, on-chain per-domain reputation — are not actually about smart contracts. They are about **verifiable adversarial AI on private data.** The first non-crypto vertical is **health-insurance claim-denial defense.**
+
+Why this is the right next vertical, in order of fit:
+
+1. **The harm is mass-scale and active in court right now.** *Estate of Lokken v. UnitedHealth Group* (D. Minn. 0:23-cv-03514) — class action over nH Predict allegedly producing 90%-error-rate denials — advanced past motion to dismiss Feb 2025, with federal court ordering broad discovery against UHC Mar 2025 ([ArentFox Schiff](https://www.afslaw.com/perspectives/alerts/federal-court-orders-broad-discovery-against-uhc-ai-coverage-denial-lawsuit)). *Kisting-Leung v. Cigna* PXDX class survived motion to dismiss Mar 2025; ~300,000 claims denied in 2 months at 1.2 seconds each ([Courthouse News](https://www.courthousenews.com/judge-advances-class-claims-over-cigna-use-of-automated-algorithm-to-deny-benefits/)). ~73M ACA in-network denials in 2023, <1% appealed, 40–75% appeal-success when they did.
+2. **The architecture maps 1:1 with cleaner ground-truth than smart contracts.** Per-CWE specialists → per-denial-defect specialists (`medical-necessity-misapplication`, `coding-cpt-error`, `prior-auth-overreach`, `network-adequacy-violation`, `erisa-procedural-defect`, `state-external-review-misclassification`). Reputation is independently backtestable against CMS QIO external-review outcomes — a stronger empirical claim than CWE rep against smart-contract incidents.
+3. **The legal frame already exists.** Colorado AI Act SB24-205 (2024) and 2026 rewrite SB26-189 grant consumers a statutory right-to-reason for high-risk AI decisions in insurance ([Consumer Finance Monitor](https://www.consumerfinancemonitor.com/2026/05/12/colorado-rewrites-its-landmark-ai-law-unpacking-sb-26-189-and-what-it-means-for-businesses/)). EU AI Act Annex III classifies AI insurance-eligibility as high-risk with right-to-explanation obligations.
+4. **The verifiability vacuum is total.** Three live AI-appeal products — [Counterforce Health](https://www.counterforcehealth.org/), Claimable, Fight Health Insurance — claim 70–80% reversal rates. *None* ship TEE attestation. *All* route patient records through OpenAI/Anthropic. Apple Private Cloud Compute is the only consumer-facing confidential-AI primitive in production; Apple will not build "sue your insurer." That gap is Hunt's.
+5. **Privacy stakes are at the top.** Deloitte 2024 (n>2000): 30% of US consumers distrust gen-AI for health info (up from 23% in 2023). Relyance 2025: 82% see AI data-loss as a serious personal threat. EOB + diagnosis + medical record is the canonical class of data Americans refuse to send to OpenAI.
+
+Architecture transfer (full mapping in [`audits/insurance/README.md`](../audits/insurance/README.md)):
+
+- `codeRoot` → `denialRoot` (encrypted bundle of denial letter + clinical record + EOB)
+- `inScopeCwes` → `inScopeDefects` (same bytes32, new canonical class strings)
+- `submitFinding` → `submitDefense` (specialist's appeal-grounds analysis + cited authority + recommended appeal letter)
+- `attestationDigest` (model, input, output, time) → **patient-held cryptographic receipt** the insurance commissioner or state IRO can independently verify
+- `ClassRep[hunterId][cweClass]` → backtested against CMS QIO external-review outcomes
+
+Contract delta is small: a new bounty-domain enum (`SMART_CONTRACT`, `INSURANCE_APPEAL`, …) and a per-domain canonical-class registry. Escrow, race deadline, settle window, `ecrecover`, ClassRep math all reused unchanged.
+
+Why this is not shipped on-chain for the May 2026 submission, despite the strategic fit:
+
+- 0G's Sealed Inference model (`zai-org/GLM-5-FP8`) is tuned for code reasoning; we have no validation set for LCD interpretation, ERISA procedural analysis, or CPT modifier ladders. A premature on-chain bounty risks demonstrating the *opposite* of "Hunt extends cleanly."
+- New specialists have `totalWins=0, totalSubmissions=0` by definition on Day 1. The reputation primitive is empty for the new domain until backtesting populates it.
+- Scope discipline: Hunt v1's submission depth-of-0G-integration on smart-contract auditing is the load-bearing story. Insurance is the v2 proof-of-generalization, not a competing v1 claim.
+
+Sequence: fine-tune specialist briefs against a small public denial-letter corpus, validate on a 50-letter set against known appeal-outcome data, *then* fire the first on-chain insurance bounty. ETA: weeks 8–12 post-hackathon.
+
 ## Decentralisation roadmap (carried from v2 design notes)
 
 - **TEE-attestation-verifying relay set replacing centralised `teeSigner`** — multi-signer set, each independently verifying 0G's `ZG-Res-Key` attestation, signing the digest only when ≥k of n agree
