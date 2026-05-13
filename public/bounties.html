@@ -261,8 +261,10 @@ async function loadAll() {
       return Number(b.b.postedAt) - Number(a.b.postedAt);
     });
 
+    // ethers v6 Result is a Proxy — spreading drops the named accessors and leaves only
+    // numeric-index keys (0..N). Use toObject() to materialise a plain object first.
     $('grid').innerHTML = rows.map(({ id, b, findings }) =>
-      renderBountyCard({ ...b, id }, findings)).join('');
+      renderBountyCard({ ...b.toObject(), id }, findings)).join('');
     tickCountdowns();
   } catch (e) {
     console.error(e);

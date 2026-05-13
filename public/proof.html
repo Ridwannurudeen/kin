@@ -183,7 +183,8 @@ async function render(bountyId, provider, hunt) {
   const enrichedFindings = await Promise.all(findings.map(async (f, idx) => {
     const recovered = await recoverEth(f.attestationDigest, f.attestationSig);
     const sigOk = recovered && recovered.toLowerCase() === teeSigner.toLowerCase();
-    return { ...f, idx, recovered, sigOk };
+    // ethers v6 Result is a Proxy — spreading drops the named accessors. toObject() first.
+    return { ...f.toObject(), idx, recovered, sigOk };
   }));
 
   const winningFinding = winningIdx >= 0 ? enrichedFindings[winningIdx] : null;
