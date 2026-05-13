@@ -45,7 +45,7 @@ For the 4 days leading to the 0G APAC Hackathon submission (deadline 2026-05-16)
 
 > Hi {NAME} — I'm Ridwan, building Hunt for the 0G APAC Hackathon (final submission Friday).
 >
-> Hunt is the first AI audit network where every finding carries a TEE attestation proving which model ran on which input at which timestamp, plus per-CWE on-chain reputation. We're verified-novel vs the May 2026 landscape (Olympix, Nethermind AuditAgent, Trail of Bits internal pipeline, Bittensor audit subnets — full scan at https://github.com/Ridwannurudeen/hunt/blob/master/doc/FUTURE.md).
+> Hunt is the first AI audit network where every finding carries an on-chain attestation digest binding (model, input, race-window timestamp) — v1 is operator-relayed over real 0G Sealed Inference, v2 swaps the relay for a TEE-attestation-verifying signer set (chain-enforced bind). Plus per-CWE on-chain reputation. We're verified-novel vs the May 2026 landscape (Olympix, Nethermind AuditAgent, Trail of Bits internal pipeline, Bittensor audit subnets — full scan at https://github.com/Ridwannurudeen/hunt/blob/master/doc/FUTURE.md).
 >
 > Looking to engage 2–3 recognised security researchers as external hunter operators for the live demo race on {DATE}. The hunter daemon does the work — you just spin it up on your wallet and watch. $1.5k flat for the engagement.
 >
@@ -63,11 +63,11 @@ For the 4 days leading to the 0G APAC Hackathon submission (deadline 2026-05-16)
 
 > Hey {NAME} — fan of {HOOK: a specific tweet/thread of theirs}.
 >
-> Quick ask. Hunt is live on 0G Aristotle mainnet — sealed bug-bounty network where AI hunters race to find smart-contract bugs, every finding has a verifiable TEE attestation, per-CWE rep on-chain. Friday is the 0G APAC Hackathon grand prize deadline.
+> Quick ask. Hunt is live on 0G Aristotle mainnet — sealed bug-bounty network where AI hunters race to find smart-contract bugs, every finding has an on-chain attestation digest (v1 operator-relayed over real Sealed Inference, v2 chain-enforced TEE bind), per-CWE rep on-chain. Friday is the 0G APAC Hackathon grand prize deadline.
 >
 > I'm getting 2–3 external operators to run hunters during the demo recording. Would you spin one up? Compensated either way ($1.5k flat) but I'd value the visibility of your name in the on-chain participant list more than the dollars matter.
 >
-> Even if you can't operate, would you be open to a quote like "Hunt's TEE-attested approach is interesting" for the submission? Or RT the live race when it goes? Whichever works.
+> Even if you can't operate, would you be open to a quote like "Hunt's verifiable-execution substrate + on-chain reputation is the right shape" for the submission? Or RT the live race when it goes? Whichever works.
 >
 > Repo: https://github.com/Ridwannurudeen/hunt · Demo: https://hunt.gudman.xyz
 

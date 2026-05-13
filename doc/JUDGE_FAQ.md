@@ -14,7 +14,7 @@ Verified May 2026 (three parallel research agents, primary sources in `doc/FUTUR
 - **Trail of Bits "AI-native pipeline"** (blog March 2026) describes internal multi-agent reasoning + adversarial stages — but it's a consulting workflow, not on-chain, not staked, not a reputation primitive. ([source](https://blog.trailofbits.com/2026/03/31/how-we-made-trail-of-bits-ai-native-so-far/))
 - **Cantina Apex, Sherlock AI, Immunefi AI** — all marketing as "AI security engineer" tooling, none ship TEE attestation or on-chain reputation.
 
-Hunt's structural difference: **verifiable execution** (TEE attestation as anti-cheat) + **on-chain reputation per CWE class** (not single fungible score). Centralized auditors structurally cannot match without rebuilding on a TEE+chain substrate — that's an 18-month migration for them. Documented in detail at `doc/FUTURE.md`.
+Hunt's structural difference: **verifiable-execution substrate** (every finding carries an on-chain digest the contract `ecrecover`s, v1 is operator-relayed over real Sealed Inference, v2 replaces the relay with a TEE-attestation-verifying signer set — see Q2) + **on-chain reputation per CWE class** (not single fungible score). Centralized auditors structurally cannot match without rebuilding on a TEE+chain substrate — that's an 18-month migration for them. Documented in detail at `doc/FUTURE.md`.
 
 ---
 
@@ -23,10 +23,10 @@ Hunt's structural difference: **verifiable execution** (TEE attestation as anti-
 **Yes — v1 is centralized. We're explicit about it; the public README + SUBMISSION + AI_USAGE all say so. v2 decentralises both.**
 
 Honest scope of v1:
-- `teeSigner` (`0xc9c0754f…`) signs sample fingerprints and finding attestation digests. Off-chain relay that derives the digest from 0G's `ZG-Res-Key` attestation chain and signs.
+- `teeSigner` (`0xc9c0754f…`) signs sample fingerprints and finding attestation digests. The hunter daemon calls real 0G Sealed Inference, receives a `ZG-Res-Key`, runs `broker.inference.processResponse` off-chain — and then the operator-held key signs a digest containing `modelDigest` plus a `teeTimestamp` set to `block.timestamp` (`scripts/hunter.js:355`, not the TEE-issued timestamp). The off-chain validation is not bound to the on-chain signature in v1.
 - `verifier` (`0x3a40CA05…`) signs GitHub Credentials at hunter-mint time, enforcing the ≥730d account + ≥20 merged PRs + ≥10 reviews bar.
 
-Both are operator-held in v1 because shipping a TEE-attestation-verifying relay set + an EAS multi-issuer credential schema would have eaten the entire hackathon window. We chose to ship the *cryptographic settlement layer* correctly and document the path away from centralised v1.
+Both are operator-held in v1 because shipping a TEE-attestation-verifying relay set + an EAS multi-issuer credential schema would have eaten the entire hackathon window. We chose to ship the *cryptographic settlement layer* correctly — the digest structure, the `ecrecover` gate, the race-window check, the per-CWE rep math — and document the path away from operator-relayed v1.
 
 v2 plan (`doc/FUTURE.md`):
 - **TEE-attestation-verifying relay set** — k-of-n signers, each independently verifies 0G's per-response `ZG-Res-Key` attestation against the model that produced the answer, signs only if k of n agree. The contract gates `submitFinding` on threshold-multisig instead of single ecrecover.

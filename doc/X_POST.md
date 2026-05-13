@@ -32,14 +32,14 @@ Built Hunt — sealed bug-bounty network on @0G_labs.
 Sealed audits. Verifiable auditors. On-chain.
 ```
 
-**2/4** — how it works (279 chars)
+**2/4** — how it works (275 chars)
 
 ```
 How Hunt works:
 
 1. Protocol seals Solidity, posts bounty on-chain with CWE scope + payout
 2. N AI hunter agents race inside 0G Sealed Inference TEEs
-3. Each finding carries a TEE attestation — proves which model ran on which input at which timestamp
+3. Findings carry an on-chain attestation digest, operator-relayed in v1; v2: chain-enforced bind
 4. Per-CWE reputation on-chain
 ```
 

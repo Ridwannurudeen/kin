@@ -72,7 +72,7 @@ Everything below is paste-ready. Editor brief is for the freelancer; YouTube des
 **Description**:
 
 ```
-Hunt is an AI bug-bounty network where protocols seal Solidity code, AI hunter agents race inside 0G Sealed Inference TEEs to find vulnerabilities, and per-CWE reputation accrues on-chain. Every finding carries a TEE attestation proving which model ran on which input at which time — the anti-cheat guarantee that traditional AI auditors (Olympix, Nethermind AuditAgent, Cantina Apex) can't match without rebuilding on a verifiable compute substrate.
+Hunt is an AI bug-bounty network where protocols seal Solidity code, AI hunter agents race inside 0G Sealed Inference TEEs to find vulnerabilities, and per-CWE reputation accrues on-chain. Every finding carries an on-chain attestation digest binding (model, input, race-window timestamp); v1 is an operator-relayed signature over real 0G Sealed Inference, v2 swaps the operator for a TEE-attestation-verifying signer set (chain-enforced bind). Traditional AI auditors (Olympix, Nethermind AuditAgent, Cantina Apex) ship neither half — no verifiable execution substrate, no on-chain reputation.
 
 Live mainnet: https://hunt.gudman.xyz
 Contract: 0xD4Fe5127d519B775a9a581A54ED0719BBFf0d68C on 0G Aristotle (chain 16661)
@@ -91,16 +91,16 @@ Open source: https://github.com/Ridwannurudeen/hunt
 2. Digest:  node -e "import('ethers').then(({ethers})=>console.log(ethers.keccak256(ethers.toUtf8Bytes('zai-org/GLM-5-FP8|hunt-audit-v1'))))"
 3. Verify:  node scripts/verify_bounty.js 3 --model-digest 0x<paste>
 
-Exit code 0 = real Sealed Inference proven inside the race window.
+Exit code 0 = the on-chain digest re-derives to the operator-held `teeSigner` over a Sealed-Inference-path `modelDigest` inside the race window. (v1 is an operator-relayed attestation layer; chain-enforced bind to the `ZG-Res-Key` attestation is v2.)
 
 — Why 0G —
-Sealed Inference (March 2026 launch) is the only TEE-attested LLM substrate in any L1 today. Every Hunt finding is signed inside an Intel TDX + H100/H200 enclave with a downloadable Remote Attestation report. No comparable primitive ships on Ethereum, Solana, or any rollup.
+Sealed Inference (March 2026 launch) is the only TEE-attested LLM substrate in any L1 today. Every Hunt inference call runs inside an Intel TDX + H100/H200 enclave with a downloadable Remote Attestation report; v1 relays that signal on-chain via an operator-held `teeSigner` (v2 makes the relay a TEE-attestation-verifying signer set so the chain enforces the bind). No comparable primitive ships on Ethereum, Solana, or any rollup.
 
 — 0G primitives used (5/5, all load-bearing) —
 • 0G Chain — single-file Hunt.sol enforces race-deadline, settle-window, CWE-scope filter, attestation ecrecover, per-CWE ClassRep ledger
 • 0G Sealed Inference — review + self-eval in one TEE call, ZG-Res-Key attestation chain
 • 0G Storage — symmetric AES for sealed code, per-hunter AES for samples, ECIES for findings encrypted to poster pubkey
-• TEE attestation chain — teeSigner ecrecover'd on-chain, off-chain relay signs only when 0G's per-response attestation validates
+• TEE attestation chain — `teeSigner` `ecrecover`'d on-chain; v1 daemon runs `broker.inference.processResponse` off-chain on each `ZG-Res-Key` (output integrity confirmed), then an operator-held key signs the on-chain digest. v2 replaces the operator with a TEE-attestation-verifying signer set so the chain itself enforces the bind.
 • Credential verifier — GitHub-OAuth-backed, ≥730d account + ≥20 merged PRs + ≥10 reviews
 
 — v2 roadmap (post-hackathon) —
@@ -219,7 +219,7 @@ Hunt is the first AI audit network shipped on a TEE-attested compute substrate.
 
 **If shortlisted top-10**: 
 ```
-honored to see Hunt in the top 10 of @0G_labs APAC Hackathon — sealed AI bug-bounty network with TEE-attested execution + per-CWE on-chain reputation.
+honored to see Hunt in the top 10 of @0G_labs APAC Hackathon — sealed AI bug-bounty network. operator-relayed attestation over real Sealed Inference (v1), per-CWE on-chain reputation, every race cryptographically replayable.
 
 every race we ran is still cryptographically verifiable on Aristotle mainnet:
 node scripts/verify_bounty.js 3 --model-digest 0x…
@@ -238,7 +238,7 @@ builders welcome: github.com/Ridwannurudeen/hunt
 
 **If not in top-3 but mentioned by judges**:
 ```
-grateful for the @0G_labs APAC Hackathon judging. didn't take grand prize this round but the structural moat is real — TEE-attested AI audit + per-CWE on-chain rep isn't shipped anywhere else in May 2026.
+grateful for the @0G_labs APAC Hackathon judging. didn't take grand prize this round but the structural moat is real — verifiable-execution substrate (v1 operator-relayed, v2 chain-enforced) + per-CWE on-chain rep isn't shipped anywhere else in May 2026.
 
 shipping v2 (falsification + guardian net) over the next 8 weeks. hunt.gudman.xyz
 ```

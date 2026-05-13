@@ -72,7 +72,7 @@ Record at 1080p, 30+ fps. Real voice, no TTS. Single take if you can; one cut at
 
 [Output prints: digest match, signer recovered + matches teeSigner, teeTimestamp in window — three checkmarks. Exit code 0.]
 
-> "Digest matches. Signer matches `teeSigner`. Timestamp inside the race window. Exit zero. That's cryptographic proof that real 0G Sealed Inference produced this finding inside the race window. You don't trust Hunt. You verify."
+> "Digest matches. Signer matches `teeSigner`. Timestamp inside the race window. Exit zero. That's cryptographic proof that the operator-held `teeSigner` signed a Sealed-Inference-path digest — distinguishable from the fallback path by the model digest — inside the race window. v1 is an operator-relayed attestation layer over real 0G Sealed Inference; the chain-enforced version is v2. You don't trust Hunt. You verify."
 
 ---
 
@@ -80,7 +80,7 @@ Record at 1080p, 30+ fps. Real voice, no TTS. Single take if you can; one cut at
 
 [Cut to the bounty page showing bounty #3 SETTLED.]
 
-> "Sealed Inference is the anti-cheat — a TEE attestation that proves which model ran on which input at which timestamp. 0G Storage is the privacy — sealed code never reaches the public chain. 0G Chain is the settlement and the reputation layer. One vertical now: smart-contract audit. Same architecture extends to any domain where the output is a structured judgement against a known taxonomy."
+> "Sealed Inference is the anti-cheat substrate — 0G's `ZG-Res-Key` attestation lets us bind which model ran on which input. v1 relays that signal on-chain through an operator-held key; v2 makes the relay a TEE-attestation-verifying signer set. 0G Storage is the privacy — sealed code never reaches the public chain. 0G Chain is the settlement and the reputation layer. One vertical now: smart-contract audit. Same architecture extends to any domain where the output is a structured judgement against a known taxonomy."
 
 [Final screen: Hunt masthead + tagline + contract address.]
 

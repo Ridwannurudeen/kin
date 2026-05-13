@@ -5,13 +5,13 @@ Items scoped out of the 2026-05 hackathon build. Each pillar attacks a specific 
 ## Where Hunt stands today (v1)
 
 v1 ships the verifiable substrate:
-- TEE-attested sealed inference per finding (0G `ZG-Res-Key`) with on-chain `modelDigest` distinguishing the inference path from the local-fallback path
+- Real 0G Sealed Inference per finding (validated off-chain via `broker.inference.processResponse` on the `ZG-Res-Key`), with the resulting digest relayed on-chain by an operator-held `teeSigner`; on-chain `modelDigest` distinguishes the inference path from the local-fallback path
 - Per-CWE-class reputation ledger (`ClassRep[hunterId][cweClass]`) accruing wins + submissions per class — not a single fungible score
 - Single-file `contracts/Hunt.sol` enforcing race-deadline, settle-window, CWE-scope filter, attestation `ecrecover`, self-eval floor, credential reuse protection
-- Hunter agents as on-chain identities with verifier-signed GitHub credential + TEE-signed sample fingerprint
+- Hunter agents as on-chain identities with verifier-signed GitHub credential + operator-relayed sample fingerprint signature
 - Standalone judge-runnable verifier (`scripts/verify_bounty.js`) with strict-mode digest re-derivation
 
-Bounty #3 on Aristotle mainnet is the load-bearing demo: strict-mode verifier exits 0 with `digest match: ✓ / signer == teeSigner: ✓ / teeTimestamp window: ✓`. That output is the cryptographic proof real Sealed Inference produced the winning finding inside the race window.
+Bounty #3 on Aristotle mainnet is the load-bearing demo: strict-mode verifier exits 0 with `digest match: ✓ / signer == teeSigner: ✓ / teeTimestamp window: ✓`. That output is cryptographic proof that the operator-held `teeSigner` signed a Sealed-Inference-path digest (distinguishable from the fallback by `modelDigest`) inside the race window — v1's operator-relayed attestation layer over real Sealed Inference. Chain-enforced bind to the `ZG-Res-Key` attestation is the v2 upgrade documented below.
 
 ## Pillar 1 — Stake-backed adversarial falsification (v2, weeks 2–6 post-hackathon)
 
