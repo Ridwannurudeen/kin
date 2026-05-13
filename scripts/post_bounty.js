@@ -46,7 +46,7 @@ function parseArgs(argv) {
     file: "audits/chartchain/MedicalRecordsVault.sol",
     payout: "0.05",
     raceDuration: 600,
-    cwes: "swc-107-reentrancy,oracle-manipulation,access-control,arithmetic-overflow,storage-collision",
+    cwes: "swc-107-reentrancy,oracle-manipulation,access-control,swc-101-int-overflow,storage-collision",
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];

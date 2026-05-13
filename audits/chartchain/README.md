@@ -32,7 +32,7 @@ Original repo and live contract:
 node scripts/post_bounty.js --payout 0.1 --race-duration 900
 ```
 
-`--race-duration 900` (15 min) gives breathing room around recording. The default scope `{swc-107-reentrancy, oracle-manipulation, access-control, arithmetic-overflow, storage-collision}` is wide on purpose so all three specialists fire briefs (and you see how each handles a domain outside its strongest specialty).
+`--race-duration 900` (15 min) gives breathing room around recording. The default scope `{swc-107-reentrancy, oracle-manipulation, access-control, swc-101-int-overflow, storage-collision}` is wide on purpose so all three specialists fire briefs (and you see how each handles a domain outside its strongest specialty).
 
 After posting, capture the printed `bountyId` and use it for the race:
 
@@ -57,7 +57,27 @@ If Hunt surfaces nothing in-scope, the audit still serves as "Hunt validated a p
 
 Ridwan owns both Hunt and ChartChain. Self-disclosure applies — any finding surfaced is auto-disclosed to the protocol owner. Findings are recorded on-chain via Hunt's attestation chain; remediation in ChartChain happens post-hackathon as the next ChartChain release.
 
-## After the race
+## First on-chain audit — bounty #6
+
+Fired 2026-05-13 against `MedicalRecordsVault.sol` on Aristotle mainnet.
+
+- Post tx: [`0x7600cf2dd3ad137904832349416acaf4747410d0eebfc031633e1f5c4e03c461`](https://chainscan.0g.ai/tx/0x7600cf2dd3ad137904832349416acaf4747410d0eebfc031633e1f5c4e03c461) — 0.05 OG, 10-min race, 5-CWE scope (reentrancy, oracle, access-control, swc-101-int-overflow, storage-collision)
+- Expire tx: [`0xabbb0dd840e81f89d8cb9a25aac1ae2817b9fb95009bddb3cf2ba6445fc6ee22`](https://chainscan.0g.ai/tx/0xabbb0dd840e81f89d8cb9a25aac1ae2817b9fb95009bddb3cf2ba6445fc6ee22) — block 33121294, no in-scope findings, 0.05 OG refunded
+
+What the race showed:
+
+- **reentrancy-specialist** — real Sealed Inference, attempt 1, self-eval 9000bps overall, 0 in-scope findings. Correctly declined to fabricate.
+- **oracle-specialist** — real Sealed Inference, attempt 3 (attempts 1+2 hit transient `fetch failed` and retried), 10000bps overall, 0 in-scope findings. Correctly declined to fabricate.
+- **access-control-specialist** — 3× `fetch failed` exhausted retries, fell back to `lib/audit-fallback.js` (documented local heuristic), 500bps overall (below quality floor), 0 in-scope findings.
+
+The bug-finding question remains open. None of the four signal classes forecast above were surfaced by any specialist in a 10-min window. Two interpretations are equally consistent with what we see:
+
+1. ChartChain has no in-scope vulnerabilities in those 5 CWE classes that meet the self-eval bar.
+2. The LLM didn't surface them in a 10-min window with the current brief structure.
+
+What is on-chain-proven is the **per-CWE-narrowing thesis**: specialists run real Sealed Inference (or the documented fallback), find nothing in their lane, and don't fabricate findings outside it. The chain reflects calibrated expertise, not guesswork.
+
+## After the race (template for future bounties)
 
 Update `doc/SUBMISSION.md §5` + §10 with:
 

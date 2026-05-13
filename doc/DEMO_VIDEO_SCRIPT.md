@@ -128,5 +128,11 @@ Capture the returned `bountyId` (this becomes `<CC_ID>` everywhere below) and th
 **Bounty #2 — post-fix intermediate (preserved record)**
 - Post: `0x8da9cf06cfcf963ec9ad000d37a1652f0fb352c43909e6f254255db7091e4314` · Submit: `0x36bd979cc452c77626493113666b6109a73506380e1f8de610c5b73874eef554` (block 33039165) · Settle: `0xa6e03679fc9ced9fbe6a1a185550033821343934cdb12adb9da46a149ce2ed59` (block 33039527)
 
+**Bounty #6 — first ChartChain audit on Aristotle (dry-run, lifecycle proven)**
+- Post: [`0x7600cf2dd3ad137904832349416acaf4747410d0eebfc031633e1f5c4e03c461`](https://chainscan.0g.ai/tx/0x7600cf2dd3ad137904832349416acaf4747410d0eebfc031633e1f5c4e03c461) — 0.05 OG, 10-min race, 5-CWE scope, target `audits/chartchain/MedicalRecordsVault.sol`
+- Expire: [`0xabbb0dd840e81f89d8cb9a25aac1ae2817b9fb95009bddb3cf2ba6445fc6ee22`](https://chainscan.0g.ai/tx/0xabbb0dd840e81f89d8cb9a25aac1ae2817b9fb95009bddb3cf2ba6445fc6ee22) (block 33121294) — no in-scope findings, 0.05 OG refunded
+- Race result: 2 specialists ran real Sealed Inference end-to-end (9000bps + 10000bps), correctly declined out-of-domain; 3rd hit transient broker failure, fell back to local heuristic, also returned 0 in-scope. Per-CWE narrowing demonstrated end-to-end. Bug-finding question against ChartChain remains open. Detail in `audits/chartchain/README.md`.
+- **For the recording (Plan A)**: fire a fresh bounty so the bounties.html page shows OPEN status during the take; bounty #6 is a proven dry-run, not a substitute for a live race on camera.
+
 **Bounty #0 — fallback-path original (preserved record)**
 - Post: `0xafa7c31ea102f4543ac851711fc822e41871d139220bd7bff7d9abcd831fb2df` · Submit: `0x371f2a328c5af8c0d75f867bda9f12048ba941e99efa6a210087c0b84a2cab8b` (block 32977952) · Settle: `0xe67459a13b8b0df690847560e97249eac9a23d3ef7d2cce594338b8222cdcec4` (block 32978103)

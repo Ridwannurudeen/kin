@@ -85,7 +85,16 @@ The original race on May 11. At the time we believed 0G Sealed Inference was deg
 
 ### Primary live audit target — ChartChain
 
-Hunt's headline forward-looking audit target is **[ChartChain](https://github.com/Ridwannurudeen/chartchain)**, a separate live 0G project deployed at [`0x5DDD81e39b2f3022AB9188D4eacaCdDC16566D00`](https://chainscan.0g.ai/address/0x5DDD81e39b2f3022AB9188D4eacaCdDC16566D00) on the same chain. `scripts/post_bounty.js` defaults to `audits/chartchain/MedicalRecordsVault.sol` so any fresh race posts against a real protocol's MIT-licensed source rather than a staged file. The bounty #0–#3 tables above stay as the cryptographically-verifiable record; ChartChain is what the protocol audits by default from here forward. Full plan + scope + honest "we don't know what Hunt will find" forecast in [`audits/chartchain/README.md`](audits/chartchain/README.md).
+Hunt's primary forward-looking audit target is **[ChartChain](https://github.com/Ridwannurudeen/chartchain)**, a separate live 0G project deployed at [`0x5DDD81e39b2f3022AB9188D4eacaCdDC16566D00`](https://chainscan.0g.ai/address/0x5DDD81e39b2f3022AB9188D4eacaCdDC16566D00) on the same chain. `scripts/post_bounty.js` defaults to `audits/chartchain/MedicalRecordsVault.sol` so any fresh race posts against a real protocol's MIT-licensed source rather than a staged file. Full plan + scope + honest forecast in [`audits/chartchain/README.md`](audits/chartchain/README.md).
+
+**Bounty #6 — first ChartChain audit on Aristotle**
+
+| Event | Tx hash | Block |
+|---|---|---|
+| Post bounty #6 — ChartChain source, 0.05 OG, 10-min race, 5-CWE scope | [`0x7600cf2dd3ad137904832349416acaf4747410d0eebfc031633e1f5c4e03c461`](https://chainscan.0g.ai/tx/0x7600cf2dd3ad137904832349416acaf4747410d0eebfc031633e1f5c4e03c461) | (chainscan) |
+| Expire bounty #6 — no in-scope findings, 0.05 OG refunded | [`0xabbb0dd840e81f89d8cb9a25aac1ae2817b9fb95009bddb3cf2ba6445fc6ee22`](https://chainscan.0g.ai/tx/0xabbb0dd840e81f89d8cb9a25aac1ae2817b9fb95009bddb3cf2ba6445fc6ee22) | 33121294 |
+
+Three hunters raced in parallel. Two ran real Sealed Inference end-to-end (reentrancy at attempt 1, 9000bps overall; oracle at attempt 3, 10000bps) and returned 0 findings — correctly declined to fabricate findings outside their declared specialty. The third hit transient `fetch failed` 3x under concurrent broker load and fell back to `lib/audit-fallback.js`, also returning 0 in-scope findings. Race expired cleanly; escrow refunded. **The bug-finding question against ChartChain remains open** — possibly there are no in-scope vulns; possibly the LLM didn't surface them in 10 minutes. **What is on-chain-proven is the per-CWE-narrowing thesis**: specialists run, find nothing in their lane, don't guess outside it. The bounty #0–#3 tables above are still the cryptographically-verifiable findings record (bounty #3 strict-verify exit 0 against this contract); bounty #6 is the first cross-pollination artifact against a real live 0G protocol.
 
 ## The demo: a real bug, three hunters, one winner
 

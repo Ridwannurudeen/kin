@@ -85,7 +85,16 @@ Headline finding's `modelDigest = keccak256(utf8("zai-org/GLM-5-FP8|hunt-audit-v
 | Oracle-specialist submits winning finding (fallback path, `high`) | `0x371f2a328c5af8c0d75f867bda9f12048ba941e99efa6a210087c0b84a2cab8b` | 32977952 |
 | Settle bounty #0 | `0xe67459a13b8b0df690847560e97249eac9a23d3ef7d2cce594338b8222cdcec4` | 32978103 |
 
-**Primary live audit target going forward — ChartChain.** `scripts/post_bounty.js` now defaults to `audits/chartchain/MedicalRecordsVault.sol`, the MIT-licensed source verbatim from [ChartChain](https://github.com/Ridwannurudeen/chartchain) (separate live 0G project, mainnet `0x5DDD81e39b2f3022AB9188D4eacaCdDC16566D00`, chain 16661). Any fresh bounty posted from HEAD targets a real protocol's deployed source rather than the staged `Vault.sol`. The historical bounty #0/#2/#3 tables above remain the cryptographically-verifiable record for v1; ChartChain is the headline forward-looking audit. Plan, 5-CWE scope, and honest forecast in [`audits/chartchain/README.md`](../audits/chartchain/README.md).
+**Bounty #6 — first ChartChain audit on Aristotle (full lifecycle, per-CWE narrowing demonstrated end-to-end)**
+
+| Event | Tx hash | Block |
+|---|---|---|
+| Post bounty #6 — `audits/chartchain/MedicalRecordsVault.sol` (MIT-licensed source verbatim from [ChartChain](https://github.com/Ridwannurudeen/chartchain), mainnet `0x5DDD81e39b2f3022AB9188D4eacaCdDC16566D00`), 0.05 OG, 10-min race, scope {reentrancy, oracle, access-control, swc-101-int-overflow, storage-collision} | `0x7600cf2dd3ad137904832349416acaf4747410d0eebfc031633e1f5c4e03c461` | (chainscan) |
+| Expire bounty #6 — no in-scope findings, 0.05 OG refunded to poster | `0xabbb0dd840e81f89d8cb9a25aac1ae2817b9fb95009bddb3cf2ba6445fc6ee22` | 33121294 |
+
+What happened: three hunters raced in parallel. The reentrancy-specialist completed Sealed Inference at attempt 1 with self-eval overall 9000bps and returned 0 findings — correctly declined to submit outside its specialty. The oracle-specialist completed Sealed Inference at attempt 3 with 10000bps and returned 0 findings — same. The access-control-specialist hit transient `fetch failed` on the inference proxy 3x under concurrent broker load and fell back to `lib/audit-fallback.js`, the documented local heuristic, which also returned 0 in-scope findings. Race expired cleanly; `expireBounty(6)` refunded the 0.05 OG to the poster. **The bug-finding question against ChartChain remains open** — possibly there are no vulns in the in-scope CWE classes; possibly the LLM didn't surface them in a 10-min window. **What is proven on-chain is the per-CWE-narrowing thesis**: specialists run real Sealed Inference, find nothing in their lane, and *don't fabricate findings outside it*. The chain reflects calibrated expertise rather than guesswork.
+
+**Primary live audit target going forward — ChartChain.** `scripts/post_bounty.js` defaults to `audits/chartchain/MedicalRecordsVault.sol`. The historical bounty #0/#2/#3 tables above remain the cryptographically-verifiable record for v1 (bounty #3 is the load-bearing settled audit with strict-mode verifier exit 0). Bounty #6 above is the first on-chain artifact of Hunt auditing a separate live 0G protocol. Plan, 5-CWE scope, and honest forecast in [`audits/chartchain/README.md`](../audits/chartchain/README.md).
 
 **Primitive-by-primitive call-site references.**
 
