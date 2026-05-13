@@ -259,9 +259,9 @@ doc/
 npm test
 ```
 
-**191 tests passing, 0 failing.** Breakdown:
+**195 tests passing, 0 failing.** Breakdown:
 
-- 64 — `test/Hunt.test.js` (contract — mint, post, submit, settle, expire, scope, race window, attestation, rep)
+- 68 — `test/Hunt.test.js` (contract — mint, post, submit, settle, expire, scope, race window, attestation, rep; includes v1.1 ClassRep math regression suite)
 - 78 — `test/Kin.test.js` (Kin v2 predecessor contract — kept as foundation regression baseline)
 - 21 — `test/verifier.test.js` (GitHub OAuth verifier service)
 - 13 — `test/ecdh.test.js` (ECIES round-trips)

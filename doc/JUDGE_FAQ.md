@@ -156,3 +156,27 @@ Realistic dependency surface today:
 v2 plan's `teeSigner` relay set abstracts the TEE-vendor dependency: the relay verifies attestations from any supported TEE provider, signs the canonical digest the contract recovers. Hunt v2 is multi-cloud-TEE by design.
 
 If 0G shuts down: v1 contract is bricked for new bounties (no Sealed Inference). All historical attestations remain on-chain and remain cryptographically verifiable from the on-chain `modelDigest` + signature. Past audits don't disappear.
+
+---
+
+## Q11 — The deployed contract has two known bugs in the per-CWE rep math. Why aren't they patched on mainnet?
+
+**Both are patched in-tree at HEAD (v1.1) with 4 new tests; we deliberately did NOT redeploy because the bounty #3 strict-verify proof is anchored to the deployed address `0xD4Fe5127…` and redeploying in 3 days would break the load-bearing demo. Honest disclosure, in-tree fix, v1.1 deploys alongside v2.**
+
+The two bugs (both flagged in our own pre-submission audit, `2026-05-13`):
+
+1. **`ClassRep.submissions` only ticked on the winner.** `submitFinding` did not increment the per-class submission counter; only `settleBounty` did, and only for the winning hunter. Net effect: the on-chain rep ledger could not express "hunter tried + lost" — every entry showed `submissions == wins`, which makes the per-CWE precision metric the protocol claims to produce identically 1.0, and makes the empirical-specialist thesis untestable on-chain.
+2. **`totalEarnedWei` was `uint64`.** Wraps at `~18.44 OG` lifetime earnings in both `Hunter` and `ClassRep`. Fine for the 0.05 OG demo bounties; embarrassing for the production market the pitch describes.
+
+What the in-tree fix does (`contracts/Hunt.sol` at HEAD):
+
+- Move `ClassRep.submissions++` into `submitFinding`, alongside the existing scope + self-eval + ecrecover checks; remove it from `settleBounty` so winners aren't double-counted. Add `ClassRepUpdated(hunterId, cweClass, wins, submissions)` emit at submit-time so observers see live precision evolution per CWE.
+- Widen `Hunter.totalEarnedWei` + `ClassRep.totalEarnedWei` from `uint64` to `uint256`. Remove the `uint64(amount)` truncation casts in `settleBounty`.
+
+What the in-tree fix doesn't do: it doesn't redeploy. The deployed mainnet contract at `0xD4Fe5127d519B775a9a581A54ED0719BBFf0d68C` remains v1.0 with the original semantics. Bounty #3's strict-mode verifier (`scripts/verify_bounty.js 3 --model-digest 0x<digest>`) is anchored to that address; redeploying invalidates that proof, and rebuilding a fresh mainnet narrative in the last 72 hours of the hackathon would be reckless. v1.1 ships alongside v2's TEE-attestation-verifying signer set (`doc/FUTURE.md`); both deploy in the post-hackathon 8-week window.
+
+What judges can verify:
+
+- Diff: the v1.1 changes are concentrated in `contracts/Hunt.sol` and `test/Hunt.test.js` — search for the comment `v1.1` in either file.
+- Tests: 4 new tests cover (a) `submissions++` on submit alone, (b) accumulation across multiple submissions same CWE, (c) losing hunter retains `submissions == 1` after winner is settled, (d) `totalEarnedWei` correctly stores a 20-ether payout that would have wrapped under `uint64`. `npm test` → 195 passing, 0 failing.
+- Live state: `getClassRep(hunterId, cweClass)` on the deployed `0xD4Fe5127…` still returns the v1.0-counted values. Bounty #3 strict-verify still exits 0 against that address.

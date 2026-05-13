@@ -40,7 +40,7 @@ contract Hunt {
     struct ClassRep {
         uint32 wins;
         uint32 submissions;
-        uint64 totalEarnedWei;
+        uint256 totalEarnedWei;         // v1.1: widened from uint64 (~18.44 OG lifetime overflow)
         uint64 sumSeverityCalibration;  // 1..5 per win
         uint64 sumPrecision;
         uint64 sumCoverage;
@@ -58,7 +58,7 @@ contract Hunt {
         bool    paused;
         uint32  totalWins;
         uint32  totalSubmissions;
-        uint64  totalEarnedWei;
+        uint256 totalEarnedWei;         // v1.1: widened from uint64 (~18.44 OG lifetime overflow)
     }
 
     /// Protocol-posted bounty. Code is encrypted off-chain; only the storage root is on-chain.
@@ -320,8 +320,14 @@ contract Hunt {
         }));
 
         h.totalSubmissions++;
+        // v1.1: per-class submission count must reflect every accepted finding, not just winners.
+        // Otherwise wins/submissions can never express failed attempts and the per-CWE precision
+        // metric the protocol claims to produce is undefined.
+        ClassRep storage rep = repByClassMap[hunterId][input.cweClass];
+        rep.submissions++;
 
         emit FindingSubmitted(bountyId, findingIdx, hunterId, input.cweClass, input.severity, input.teeTimestamp);
+        emit ClassRepUpdated(hunterId, input.cweClass, rep.wins, rep.submissions);
     }
 
     /// Bounty poster settles by picking the winning finding + rating it 1..5 on each axis.
@@ -343,11 +349,11 @@ contract Hunt {
         uint256 amount = b.maxPayout;
         b.maxPayout = 0;
 
-        // Per-CWE rep
+        // Per-CWE rep. v1.1: submissions++ moved to submitFinding so it counts every accepted
+        // finding regardless of whether it wins. Only wins + earnings + sum-axes accrue here.
         ClassRep storage rep = repByClassMap[f.hunterId][f.cweClass];
         rep.wins++;
-        rep.submissions++;
-        rep.totalEarnedWei += uint64(amount);
+        rep.totalEarnedWei += amount;
         rep.sumSeverityCalibration += r.severityCalibration;
         rep.sumPrecision            += r.precision;
         rep.sumCoverage             += r.coverage;
@@ -356,7 +362,7 @@ contract Hunt {
         // Hunter aggregate
         Hunter storage h = huntersMap[f.hunterId];
         h.totalWins++;
-        h.totalEarnedWei += uint64(amount);
+        h.totalEarnedWei += amount;
 
         emit BountySettled(bountyId, findingIdx, f.hunterId, f.cweClass, amount);
         emit ClassRepUpdated(f.hunterId, f.cweClass, rep.wins, rep.submissions);
