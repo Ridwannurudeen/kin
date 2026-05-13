@@ -8,6 +8,7 @@
     "dev:kin-legacy": "node server.js",
     "smoke:storage": "node scripts/smoke_storage.js",
     "smoke:inference": "node scripts/smoke_inference.js",
+    "test:static": "node scripts/smoke_static.js",
     "deploy": "node scripts/deploy.js",
     "test": "hardhat test",
     "test:e2e": "node scripts/e2e_v2.js",

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Protocol Status &mdash; Hunt</title>
+<meta name="description" content="Live Hunt protocol status on 0G Aristotle: Hunt, Notary, Reputation Oracle, domains, receipts, and contract links.">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .status-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 32px 0; }
+  @media (max-width: 980px) { .status-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 620px) { .status-grid { grid-template-columns: 1fr; } }
+  .status-card {
+    background: var(--surface-glass);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 22px;
+    min-height: 150px;
+  }
+  .status-card .label { font-family: var(--mono); font-size: 10px; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.12em; }
+  .status-card .value { font-family: var(--display); font-size: 34px; line-height: 1; color: var(--brand); margin-top: 16px; letter-spacing: -0.03em; }
+  .status-card .sub { font-family: var(--mono); font-size: 11px; color: var(--text-soft); margin-top: 14px; overflow-wrap: anywhere; }
+  .contract-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; }
+  @media (max-width: 920px) { .contract-grid { grid-template-columns: 1fr; } }
+  .contract-card {
+    background: var(--bg-elev-1);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 22px;
+  }
+  .contract-card h3 { font-family: var(--display); font-size: 22px; margin-bottom: 12px; letter-spacing: -0.02em; }
+  .contract-card .addr { font-family: var(--mono); font-size: 12px; color: var(--text); overflow-wrap: anywhere; margin: 12px 0; }
+  .contract-card .meta { font-family: var(--mono); font-size: 11px; color: var(--text-mute); line-height: 1.7; }
+  .contract-card a { color: var(--brand); font-family: var(--mono); font-size: 11px; }
+  .domain-table { margin-top: 24px; border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; background: var(--surface-glass); }
+  .domain-row { display: grid; grid-template-columns: minmax(160px, 1.4fr) 90px repeat(3, 1fr); gap: 16px; padding: 16px 18px; border-bottom: 1px solid var(--border); align-items: center; }
+  .domain-row:last-child { border-bottom: none; }
+  .domain-row.head { font-family: var(--mono); font-size: 10px; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.1em; background: var(--bg-elev-1); }
+  .domain-row:not(.head) { font-family: var(--mono); font-size: 12px; color: var(--text-soft); }
+  .domain-row .name { color: var(--text); overflow-wrap: anywhere; }
+  .domain-row .num { color: var(--brand); font-variant-numeric: tabular-nums; }
+  @media (max-width: 760px) {
+    .domain-row { grid-template-columns: 1fr 80px; }
+    .domain-row.head .hide-sm, .domain-row .hide-sm { display: none; }
+  }
+  .status-note {
+    margin-top: 28px;
+    padding: 18px 20px;
+    border: 1px solid var(--brand-glow);
+    background: var(--brand-glow-soft);
+    border-radius: var(--r-md);
+    font-family: var(--sans);
+    color: var(--text-soft);
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header class="masthead">
+    <div class="masthead-row">
+      <div>
+        <div class="brand">Hunt<em>.</em></div>
+        <div class="tagline">protocol status &middot; live 0g infrastructure</div>
+      </div>
+      <span class="pill">0g aristotle mainnet</span>
+    </div>
+    <nav class="nav-row">
+      <a href="/">home</a>
+      <a href="/hunters.html">hunters</a>
+      <a href="/bounties.html">bounties</a>
+      <a href="/verticals.html">verticals</a>
+      <a href="/notary.html">notary</a>
+      <a href="/status.html" class="active">status</a>
+      <a href="/proof.html">judge proof</a>
+      <a href="https://github.com/Ridwannurudeen/hunt" target="_blank" rel="noreferrer">github &#x2197;</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="section-eyebrow">live protocol</div>
+    <h1>Hunt is live <em>infrastructure.</em></h1>
+    <p class="lede">
+      One page for judges and builders: the Hunt race contract, AI Notary, Reputation Oracle, registered domains, and contract links, all read from 0G Aristotle and the deployed artifacts.
+    </p>
+  </section>
+
+  <main>
+    <div id="cards" class="status-grid">
+      <div class="status-card"><div class="label">status</div><div class="value">...</div><div class="sub">loading Aristotle reads</div></div>
+    </div>
+
+    <h2 class="section-title">Contracts <em>deployed.</em></h2>
+    <div id="contracts" class="contract-grid"></div>
+
+    <h2 class="section-title">Oracle domains <em>registered.</em></h2>
+    <div id="domains" class="domain-table">
+      <div class="domain-row head">
+        <span>domain</span><span>classes</span><span class="hide-sm">wins</span><span class="hide-sm">submissions</span><span class="hide-sm">hunters</span>
+      </div>
+    </div>
+
+    <div id="demoReceipt" class="status-note" style="display:none;"></div>
+    <div id="statusLine" class="status-line"></div>
+  </main>
+
+  <footer class="footer">
+    <div class="row">
+      <a href="/proof.html?bounty=3">bounty #3 proof</a>
+      <a href="/notary.html">notary</a>
+      <a href="/verticals.html">verticals</a>
+    </div>
+  </footer>
+</div>
+
+<script src="/vendor/ethers-6.13.1.umd.min.js"></script>
+<script src="/contracts.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+function card(label, value, sub) {
+  return `<div class="status-card"><div class="label">${escapeHtml(label)}</div><div class="value">${escapeHtml(String(value))}</div><div class="sub">${escapeHtml(sub)}</div></div>`;
+}
+
+function contractCard(name, address, txHash, blockNumber, extra = '') {
+  return `
+    <div class="contract-card">
+      <h3>${escapeHtml(name)}</h3>
+      <div class="addr">${escapeHtml(address)}</div>
+      <div class="meta">block ${escapeHtml(String(blockNumber || 'n/a'))}</div>
+      ${txHash ? `<div class="meta">tx ${escapeHtml(window.shortHash(txHash))}</div>` : ''}
+      ${extra ? `<div class="meta">${extra}</div>` : ''}
+      <a href="${window.CHAINSCAN_URL}/address/${address}" target="_blank" rel="noreferrer">chainscan &rarr;</a>
+    </div>
+  `;
+}
+
+async function optionalJson(path) {
+  try {
+    const r = await fetch(path, { cache: 'no-store' });
+    if (!r.ok) return null;
+    return await r.json();
+  } catch {
+    return null;
+  }
+}
+
+(async function init() {
+  try {
+    const [huntArtifact, notaryArtifact, oracleArtifact, demoReceipt] = await Promise.all([
+      window.loadDeployment(),
+      window.loadNotaryDeployment(),
+      window.loadOracleDeployment(),
+      optionalJson('/deployments/NotaryDemoReceipt.json'),
+    ]);
+    const provider = window.mkProvider();
+    const hunt = new ethers.Contract(window.HUNT_ADDRESS, window.HUNT_ABI, provider);
+    const notary = new ethers.Contract(window.NOTARY_ADDRESS, window.NOTARY_ABI, provider);
+    const oracle = new ethers.Contract(window.ORACLE_ADDRESS, window.ORACLE_ABI, provider);
+
+    const [blockNumber, hunters, bounties, teeSigner, verifier, attestations, domains, oracleHunt] = await Promise.all([
+      window.withRetry(() => provider.getBlockNumber()),
+      window.withRetry(() => hunt.totalHunters()),
+      window.withRetry(() => hunt.totalBounties()),
+      window.withRetry(() => hunt.teeSigner()),
+      window.withRetry(() => hunt.verifier()),
+      window.withRetry(() => notary.totalAttestations()),
+      window.withRetry(() => oracle.getDomains()),
+      window.withRetry(() => oracle.HUNT()),
+    ]);
+
+    const domainRows = await Promise.all(domains.map(async (domain) => {
+      const [name, classes, agg] = await Promise.all([
+        window.withRetry(() => oracle.domainName(domain)),
+        window.withRetry(() => oracle.getClasses(domain)),
+        window.withRetry(() => oracle.aggregateDomain(domain)),
+      ]);
+      return { name, classes, agg };
+    }));
+
+    $('cards').innerHTML = [
+      card('Aristotle block', blockNumber, '0G Chain live read'),
+      card('Hunt races', bounties, `${hunters} hunters minted`),
+      card('Notary receipts', attestations, 'hash-only AI conversation receipts'),
+      card('Oracle domains', domains.length, `${domainRows.reduce((n, d) => n + d.classes.length, 0)} classes registered`),
+    ].join('');
+
+    $('contracts').innerHTML = [
+      contractCard('Hunt', window.HUNT_ADDRESS, huntArtifact?.txHash, huntArtifact?.blockNumber, `teeSigner ${escapeHtml(window.shortAddr(teeSigner))}<br>verifier ${escapeHtml(window.shortAddr(verifier))}`),
+      contractCard('HuntNotary', window.NOTARY_ADDRESS, notaryArtifact?.txHash, notaryArtifact?.blockNumber, `${attestations} receipts`),
+      contractCard('Reputation Oracle', window.ORACLE_ADDRESS, oracleArtifact?.txHash, oracleArtifact?.blockNumber, `wraps Hunt ${escapeHtml(window.shortAddr(oracleHunt))}`),
+    ].join('');
+
+    $('domains').innerHTML += domainRows.map(({ name, classes, agg }) => `
+      <div class="domain-row">
+        <span class="name">${escapeHtml(name)}</span>
+        <span class="num">${classes.length}</span>
+        <span class="num hide-sm">${escapeHtml(String(agg.totalWins))}</span>
+        <span class="num hide-sm">${escapeHtml(String(agg.totalSubmissions))}</span>
+        <span class="num hide-sm">${escapeHtml(String(agg.hunterCount))}</span>
+      </div>
+    `).join('');
+
+    if (demoReceipt) {
+      $('demoReceipt').style.display = '';
+      $('demoReceipt').innerHTML = `Latest Notary demo receipt: attestId <strong>${escapeHtml(String(demoReceipt.attestId))}</strong>, tx <a href="${window.CHAINSCAN_URL}/tx/${demoReceipt.txHash}" target="_blank" rel="noreferrer">${escapeHtml(window.shortHash(demoReceipt.txHash))}</a>, content hash <span style="font-family:var(--mono);">${escapeHtml(window.shortHash(demoReceipt.contentHash))}</span>.`;
+    }
+    $('statusLine').textContent = 'All protocol reads completed.';
+  } catch (err) {
+    $('statusLine').textContent = err?.message || 'Status read failed.';
+  }
+})();
+</script>
+</body>
+</html>

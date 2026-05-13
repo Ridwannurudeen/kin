@@ -1,0 +1,17 @@
+{
+  "name": "HuntNotaryDemoReceipt",
+  "notaryAddress": "0x968d5E070152A90Ae7a3c5251222FC163b72C7E2",
+  "txHash": "0x1dcb653cd5095a6a4cd8e58e003f3672a111dc7785760bf88b8efe8e724b5c15",
+  "blockNumber": 33165449,
+  "chainId": 16661,
+  "attestId": "0",
+  "user": "0xc9c0754fDB2C22Fd19B5B649e1e60eE9d1Ccca3f",
+  "contentHash": "0x071bdd3185d7112621407689e105947459ecc41c74f424df12c09e1153d26360",
+  "modelDigest": "0xc5820d770000a38449e90f511274ba240baf0183e6495a26814f8a4b22bcb635",
+  "domainHash": "0x99b6c68d677d3cdb82a74f6b2505208e25a692638accf1d7a62669954fe08d9a",
+  "sealedInputRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "attestedAt": "1778708617",
+  "model": "zai-org/GLM-5-FP8|notary-v1",
+  "domain": "general",
+  "transcriptPreview": "Hunt demo receipt for 0G APAC judges."
+}

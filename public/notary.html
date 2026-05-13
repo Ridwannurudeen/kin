@@ -68,6 +68,14 @@
   .status-line { margin-top: 12px; font-family: var(--mono); font-size: 12px; color: var(--text-mute); min-height: 20px; }
   .notary-footer-address { max-width: 100%; overflow-wrap: anywhere; line-height: 1.6; }
   .notary-footer-address span { overflow-wrap: anywhere; word-break: break-all; }
+  .lookup-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    margin-top: 18px;
+    align-items: end;
+  }
+  @media (max-width: 560px) { .lookup-form { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -87,6 +95,7 @@
       <a href="/bounties.html">bounties</a>
       <a href="/verticals.html">verticals</a>
       <a href="/notary.html" class="active">notary</a>
+      <a href="/status.html">status</a>
       <a href="/proof.html">judge proof</a>
       <a href="https://github.com/Ridwannurudeen/hunt" target="_blank" rel="noreferrer">github &#x2197;</a>
     </nav>
@@ -148,8 +157,16 @@
 
     <aside class="notary-panel">
       <div class="section-eyebrow">receipt</div>
+      <form id="lookupForm" class="lookup-form">
+        <div class="field" style="margin:0;">
+          <label for="lookupId">Verify by attestId</label>
+          <input id="lookupId" type="number" min="0" step="1" placeholder="0">
+        </div>
+        <button id="lookupBtn" class="btn" type="submit">verify</button>
+      </form>
+      <div id="lookupStatus" class="status-line"></div>
       <div id="receipt" class="receipt-empty">
-        Submit a transcript to create a receipt. The tx hash, content hash, model digest, domain hash, and timestamp will appear here.
+        Submit a transcript or look up an existing attestId. The receipt fields are read from the deployed Notary contract.
       </div>
     </aside>
   </main>
@@ -162,7 +179,7 @@
   </footer>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+<script src="/vendor/ethers-6.13.1.umd.min.js"></script>
 <script src="/contracts.js"></script>
 <script>
 const $ = (id) => document.getElementById(id);
@@ -175,6 +192,10 @@ function escapeHtml(s) {
 function setStatus(msg, kind = '') {
   $('status').className = kind ? `status-line ${kind}` : 'status-line';
   $('status').textContent = msg;
+}
+
+function setLookupStatus(msg) {
+  $('lookupStatus').textContent = msg;
 }
 
 function hashText(value) {
@@ -217,18 +238,20 @@ async function ensureWallet() {
   return signer;
 }
 
-function renderReceipt({ attestId, txHash, contentHash, modelDigest, domainHash, attestedAt, blockNumber, gasUsed, status }) {
+function renderReceipt({ attestId, txHash, user, contentHash, modelDigest, domainHash, sealedInputRoot, attestedAt, blockNumber, gasUsed, status }) {
   const date = attestedAt ? new Date(Number(attestedAt) * 1000).toISOString() : 'pending';
   $('receipt').className = 'hash-grid';
   $('receipt').innerHTML = `
     <div class="hash-row"><span class="k">attest id</span><span class="v">${escapeHtml(String(attestId))}</span></div>
-    <div class="hash-row"><span class="k">tx hash</span><span class="v"><a href="${window.CHAINSCAN_URL}/tx/${txHash}" target="_blank" rel="noreferrer">${txHash}</a></span></div>
-    <div class="hash-row"><span class="k">block number</span><span class="v">${escapeHtml(String(blockNumber))}</span></div>
-    <div class="hash-row"><span class="k">gas used</span><span class="v">${escapeHtml(String(gasUsed))}</span></div>
-    <div class="hash-row"><span class="k">status</span><span class="v">${escapeHtml(String(status))}</span></div>
-    <div class="hash-row"><span class="k">content hash</span><span class="v">${contentHash}</span></div>
-    <div class="hash-row"><span class="k">model digest</span><span class="v">${modelDigest}</span></div>
-    <div class="hash-row"><span class="k">domain</span><span class="v">${domainHash}</span></div>
+    ${txHash ? `<div class="hash-row"><span class="k">tx hash</span><span class="v"><a href="${window.CHAINSCAN_URL}/tx/${txHash}" target="_blank" rel="noreferrer">${txHash}</a></span></div>` : ''}
+    ${blockNumber ? `<div class="hash-row"><span class="k">block number</span><span class="v">${escapeHtml(String(blockNumber))}</span></div>` : ''}
+    ${gasUsed ? `<div class="hash-row"><span class="k">gas used</span><span class="v">${escapeHtml(String(gasUsed))}</span></div>` : ''}
+    ${status ? `<div class="hash-row"><span class="k">status</span><span class="v">${escapeHtml(String(status))}</span></div>` : ''}
+    ${user ? `<div class="hash-row"><span class="k">user</span><span class="v"><a href="${window.CHAINSCAN_URL}/address/${user}" target="_blank" rel="noreferrer">${user}</a></span></div>` : ''}
+    <div class="hash-row"><span class="k">content hash</span><span class="v">${escapeHtml(String(contentHash))}</span></div>
+    <div class="hash-row"><span class="k">model digest</span><span class="v">${escapeHtml(String(modelDigest))}</span></div>
+    <div class="hash-row"><span class="k">domain</span><span class="v">${escapeHtml(String(domainHash))}</span></div>
+    <div class="hash-row"><span class="k">sealed input</span><span class="v">${escapeHtml(String(sealedInputRoot || ZERO_BYTES32))}</span></div>
     <div class="hash-row"><span class="k">attested at</span><span class="v">${escapeHtml(String(attestedAt))} (${escapeHtml(date)})</span></div>
   `;
 }
@@ -284,9 +307,11 @@ function renderReceipt({ attestId, txHash, contentHash, modelDigest, domainHash,
       renderReceipt({
         attestId,
         txHash: tx.hash,
+        user: onChain.user,
         contentHash,
         modelDigest,
         domainHash,
+        sealedInputRoot: onChain.sealedInputRoot,
         attestedAt: onChain.attestedAt,
         blockNumber: receipt.blockNumber,
         gasUsed: receipt.gasUsed,
@@ -297,6 +322,36 @@ function renderReceipt({ attestId, txHash, contentHash, modelDigest, domainHash,
       setStatus(err?.shortMessage || err?.message || 'Notary transaction failed.');
     } finally {
       $('submitBtn').disabled = false;
+    }
+  });
+
+  $('lookupForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const rawId = $('lookupId').value.trim();
+    if (rawId === '') return setLookupStatus('Enter an attestId.');
+    if (window.NOTARY_ADDRESS === ethers.ZeroAddress) return setLookupStatus('Notary is not deployed yet.');
+
+    $('lookupBtn').disabled = true;
+    setLookupStatus('Reading Notary contract...');
+    try {
+      const provider = window.mkProvider();
+      const notary = new ethers.Contract(window.NOTARY_ADDRESS, window.NOTARY_ABI, provider);
+      const attestId = BigInt(rawId);
+      const onChain = await window.withRetry(() => notary.getAttestation(attestId));
+      renderReceipt({
+        attestId,
+        user: onChain.user,
+        contentHash: onChain.contentHash,
+        modelDigest: onChain.modelDigest,
+        domainHash: onChain.domain,
+        sealedInputRoot: onChain.sealedInputRoot,
+        attestedAt: onChain.attestedAt,
+      });
+      setLookupStatus('Receipt read from Aristotle.');
+    } catch (err) {
+      setLookupStatus(err?.shortMessage || err?.message || 'Receipt lookup failed.');
+    } finally {
+      $('lookupBtn').disabled = false;
     }
   });
 })();
