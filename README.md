@@ -285,10 +285,14 @@ Kin v2's contract `0x47F25b2fAf6E5626946582F86F0e52A4517f3234` is preserved on-c
 ## Links
 
 - **Submission**: [`doc/SUBMISSION.md`](doc/SUBMISSION.md)
+- **Anticipated judge questions** (pre-emptive Q&A on centralization, capability curve, fallback path, v2 design): [`doc/JUDGE_FAQ.md`](doc/JUDGE_FAQ.md)
+- **v2 roadmap** (4-pillar plan against verified May 2026 competitor landscape): [`doc/FUTURE.md`](doc/FUTURE.md)
 - **Demo video script**: [`doc/DEMO_VIDEO_SCRIPT.md`](doc/DEMO_VIDEO_SCRIPT.md)
 - **X post drafts**: [`doc/X_POST.md`](doc/X_POST.md)
-- **v2 roadmap**: [`doc/FUTURE.md`](doc/FUTURE.md)
 - **AI usage**: [`AI_USAGE.md`](AI_USAGE.md)
+- **Operator onboarding** (≤30 min for external security researchers to run a hunter): [`doc/OPERATOR_ONBOARDING.md`](doc/OPERATOR_ONBOARDING.md)
+- **Outreach templates** (security researchers + 0G core team): [`doc/OUTREACH_TEMPLATES.md`](doc/OUTREACH_TEMPLATES.md)
+- **Release assets** (video editor brief + YouTube description + X teaser thread): [`doc/RELEASE_ASSETS.md`](doc/RELEASE_ASSETS.md)
 
 ## License
 
