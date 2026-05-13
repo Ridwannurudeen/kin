@@ -64,7 +64,10 @@ Honest state:
 
 Concretely addressed:
 - `doc/OPERATOR_ONBOARDING.md` is the (≤30 min) flow for an external researcher to spin up a hunter on their own wallet. Real adoption is a function of onboarding friction, which we've reduced to as low as the centralized v1 permits.
+- `doc/OUTREACH_TEMPLATES.md` contains five pre-written DMs targeting Code4rena top wardens, Sherlock senior watsons, boutique-firm auditors, and crypto-Twitter security personalities. $1.5k per operator + recording-credit. Sending the DMs is user-action; the templates are production-ready.
 - The demo recording (if external operators come online before the deadline) will show *real* multi-operator races. If not, we're transparent about it in the recording itself.
+
+**On what we explicitly did NOT do:** we considered minting a fourth hunter from a separately-generated EOA we'd also control, to give bounties.html and hunters.html an additional `owner` address. We chose not to. The audit-finding-#6 gap is not about address diversity (the three existing hunters are already owned by three distinct addresses — `0xa5B38680…`, `0x4bfc888D…`, `0xeC32B630…` — they just predate Hunt as Kin v2 demo wallets and remain operator-controlled). The gap is about **private-key custody**: even three on-chain-distinct addresses controlled by the same person is the same operator. A fourth wallet we generate and key-custody is the same operator with one more pubkey, not a real second participant. Mint-theater would have made the appearance look better and the substance unchanged. The honest fix is external operators — the structural ask that only the user can fulfil via the prepared DMs. The architecture is operator-agnostic; the gap is purely social.
 
 ---
 

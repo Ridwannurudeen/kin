@@ -125,6 +125,18 @@ Posted after the `max_tokens` fix landed but before per-hunter specialty narrowi
 | Oracle-specialist submits winning finding (real Sealed Inference, `critical`) | [`0x36bd979cc452c77626493113666b6109a73506380e1f8de610c5b73874eef554`](https://chainscan.0g.ai/tx/0x36bd979cc452c77626493113666b6109a73506380e1f8de610c5b73874eef554) | 33039165 |
 | Settle bounty #2 | [`0xa6e03679fc9ced9fbe6a1a185550033821343934cdb12adb9da46a149ce2ed59`](https://chainscan.0g.ai/tx/0xa6e03679fc9ced9fbe6a1a185550033821343934cdb12adb9da46a149ce2ed59) | 33039527 |
 
+### Bounty #7 — reentrancy race ★★ (second positive narrowing data point, real Sealed Inference)
+
+Posted 2026-05-13 against `demo/staged-bounty/Reentrancy.sol` — a textbook checks-effects-interactions violation in a deposit/withdraw pool. Scope locked to `{swc-107-reentrancy, access-control, oracle-manipulation}`. **Reentrancy-specialist (hunter #0) won the bounty** via real Sealed Inference at attempt 1, severity `critical`. The other two specialists ran their inference calls and correctly returned 0 in-scope findings — oracle-specialist passed quality gate at 9875bps with rationale "no oracle-manipulation pattern on these facts"; access-control-specialist returned nothing in-scope. **This is the second positive narrowing data point on-chain** — bounty #3 had the oracle-specialist win on an oracle bug; bounty #7 has the reentrancy-specialist win on a reentrancy bug. Different specialist, different CWE, same protocol.
+
+| Event | Tx hash | Block |
+|---|---|---|
+| Post bounty #7 — Reentrancy.sol, 0.05 OG, 10-min race | [`0xbc525ef4964b8abb39f2943be95528d9f5d1a3e8a2a11f14fd82c017af9eecac`](https://chainscan.0g.ai/tx/0xbc525ef4964b8abb39f2943be95528d9f5d1a3e8a2a11f14fd82c017af9eecac) | (chainscan) |
+| Reentrancy-specialist submits winning finding (real Sealed Inference, `swc-107-reentrancy`, `critical`) | [`0x3a51f97ca7150775902ed4bca4b08536cb7e9f0a59c936cfb246a985036ddd92`](https://chainscan.0g.ai/tx/0x3a51f97ca7150775902ed4bca4b08536cb7e9f0a59c936cfb246a985036ddd92) | 33131912 |
+| Settle bounty #7 — 0.05 OG to reentrancy-specialist (hunter #0), per-CWE rep accrued | [`0x6d26cd5fd4927ed9a8631e8f421630247e92abae8008c6b0e58b3aa90f7a2a7f`](https://chainscan.0g.ai/tx/0x6d26cd5fd4927ed9a8631e8f421630247e92abae8008c6b0e58b3aa90f7a2a7f) | 33132360 |
+
+codeRoot: `0xda3bd7d3dc4211eb4406025ceb2b4976b3b1166796c4bfdc6b4693e5c0cc1a15` · settle rating: severityCalibration=5, precision=5, coverage=4, exploitability=5 · hunter #0 `totalWins=1, totalSubmissions=1, totalEarnedWei=0.05 OG` per the on-chain `ClassRep` ledger.
+
 ### Bounty #1 — second fallback-path race (preserved record)
 
 Posted May 12 01:45 UTC, before the `max_tokens` budget bug was fixed. Same fallback-path semantics as bounty #0: oracle-specialist won via `lib/audit-fallback.js`, stamping the distinct on-chain `modelDigest = keccak256(utf8("hunt-local-audit|hunt-audit-v1"))`. Preserved as the second documented data-point of graceful degradation when Sealed Inference returns empty content.

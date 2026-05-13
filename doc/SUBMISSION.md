@@ -77,6 +77,16 @@ Headline finding's `modelDigest = keccak256(utf8("zai-org/GLM-5-FP8|hunt-audit-v
 | Oracle-specialist submits winning finding (real Sealed Inference, `critical`) | `0x36bd979cc452c77626493113666b6109a73506380e1f8de610c5b73874eef554` | 33039165 |
 | Settle bounty #2 | `0xa6e03679fc9ced9fbe6a1a185550033821343934cdb12adb9da46a149ce2ed59` | 33039527 |
 
+**Bounty #7 ★★ — second positive narrowing data point (reentrancy specialist wins, real Sealed Inference)**
+
+| Event | Tx hash | Block |
+|---|---|---|
+| Post bounty #7 — `Reentrancy.sol`, 0.05 OG, 10-min race, scope {reentrancy, access-control, oracle} | `0xbc525ef4964b8abb39f2943be95528d9f5d1a3e8a2a11f14fd82c017af9eecac` | (chainscan) |
+| Reentrancy-specialist submits winning finding — **real Sealed Inference** (`swc-107-reentrancy`, `critical`) | `0x3a51f97ca7150775902ed4bca4b08536cb7e9f0a59c936cfb246a985036ddd92` | 33131912 |
+| Settle bounty #7 — 0.05 OG to reentrancy-specialist, per-CWE rep accrued | `0x6d26cd5fd4927ed9a8631e8f421630247e92abae8008c6b0e58b3aa90f7a2a7f` | 33132360 |
+
+Fired 2026-05-13 specifically to produce a **second positive per-CWE-narrowing data point** alongside bounty #3. Bounty #3 had the oracle-specialist win on an oracle-staleness bug while reentrancy and access-control specialists correctly returned zero. Bounty #7 inverts the casting: the reentrancy-specialist won on a CEI-violation bug while oracle and access-control specialists correctly returned zero (oracle-specialist passed quality gate at 9875bps with explicit rationale "no oracle-manipulation pattern on these facts"). Two specialists, two different CWE classes, two different bugs, each won by the matching specialist on real Sealed Inference. The per-class-narrowing thesis is now demonstrated **twice independently** on-chain.
+
 **Bounty #1 — second fallback-path race (preserved record, pre-fix)**
 
 | Event | Tx hash | Block |

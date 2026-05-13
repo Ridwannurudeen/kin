@@ -129,6 +129,11 @@ Capture the returned `bountyId` (this becomes `<HERO_ID>` everywhere below) and 
 - Settle: `0x9edab38c54b927fd507aeaada991694500858af4a31977d2c7154ac658f8d241` (block 33041034)
 - modelDigest: `keccak256(utf8("zai-org/GLM-5-FP8|hunt-audit-v1"))`
 
+**Bounty #7 ★★ — second narrowing data point (real Sealed Inference, reentrancy-specialist wins)**
+- Post: [`0xbc525ef4964b8abb39f2943be95528d9f5d1a3e8a2a11f14fd82c017af9eecac`](https://chainscan.0g.ai/tx/0xbc525ef4964b8abb39f2943be95528d9f5d1a3e8a2a11f14fd82c017af9eecac) — 0.05 OG, 10-min race, target `demo/staged-bounty/Reentrancy.sol`, scope {reentrancy, access-control, oracle}
+- Submit: [`0x3a51f97ca7150775902ed4bca4b08536cb7e9f0a59c936cfb246a985036ddd92`](https://chainscan.0g.ai/tx/0x3a51f97ca7150775902ed4bca4b08536cb7e9f0a59c936cfb246a985036ddd92) (block 33131912) — reentrancy-specialist, severity `critical`, real Sealed Inference at attempt 1
+- Settle: [`0x6d26cd5fd4927ed9a8631e8f421630247e92abae8008c6b0e58b3aa90f7a2a7f`](https://chainscan.0g.ai/tx/0x6d26cd5fd4927ed9a8631e8f421630247e92abae8008c6b0e58b3aa90f7a2a7f) (block 33132360) — 0.05 OG paid; oracle + access-control specialists correctly returned zero in-scope (oracle-specialist at 9875bps "no oracle pattern present")
+
 **Bounty #2 — post-fix intermediate (preserved record)**
 - Post: `0x8da9cf06cfcf963ec9ad000d37a1652f0fb352c43909e6f254255db7091e4314` · Submit: `0x36bd979cc452c77626493113666b6109a73506380e1f8de610c5b73874eef554` (block 33039165) · Settle: `0xa6e03679fc9ced9fbe6a1a185550033821343934cdb12adb9da46a149ce2ed59` (block 33039527)
 
