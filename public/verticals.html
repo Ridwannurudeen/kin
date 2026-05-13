@@ -55,7 +55,7 @@
     margin: 16px 0 40px;
     overflow-x: auto;
   }
-  .arch-frame svg { display: block; width: 100%; max-width: 920px; height: auto; margin: 0 auto; }
+  .arch-frame svg { display: block; width: 920px; max-width: none; height: auto; margin: 0 auto; }
   .arch-caption { font-family: var(--mono); font-size: 11px; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.12em; margin-top: 20px; text-align: center; }
 
   /* Vertical grid */
@@ -94,6 +94,7 @@
   .v-card .tag { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; padding: 4px 10px; border-radius: var(--r-pill); font-weight: 500; }
   .v-card .tag.live { background: var(--brand-glow-soft); color: var(--brand); border: 1px solid var(--brand-glow); }
   .v-card .tag.v2 { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(245,200,66,0.3); }
+  .v-card .tag.infra { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(0,212,255,0.3); }
   .v-card .counterparty { font-family: var(--mono); font-size: 10px; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.1em; }
   .v-card h3 { font-family: var(--display); font-size: 26px; font-weight: 600; line-height: 1.15; margin-bottom: 12px; letter-spacing: -0.02em; color: var(--text); }
   .v-card .summary { font-family: var(--sans); font-size: 14px; color: var(--text-soft); line-height: 1.6; margin-bottom: 20px; flex-grow: 1; }
@@ -119,6 +120,28 @@
   .v-card .links a:hover { background: var(--bg-elev-2); color: var(--text); border-color: var(--text-soft); }
   .v-card .links a.script { border-color: var(--brand-glow); color: var(--brand); }
   .v-card .links a.script:hover { background: var(--brand); color: var(--bg); border-color: var(--brand); }
+  .infra-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 20px 0 8px; }
+  @media (max-width: 980px) { .infra-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 620px) { .infra-grid { grid-template-columns: 1fr; } }
+  .infra-card {
+    min-height: 220px;
+    background:
+      linear-gradient(180deg, rgba(0,212,255,0.08), transparent 42%),
+      var(--bg-elev-1);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 240ms var(--ease);
+  }
+  .infra-card:hover { transform: translateY(-2px); border-color: rgba(0,212,255,0.35); box-shadow: 0 12px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,212,255,0.12); }
+  .infra-card .metric { font-family: var(--mono); font-size: 11px; color: var(--cyan); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 18px; }
+  .infra-card h3 { font-family: var(--display); font-size: 21px; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 10px; color: var(--text); }
+  .infra-card p { font-family: var(--sans); font-size: 13px; line-height: 1.55; color: var(--text-soft); margin-bottom: 18px; }
+  .infra-card a { font-family: var(--mono); font-size: 11px; color: var(--cyan); text-transform: lowercase; }
+  .infra-card code { font-family: var(--mono); font-size: 11px; color: var(--text); }
 
   /* Pitch row */
   .pitch {
@@ -180,6 +203,7 @@
       <a href="/hunters.html">hunters</a>
       <a href="/bounties.html">bounties</a>
       <a href="/verticals.html" class="active">verticals</a>
+      <a href="/notary.html">notary</a>
       <a href="/proof.html">judge proof</a>
       <a href="https://github.com/Ridwannurudeen/hunt" target="_blank" rel="noreferrer">github &#x2197;</a>
     </nav>
@@ -369,6 +393,47 @@
       </div>
     </div>
 
+  </div>
+
+  <h2 class="section-title">Infrastructure layer <em>(post-hackathon shipped).</em></h2>
+  <p class="section-sub">The vertical story now sits on reusable protocol pieces: developer primitives, a public AI receipt log, a cross-chain reputation view, and a partnership playbook for institutions that want their own Hunt instance.</p>
+
+  <div class="infra-grid">
+    <div class="infra-card">
+      <div>
+        <div class="metric">layer 1 &middot; sdk</div>
+        <h3>@hunt-protocol/verifiable-ai</h3>
+        <p>Digest, class hashing, ECIES envelopes, attestation signing, verification, and Notary helpers extracted into <code>packages/sdk/</code> with five runnable examples.</p>
+      </div>
+      <a href="https://github.com/Ridwannurudeen/hunt/tree/master/packages/sdk" target="_blank" rel="noreferrer">sdk docs &rarr;</a>
+    </div>
+
+    <div class="infra-card">
+      <div>
+        <div class="metric">layer 2 &middot; notary</div>
+        <h3>Hash-only AI receipts</h3>
+        <p>Users can notarize an AI transcript on Aristotle without putting the transcript on-chain. Contract stores content hash, model digest, domain, timestamp, and wallet provenance.</p>
+      </div>
+      <a href="/notary.html">notary app &rarr;</a>
+    </div>
+
+    <div class="infra-card">
+      <div>
+        <div class="metric">layer 4 &middot; oracle</div>
+        <h3>Cross-chain reputation view</h3>
+        <p><code>HuntReputationOracle</code> wraps the live Hunt reputation ledger into stable reads for apps, bridges, and future consumers of per-domain model performance.</p>
+      </div>
+      <a href="https://chainscan.0g.ai/address/0xdf2f9587D5746cd1358d40804bE7885BDaaE45d2" target="_blank" rel="noreferrer">oracle contract &rarr;</a>
+    </div>
+
+    <div class="infra-card">
+      <div>
+        <div class="metric">layer 3 &middot; partnerships</div>
+        <h3>Hunt-as-a-Service</h3>
+        <p>A deployment model for regulators, audit desks, consumer advocates, and ecosystem partners that need verifiable AI over a domain-specific class registry.</p>
+      </div>
+      <a href="https://github.com/Ridwannurudeen/hunt/blob/master/doc/INSTITUTIONAL_PARTNERSHIP.md" target="_blank" rel="noreferrer">playbook &rarr;</a>
+    </div>
   </div>
 
   <div class="pitch">

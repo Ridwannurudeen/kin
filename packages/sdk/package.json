@@ -1,0 +1,30 @@
+{
+  "name": "@hunt-protocol/verifiable-ai",
+  "version": "0.1.0",
+  "description": "Verifiable AI primitives for 0G Aristotle — attestation digests, per-domain class hashing, ECIES envelopes. Extracted from the Hunt protocol.",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./digest": "./src/digest.js",
+    "./classes": "./src/classes.js",
+    "./ecdh": "./src/ecdh.js",
+    "./attestation": "./src/attestation.js",
+    "./notary": "./src/notary.js"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "example:audit": "node examples/01-smart-contract-audit.js",
+    "example:insurance": "node examples/02-insurance-defense.js",
+    "example:medical": "node examples/03-medical-records-reader.js",
+    "example:benefits": "node examples/04-benefits-defense.js",
+    "example:generic": "node examples/05-generic-classification.js"
+  },
+  "peerDependencies": {
+    "ethers": "^6.13.0"
+  },
+  "repository": "github:Ridwannurudeen/hunt",
+  "homepage": "https://hunt.gudman.xyz",
+  "license": "MIT",
+  "keywords": ["0g", "ai", "verifiable", "tee", "attestation", "ethereum"]
+}

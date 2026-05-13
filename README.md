@@ -14,13 +14,15 @@ Existing **AI auditors** ([Olympix](https://olympix.security/), [Nethermind Audi
 
 **Hunt v1 ships the verifiable substrate**: an operator-relayed attestation layer over real 0G Sealed Inference + per-CWE on-chain reputation, both proven live on Aristotle mainnet. **Hunt v2 (post-hackathon, weeks 2–10)** replaces the operator with a TEE-attestation-verifying signer set (so the on-chain digest is chain-enforced rather than relayed) and adds stake-backed adversarial falsification + always-on guardian network for post-deploy monitoring — both verified unbuilt in this space as of May 2026. Pillar-by-pillar plan with primary-source citations in [`doc/FUTURE.md`](doc/FUTURE.md).
 
-**Beyond crypto — Hunt as a general verifiable-AI primitive.** The same machinery (sealed inference, multi-specialist competition, on-chain per-domain reputation) applies anywhere ordinary people need verifiable AI on their private data. Two non-crypto verticals are positioned for v2:
+**Beyond crypto — Hunt as a general verifiable-AI primitive.** The same machinery (sealed inference, multi-specialist competition, on-chain per-domain reputation) applies anywhere ordinary people need verifiable AI on their private data. Three non-crypto verticals are positioned for v2, and the L1-L4 protocol-infrastructure layer is now shipped on Aristotle:
 
 - **Defending citizens against private-payor AI denials — [`audits/insurance/`](audits/insurance/README.md).** 73M ACA enrollees had in-network claims denied in 2023; <1% appealed; appeal-success was 40–75% when they did. Three live AI-appeal products (Counterforce Health, Claimable, Fight Health Insurance) have validated the category at 70–80% reversal — *none* ship TEE attestation, *all* route patient records through OpenAI/Anthropic. Regulatory frame already exists (Colorado SB24-205/SB26-189, EU AI Act Annex III). Architecture transfers 1:1; full plan + synthetic denial letter modeled on the public *Estate of Lokken v. UnitedHealth* pleadings in the README.
 
 - **Defending elderly, retired, and disabled citizens against public-payor adjudication — [`audits/benefits/`](audits/benefits/README.md).** ~330K SSDI cases pending an ALJ hearing as of Jan 2026 (the largest adjudication backlog in any US administrative system); 274-day average wait; 60-70% initial denial rate; appeal-success >50% with representation. Attorney contingency capped at 25% under 42 U.S.C. § 406 — economically rational for lawyers, structurally exclusionary for low-income claimants. Hunt's seven-class defect registry (medical-listing misapplication, RFC error, vocational-expert misclassification, duration-rule misapplication, SGA miscalculation, combined-impairments omission, treating-physician opinion-weight failure) maps to the SSA's own sequential-evaluation regulations. Same architecture; secondary surfaces for Medicare reconsideration + VA claims. Synthetic SSDI denial modeled on the SSA-1561 template with seven annotated defect patterns in the README.
 
 - **Giving citizens verifiable multi-specialist medical reads — [`audits/medical/`](audits/medical/README.md).** Published per-specialty disagreement rates (~14% major in general surgical pathology, 20–32% in radiology oncologic CT, up to 52% in neuro-oncology) are the empirical ground-truth signal that calibrates a "race of specialists" architecture in this domain — stronger than smart-contract auditing can claim. Scoped strictly as a *"Records Reader"* (surfaces questions to ask your physician, never diagnoses) to stay inside 21st Century Cures CDS exemptions + FDA Jan 2026 enforcement-discretion guidance. Full plan + a synthetic pathology report exhibiting the hardest interobserver call in breast biopsy (ADH vs. low-grade DCIS) in the README.
+
+- **Infrastructure layer — SDK + Notary + Reputation Oracle.** `packages/sdk/` extracts Hunt's digest, class hashing, ECIES, attestation, and Notary helpers for other 0G developers. [`contracts/Notary.sol`](contracts/Notary.sol) is live at [`0x968d5E070152A90Ae7a3c5251222FC163b72C7E2`](https://chainscan.0g.ai/address/0x968d5E070152A90Ae7a3c5251222FC163b72C7E2) as a hash-only AI conversation receipt layer. [`contracts/HuntReputationOracle.sol`](contracts/HuntReputationOracle.sol) is live at [`0xdf2f9587D5746cd1358d40804bE7885BDaaE45d2`](https://chainscan.0g.ai/address/0xdf2f9587D5746cd1358d40804bE7885BDaaE45d2), wrapping the deployed Hunt reputation ledger into a stable cross-chain-readable interface. [`doc/INSTITUTIONAL_PARTNERSHIP.md`](doc/INSTITUTIONAL_PARTNERSHIP.md) packages this as Hunt-as-a-Service for ecosystems, audit desks, and risk partners.
 
 The three verticals are different faces of the same primitive: **insurance** defends citizens against *private-payor* opaque AI; **benefits** defends them against *public-payor* opaque adjudication; **medical** gives them *better* verifiable AI than they could otherwise afford. Same Hunt machinery, same TEE attestation, same per-domain reputation — three counterparties, one substrate.
 
@@ -300,7 +302,11 @@ node scripts/settle_bounty.js
 ```
 contracts/
   Hunt.sol                 — single-file Hunt contract (~470 LOC)
+  Notary.sol               — public-good AI conversation receipt registry
+  HuntReputationOracle.sol — read-only per-domain reputation wrapper
   Kin.sol                  — predecessor, preserved for the historical record
+packages/
+  sdk/                     — @hunt-protocol/verifiable-ai primitives + examples
 lib/
   audit-fallback.js        — local heuristic audit path (oracle / reentrancy / access-control)
   credential.js            — Credential, Fingerprint, FindingAttestation digests + signers
@@ -329,6 +335,7 @@ public/
   hunters.html             — registry of minted hunters
   bounties.html            — live + settled bounty list
   proof.html               — judge proof panel (per-bounty receipt)
+  notary.html              — public AI conversation notary
 demo/
   staged-bounty/Vault.sol  — staged oracle-staleness bug
   staged-bounty/README.md  — bug walk-through + attack path + reference findings
@@ -337,6 +344,9 @@ test/                      — Hardhat test suite (Hunt + predecessor Kin tests)
 verifier/                  — GitHub OAuth verifier service
 doc/
   SUBMISSION.md            — HackQuest submission text
+  NOTARY_INTEGRATION.md    — developer guide for embedding Hunt Notary
+  REPUTATION_ORACLE.md     — cross-chain consumer guide for Hunt reputation
+  INSTITUTIONAL_PARTNERSHIP.md — Hunt-as-a-Service partnership playbook
   X_POST.md                — X post drafts
   DEMO_VIDEO_SCRIPT.md     — recording script
   FUTURE.md                — v2 roadmap (decentralised relay + per-hunter ECDH envelope)
@@ -381,6 +391,10 @@ Kin v2's contract `0x47F25b2fAf6E5626946582F86F0e52A4517f3234` is preserved on-c
 - **Submission**: [`doc/SUBMISSION.md`](doc/SUBMISSION.md)
 - **Anticipated judge questions** (pre-emptive Q&A on centralization, capability curve, fallback path, v2 design): [`doc/JUDGE_FAQ.md`](doc/JUDGE_FAQ.md)
 - **v2 roadmap** (4-pillar plan against verified May 2026 competitor landscape): [`doc/FUTURE.md`](doc/FUTURE.md)
+- **L1 SDK** (`@hunt-protocol/verifiable-ai` primitives, examples, tests): [`packages/sdk/README.md`](packages/sdk/README.md)
+- **Notary integration** (hash-only AI conversation receipts on Aristotle): [`doc/NOTARY_INTEGRATION.md`](doc/NOTARY_INTEGRATION.md)
+- **Reputation Oracle integration** (cross-chain-readable Hunt reputation): [`doc/REPUTATION_ORACLE.md`](doc/REPUTATION_ORACLE.md)
+- **Institutional partnership / Hunt-as-a-Service**: [`doc/INSTITUTIONAL_PARTNERSHIP.md`](doc/INSTITUTIONAL_PARTNERSHIP.md)
 - **Demo video script**: [`doc/DEMO_VIDEO_SCRIPT.md`](doc/DEMO_VIDEO_SCRIPT.md)
 - **X post drafts**: [`doc/X_POST.md`](doc/X_POST.md)
 - **AI usage**: [`AI_USAGE.md`](AI_USAGE.md)
