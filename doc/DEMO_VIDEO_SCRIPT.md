@@ -132,6 +132,10 @@ Capture the returned `bountyId` (this becomes `<HERO_ID>` everywhere below) and 
 **Bounty #2 — post-fix intermediate (preserved record)**
 - Post: `0x8da9cf06cfcf963ec9ad000d37a1652f0fb352c43909e6f254255db7091e4314` · Submit: `0x36bd979cc452c77626493113666b6109a73506380e1f8de610c5b73874eef554` (block 33039165) · Settle: `0xa6e03679fc9ced9fbe6a1a185550033821343934cdb12adb9da46a149ce2ed59` (block 33039527)
 
+**Bounty #1 — second fallback-path race (preserved record)**
+- Post: `0x60cf3d75d88b1c7080b4ac9ea610d3c470ef684f5557a0809f3bf67fd57f0dc9` · Submit: `0xf6d54d4a35123ccb550dabdfcb71ee2f47bfbc6efa867a0a846fefa776c5c2a6` (block 32988214) · Settle: `0x5e06c6dc1e94b190ba9ef2fa31baa8da95e05b2a03f3d4436c951bf4d9d93768` (block 32988680)
+- Fallback-path `modelDigest`; same semantics as bounty #0. Settled 0.05 OG to oracle-specialist.
+
 **Bounty #6 — first ChartChain audit on Aristotle (wrap-time extension scene)**
 - Post: [`0x7600cf2dd3ad137904832349416acaf4747410d0eebfc031633e1f5c4e03c461`](https://chainscan.0g.ai/tx/0x7600cf2dd3ad137904832349416acaf4747410d0eebfc031633e1f5c4e03c461) — 0.05 OG, 10-min race, 5-CWE scope, target `audits/chartchain/MedicalRecordsVault.sol`
 - Expire: [`0xabbb0dd840e81f89d8cb9a25aac1ae2817b9fb95009bddb3cf2ba6445fc6ee22`](https://chainscan.0g.ai/tx/0xabbb0dd840e81f89d8cb9a25aac1ae2817b9fb95009bddb3cf2ba6445fc6ee22) (block 33121294) — no in-scope findings, 0.05 OG refunded

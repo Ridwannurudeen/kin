@@ -77,6 +77,16 @@ Headline finding's `modelDigest = keccak256(utf8("zai-org/GLM-5-FP8|hunt-audit-v
 | Oracle-specialist submits winning finding (real Sealed Inference, `critical`) | `0x36bd979cc452c77626493113666b6109a73506380e1f8de610c5b73874eef554` | 33039165 |
 | Settle bounty #2 | `0xa6e03679fc9ced9fbe6a1a185550033821343934cdb12adb9da46a149ce2ed59` | 33039527 |
 
+**Bounty #1 — second fallback-path race (preserved record, pre-fix)**
+
+| Event | Tx hash | Block |
+|---|---|---|
+| Post bounty #1 | `0x60cf3d75d88b1c7080b4ac9ea610d3c470ef684f5557a0809f3bf67fd57f0dc9` | 32987989 |
+| Oracle-specialist submits winning finding (fallback path, `high`) | `0xf6d54d4a35123ccb550dabdfcb71ee2f47bfbc6efa867a0a846fefa776c5c2a6` | 32988214 |
+| Settle bounty #1 — 0.05 OG to oracle-specialist | `0x5e06c6dc1e94b190ba9ef2fa31baa8da95e05b2a03f3d4436c951bf4d9d93768` | 32988680 |
+
+Same fallback-path semantics as bounty #0; stamped the distinct on-chain `modelDigest = keccak256(utf8("hunt-local-audit|hunt-audit-v1"))`. Preserved as the second data-point that graceful degradation under transient Sealed Inference failure produces a clean settled audit.
+
 **Bounty #0 — original race (fallback path)**
 
 | Event | Tx hash | Block |

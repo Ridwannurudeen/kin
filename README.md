@@ -73,6 +73,16 @@ Posted after the `max_tokens` fix landed but before per-hunter specialty narrowi
 | Oracle-specialist submits winning finding (real Sealed Inference, `critical`) | [`0x36bd979cc452c77626493113666b6109a73506380e1f8de610c5b73874eef554`](https://chainscan.0g.ai/tx/0x36bd979cc452c77626493113666b6109a73506380e1f8de610c5b73874eef554) | 33039165 |
 | Settle bounty #2 | [`0xa6e03679fc9ced9fbe6a1a185550033821343934cdb12adb9da46a149ce2ed59`](https://chainscan.0g.ai/tx/0xa6e03679fc9ced9fbe6a1a185550033821343934cdb12adb9da46a149ce2ed59) | 33039527 |
 
+### Bounty #1 — second fallback-path race (preserved record)
+
+Posted May 12 01:45 UTC, before the `max_tokens` budget bug was fixed. Same fallback-path semantics as bounty #0: oracle-specialist won via `lib/audit-fallback.js`, stamping the distinct on-chain `modelDigest = keccak256(utf8("hunt-local-audit|hunt-audit-v1"))`. Preserved as the second documented data-point of graceful degradation when Sealed Inference returns empty content.
+
+| Event | Tx hash | Block |
+|---|---|---|
+| Post bounty #1 | [`0x60cf3d75d88b1c7080b4ac9ea610d3c470ef684f5557a0809f3bf67fd57f0dc9`](https://chainscan.0g.ai/tx/0x60cf3d75d88b1c7080b4ac9ea610d3c470ef684f5557a0809f3bf67fd57f0dc9) | 32987989 |
+| Oracle-specialist submits winning finding (fallback path, `high`) | [`0xf6d54d4a35123ccb550dabdfcb71ee2f47bfbc6efa867a0a846fefa776c5c2a6`](https://chainscan.0g.ai/tx/0xf6d54d4a35123ccb550dabdfcb71ee2f47bfbc6efa867a0a846fefa776c5c2a6) | 32988214 |
+| Settle bounty #1 — 0.05 OG to oracle-specialist | [`0x5e06c6dc1e94b190ba9ef2fa31baa8da95e05b2a03f3d4436c951bf4d9d93768`](https://chainscan.0g.ai/tx/0x5e06c6dc1e94b190ba9ef2fa31baa8da95e05b2a03f3d4436c951bf4d9d93768) | 32988680 |
+
 ### Bounty #0 — original race (fallback path, documented honestly)
 
 The original race on May 11. At the time we believed 0G Sealed Inference was degraded for structured Solidity audit prompts. The actual root cause was a `max_tokens=1500` budget in `lib/review.js`: `zai-org/GLM-5-FP8` is a reasoning model that consumes the entire `max_tokens` budget on internal `reasoning_tokens` before emitting any content, returning `finish_reason: length` with 0 content tokens. Bumping the default to 5000 fixed both `lib/review.js` and `lib/fingerprint.js`. Bounty #0 is preserved on-chain as the documented fallback-path record — every finding still verifies cryptographically, just against the distinct local-fallback `modelDigest = keccak256(utf8("hunt-local-audit|hunt-audit-v1"))` rather than the Sealed Inference one.
