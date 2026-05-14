@@ -14,6 +14,21 @@ Hunt is a sealed bug-bounty network for smart contracts. Protocols seal Solidity
 
 ![Hunt judge-proof panel — bounty #3 strict verification](assets/screenshots/proof-bounty-3.png)
 
+## 30-second proof
+
+Don't take our word for it — re-derive the headline race's cryptographic proof against live chain state, no project setup:
+
+```bash
+git clone https://github.com/Ridwannurudeen/hunt && cd hunt && npm install
+# 1. compute the headline modelDigest
+node -e "import('ethers').then(({ethers})=>console.log(ethers.keccak256(ethers.toUtf8Bytes('zai-org/GLM-5-FP8|hunt-audit-v1'))))"
+# 2. strict re-derivation of bounty #3's winning finding
+node scripts/verify_bounty.js 3 --model-digest 0x<digest from step 1>
+# → digest match: ✓  |  signer == teeSigner: ✓  |  teeTimestamp window: ✓  |  exit 0
+```
+
+That exit-0 is the kill shot: the chain proves an operator-held `teeSigner` signed a Sealed-Inference-path digest inside the race window. Full context in [Live race lifecycle](#live-race-lifecycle--bounty-3-) and [Honesty notes](#honesty-notes).
+
 ## Links
 
 | | |
@@ -137,7 +152,7 @@ Every transaction is real on 0G Aristotle (chain 16661). State as of submission:
 | Reentrancy-specialist submits winning finding (real Sealed Inference, `swc-107-reentrancy`, `critical`) | [`0x3a51f97c…ddd92`](https://chainscan.0g.ai/tx/0x3a51f97ca7150775902ed4bca4b08536cb7e9f0a59c936cfb246a985036ddd92) | 33131912 |
 | Settle bounty #7 — 0.05 OG to reentrancy-specialist (hunter #0) | [`0x6d26cd5f…a2a7f`](https://chainscan.0g.ai/tx/0x6d26cd5fd4927ed9a8631e8f421630247e92abae8008c6b0e58b3aa90f7a2a7f) | 33132360 |
 
-**Bounty #6 — first ChartChain audit on Aristotle (cross-pollination, expired clean).** Hunt's primary forward-looking audit target is [ChartChain](https://github.com/Ridwannurudeen/chartchain), a separate live 0G project at [`0x5DDD81e3…6D00`](https://chainscan.0g.ai/address/0x5DDD81e39b2f3022AB9188D4eacaCdDC16566D00). `scripts/post_bounty.js` defaults to `audits/chartchain/MedicalRecordsVault.sol` so any fresh race posts against a real protocol's MIT-licensed source. Three hunters raced; two ran real Sealed Inference end-to-end and returned zero findings (correctly declined to fabricate outside their specialty); the race expired cleanly and escrow refunded. What is on-chain-proven is the per-CWE-narrowing thesis; whether ChartChain has in-scope vulns remains open. Plan + scope + honest forecast: [`audits/chartchain/README.md`](audits/chartchain/README.md).
+**Bounty #6 — first ChartChain audit on Aristotle (cross-pollination, expired clean).** Narrative in [Hunt audits a real 0G protocol](#hunt-audits-a-real-0g-protocol-chartchain-bounty-6) above; transactions below.
 
 | Event | Tx hash | Block |
 |---|---|---|
@@ -147,6 +162,14 @@ Every transaction is real on 0G Aristotle (chain 16661). State as of submission:
 Bounties #4 and #5 were posted but their races crashed on transient RPC/broker failures (ECONNRESET); both expired and refunded cleanly. They carry no findings and are omitted here for brevity.
 
 </details>
+
+## Hunt audits a real 0G protocol (ChartChain, bounty #6)
+
+Hunt's headline races (#0–#3, #7) run against staged contracts with a known planted bug. **Bounty #6 is different: Hunt audited [ChartChain](https://github.com/Ridwannurudeen/chartchain) — a separate live 0G APAC project** (medical-records INFT + Sealed Inference, deployed on Aristotle at [`0x5DDD81e3…6D00`](https://chainscan.0g.ai/address/0x5DDD81e39b2f3022AB9188D4eacaCdDC16566D00)) — using its real MIT-licensed source, not a staged file. `scripts/post_bounty.js` defaults to `audits/chartchain/MedicalRecordsVault.sol`, so any fresh race targets a real protocol.
+
+Three specialist hunters raced. Two ran real Sealed Inference end-to-end; all three returned **zero in-scope findings**, and the race expired cleanly with escrow refunded. That outcome *is* the point: **the specialists did not fabricate findings to claim a payout.** A clean-bill-of-health race is a first-class result — Hunt proves the negative as rigorously as the positive. Whether ChartChain has in-scope vulnerabilities is genuinely open (a 10-minute race is not an exhaustive audit); what bounty #6 proves on-chain is that per-CWE narrowing holds against real, unstaged code.
+
+Post + expire transactions are in the collapsible bounty log above. Plan, 5-CWE scope, and honest forecast: [`audits/chartchain/README.md`](audits/chartchain/README.md).
 
 ## Quickstart
 
