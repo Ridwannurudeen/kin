@@ -129,14 +129,13 @@ action — but that requires a keeper and pushes liveness onto the operator.
 This is a modified fork of a recurring 2024–2025 audit pattern. Concrete
 public references:
 
-- Code4rena Prisma Finance contest (Mar 2024) — multiple findings around
-  Chainlink aggregator integrations that read `answer` but skipped
-  `updatedAt` validation against `block.timestamp`. See the public report at
-  `https://code4rena.com/reports/2024-03-prismafi` (finding family:
-  "Chainlink price feed staleness").
-- Sherlock Angle Protocol contest (2024) — finding "Stale Chainlink price
-  used in collateral health computations". Same shape: round-completeness
-  checked, `updatedAt` ignored.
+- Sherlock USSD contest (May 2023) — judging issue #31, "Calls to Oracles
+  don't check for stale prices": four oracle contracts read `latestRoundData()`
+  but never validate `updatedAt` against `block.timestamp`. Confirmed valid by
+  Sherlock judges, MEDIUM severity.
+  `https://github.com/sherlock-audit/2023-05-USSD-judging/issues/31`
+  Hunt audited USSD's actual oracle source live and blind in bounty #9 — see
+  `audits/ussd/README.md`.
 - The general Chainlink-recommended pattern is documented at
   `https://docs.chain.link/data-feeds/historical-data` and the Sherlock
   judging-handbook entry on oracle freshness reiterates it.

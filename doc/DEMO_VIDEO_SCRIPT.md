@@ -2,7 +2,7 @@
 
 Record at 1080p, 30+ fps. Real voice, no TTS. Single take if you can; one cut at the join between the race and the verification beat is acceptable.
 
-**Before recording (Plan A — preferred, deterministic).** Pre-fire a fresh bounty against `demo/staged-bounty/Vault.sol`. That contract has a deliberate oracle-staleness bug (sourced from public Code4rena + Sherlock findings) that the oracle-specialist hits on every run with real Sealed Inference. Bounty #3 already demonstrated this exact race settled cleanly on Aristotle mainnet; the recording is a fresh re-run for the camera.
+**Before recording (Plan A — preferred, deterministic).** Pre-fire a fresh bounty against `demo/staged-bounty/Vault.sol`. That contract has a deliberate oracle-staleness bug (sourced from USSD's Sherlock audit, judging issue #31) that the oracle-specialist hits on every run with real Sealed Inference. Bounties #3 and #8 both demonstrated this exact race settling cleanly on Aristotle mainnet — #8 was run as a recording dry run, so the flow is proven; the recording is a fresh re-run for the camera.
 
 ```bash
 node scripts/post_bounty.js --file demo/staged-bounty/Vault.sol \
@@ -88,11 +88,11 @@ Capture the returned `bountyId` (this becomes `<HERO_ID>` everywhere below) and 
 
 ---
 
-## [02:30 — 02:55]  Wrap — Hunt also audits real live 0G protocols, and beyond (25s)
+## [02:30 — 02:55]  Wrap — the real test: Hunt audits a real audited protocol, blind (25s)
 
-[Cut to `public/bounties.html` showing the freshly-settled hero bounty + scroll to bounty #6 (Expired, against ChartChain).]
+[Cut to `audits/ussd/README.md` or the chainscan tx for bounty #9.]
 
-> "And Hunt isn't only for staged code. Earlier today bounty #6 audited ChartChain — a separate live 0G project on Aristotle mainnet, MIT-licensed source. That proves the per-CWE narrowing thesis against a real protocol. The appendix verticals exist, but the recording should stay on the audit wedge: smart contracts first, 0G primitives first, everything else as support material."
+> "And the staged race isn't the real test. Bounty #9 is. Hunt posted the verbatim oracle contract from USSD — a stablecoin protocol audited by Sherlock in 2023 — with zero hints. Run blind, the oracle-specialist flagged a critical bug: the constructor hardcodes the ETH/USD price feed in a contract named WBTC. It recognized the address and reasoned through the exploit itself. That bug was a confirmed HIGH-severity finding in USSD's real Sherlock audit. Blind AI, real audited code, real confirmed finding, full on-chain proof. That's Hunt."
 
 [Final screen: Hunt masthead + tagline + contract address.]
 

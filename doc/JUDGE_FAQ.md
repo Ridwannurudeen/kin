@@ -73,19 +73,11 @@ Concretely addressed:
 
 ## Q5 — `demo/staged-bounty/Vault.sol` is fictional code. Why not audit a real protocol?
 
-**The CWE pattern is real and cited; the contract is staged to give us a clean settlement target.**
+**We did both.** The staged `Vault.sol` is a clean, deterministic settlement target — the bug is known, so the demo's "race → settle → verify" arc is reproducible every run. But Hunt also ran the real test: **bounty #9 audited the verbatim `StableOracleWBTC.sol` from USSD**, a stablecoin protocol audited by Sherlock in May 2023. Run blind with zero hints, the oracle-specialist surfaced a confirmed **HIGH-severity** finding ([Sherlock judging issue #817](https://github.com/sherlock-audit/2023-05-USSD-judging/issues/817), "Wrong Oracle feed addresses"). Full write-up + on-chain trail: [`audits/ussd/README.md`](../audits/ussd/README.md).
 
-The Vault.sol oracle-staleness pattern (read `updatedAt` from `latestRoundData`, only compare against `block.timestamp` inside the admin-only `setPrice()`, all user paths bypass the freshness gate) is sourced from public audit reports:
-- **Code4rena Prisma Finance, March 2024** — same pattern, classified as high-severity finding
-- **Sherlock Angle Protocol, 2024** — same pattern in a different protocol's CDP logic
+The staged Vault.sol's oracle-staleness pattern is itself sourced from a public, judge-confirmed finding — USSD's Sherlock contest, [judging issue #31](https://github.com/sherlock-audit/2023-05-USSD-judging/issues/31) ("Calls to Oracles don't check for stale prices", MEDIUM). Provenance is documented in `demo/staged-bounty/README.md`.
 
-Provenance is documented in `demo/staged-bounty/README.md`.
-
-We didn't audit a live deployed protocol for the hackathon because:
-- Real undisclosed bugs have disclosure timelines that don't fit a 5-day window
-- Re-staging the published patterns gives us a clean "demonstration → settlement → verification" arc without dragging anyone else's protocol into our demo
-
-v2 plan: real bounties posted by real protocols are the test of product-market fit. We're not claiming Hunt has that yet.
+What Hunt did **not** do: chase an *undisclosed* live vulnerability. Those have disclosure timelines that don't fit a hackathon window, and "found a previously-unknown bug" is a v2 claim we are explicitly not making. v2's real test of product-market fit is bounties posted by real protocols.
 
 ---
 
