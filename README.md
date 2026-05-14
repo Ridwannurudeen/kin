@@ -105,9 +105,9 @@ Strict mode prints `digest match: ✓`, `signer == teeSigner: ✓`, `teeTimestam
 **Second positive data point — bounty #7 ★★** — a reentrancy-specialist won a reentrancy bounty via real Sealed Inference (`swc-107-reentrancy`, `critical`) while the oracle- and access-control-specialists ran their inference and correctly returned zero in-scope findings. Different specialist, different CWE, same thesis demonstrated independently. Full tx log below.
 
 <details>
-<summary><strong>All 8 bounties — full on-chain transaction log</strong></summary>
+<summary><strong>All 10 bounties — full on-chain transaction log</strong></summary>
 
-Every transaction is real on 0G Aristotle (chain 16661). State as of submission: 5 settled (#0, #1, #2, #3, #7), 3 expired (#4, #5, #6).
+Every transaction is real on 0G Aristotle (chain 16661). State as of submission: 7 settled (#0, #1, #2, #3, #7, #8, #9), 3 expired (#4, #5, #6). The tables below cover #0–#7; bounty #9 (the USSD blind test) has its own section above and full trail in [`audits/ussd/README.md`](audits/ussd/README.md).
 
 **Deploy + hunter mints**
 
@@ -159,9 +159,19 @@ Every transaction is real on 0G Aristotle (chain 16661). State as of submission:
 | Post bounty #6 — ChartChain source, 0.05 OG, 10-min race, 5-CWE scope | [`0x7600cf2d…c461`](https://chainscan.0g.ai/tx/0x7600cf2dd3ad137904832349416acaf4747410d0eebfc031633e1f5c4e03c461) | — |
 | Expire bounty #6 — no in-scope findings, 0.05 OG refunded | [`0xabbb0dd8…6ee22`](https://chainscan.0g.ai/tx/0xabbb0dd840e81f89d8cb9a25aac1ae2817b9fb95009bddb3cf2ba6445fc6ee22) | 33121294 |
 
-Bounties #4 and #5 were posted but their races crashed on transient RPC/broker failures (ECONNRESET); both expired and refunded cleanly. They carry no findings and are omitted here for brevity.
+Bounties #4 and #5 were posted but their races crashed on transient RPC/broker failures (ECONNRESET); both expired and refunded cleanly. They carry no findings and are omitted here for brevity. Bounty #8 was a fresh staged-`Vault.sol` race (oracle-specialist won via real Sealed Inference, settled cleanly); bounty #9 is the USSD blind test documented in its own section above.
 
 </details>
+
+## The real test — Hunt audits USSD blind (bounty #9) ★★★
+
+The headline races above use staged contracts. **Bounty #9 is the real test.** Hunt posted the verbatim `StableOracleWBTC.sol` from **USSD** — a stablecoin protocol audited by Sherlock in May 2023 — with the standard 3-CWE scope and **zero hints** (no mention of oracles, feeds, or staleness).
+
+Run blind via real Sealed Inference, the oracle-specialist independently flagged a **critical `oracle-manipulation` finding**: the constructor hardcodes the Chainlink **ETH/USD** feed while the contract is named `StableOracleWBTC` and a code comment documents the correct **BTC/USD** feed — a "WBTC oracle" that returns the ETH price. The AI *recognized* the hardcoded address as the ETH/USD aggregator and derived the ~20x-undercollateralization exploit itself — reasoning, not pattern-matching. The other two specialists correctly returned zero findings.
+
+That bug was a **confirmed HIGH-severity finding** in USSD's Sherlock audit ([judging issue #817](https://github.com/sherlock-audit/2023-05-USSD-judging/issues/817), plus a large set of valid duplicates) — the public judging record is the independent confirmation.
+
+**Honest scope:** this bug was *also* found by many human auditors in the contest — the claim is *"Hunt's AI independently surfaced a confirmed finding,"* **not** "found what humans missed." A 10-minute single-model race is a capability probe, not a full audit. But it demonstrates the substrate works on real audited code, blind, with the full on-chain cryptographic trail. Write-up + transaction log + strict-verify command: [`audits/ussd/README.md`](audits/ussd/README.md).
 
 ## Hunt audits a real 0G protocol (ChartChain, bounty #6)
 
@@ -270,7 +280,13 @@ End-to-end lifecycle, mapped to the actual contract + script paths:
 - **TEE attestation chain-of-custody** — the `teeSigner` address on-chain. An off-chain relay signs the digest the contract recovers; v2 swaps the relay for a TEE-attestation-verifying multi-signer set.
 - **Credential verifier** — GitHub-OAuth-backed `verifier/server.js` enforces a real account-age / merged-PR / review-count bar before a wallet can mint a hunter. Credentials are bound to the minting wallet + replay-protected.
 
-**Why 0G specifically.** Sealed Inference is the anti-cheat substrate — 0G's `ZG-Res-Key` attestation is the primitive that lets an honest finding be tied to a sealed enclave run; no comparable primitive ships on any other L1 today. 0G Storage holds sealed code without leaking it (only the storage root lands on-chain). 0G Chain settles escrow + reputation in one place — reputation can't be silently rewritten by an off-chain operator because it isn't held off-chain.
+**Why 0G specifically — load-bearing vs. convenient.** Hunt leans on three 0G primitives, and they are *not* equally substitutable — saying so honestly is the point:
+
+- **Sealed Inference — the one Hunt genuinely cannot replace.** The anti-cheat premise (tying a finding to a model that actually ran inside a sealed enclave) needs per-response TEE attestation as a first-class service. 0G exposes exactly that — a `ZG-Res-Key` per inference call, validated via `broker.inference.processResponse`. Without it, "AI auditor reputation" has nothing to anchor to.
+- **0G Storage — strongly preferred, not just convenient.** A bounty's Solidity source must be *sealed* (never on a public chain) yet content-addressed and retrievable by every hunter from an on-chain root. Generic content-addressed storage gives the addressing but not the sealed-blob-plus-on-chain-root integration; 0G Storage provides it natively (`lib/storage.js`).
+- **0G Chain — substitutable in principle; the value is co-location.** Escrow, the per-CWE `ClassRep` ledger, and the attestation `ecrecover` could run on any EVM chain. What makes 0G the right home is that sealed compute, sealed storage, and settlement live on *one* L1 — so a finding's full chain of custody never leaves the 0G trust boundary.
+
+One non-substitutable primitive, one strongly-preferred, one co-location thesis. v2 deepens the first: the `teeSigner` relay becomes a set that signs only when the underlying `ZG-Res-Key` validates — making the attestation chain-enforced, not operator-relayed.
 
 ## Tests
 
@@ -303,7 +319,7 @@ Read these before you read the proof tables. Hunt's pitch is deliberately scoped
 - **Shared hunter-network key.** The bounty code blob is sealed with one symmetric key shared across all registered hunters in v1. v2 replaces this with a per-hunter ECDH envelope on the `Bounty` struct, so a leak from one hunter is bounded to that hunter.
 - **Privacy model.** Bounty code is sealed against storage operators, the public chain, and any party that doesn't hold the shared hunter-network key. The honest exposure: each registered hunter operator decrypts the code locally before passing it to Sealed Inference; the 0G TEE provider sees plaintext at inference time.
 - **Race orchestration.** v1's `scripts/hunter.js` is one-hunter-per-process under a file lock. The demo uses `scripts/run_race.js` to fire all three personas against a single bounty in parallel — a deliberate orchestration choice for the recording, not a production pattern. v2 = N daemons across N hosts.
-- **Demo bounty is staged.** `demo/staged-bounty/Vault.sol` is a fictional CDP. The oracle-staleness pattern is sourced from public Code4rena (Prisma Finance, Mar 2024) and Sherlock (Angle Protocol, 2024) reports. Provenance + reference findings in `demo/staged-bounty/README.md`.
+- **Demo bounty is staged.** `demo/staged-bounty/Vault.sol` is a fictional CDP. Its oracle-staleness pattern is sourced from a public, judge-confirmed audit finding — USSD's Sherlock May 2023 contest ([judging issue #31](https://github.com/sherlock-audit/2023-05-USSD-judging/issues/31)). Provenance in `demo/staged-bounty/README.md`. Hunt also audited USSD's *real* oracle source live and blind — see [`audits/ussd/README.md`](audits/ussd/README.md).
 
 ## Where Hunt sits in May 2026
 
