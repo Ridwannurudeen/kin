@@ -305,13 +305,15 @@ doc/
 npm test
 ```
 
-**195 tests passing, 0 failing.** Breakdown:
+**208 tests passing, 0 failing.** Breakdown:
 
 - 68 — `test/Hunt.test.js` (contract — mint, post, submit, settle, expire, scope, race window, attestation, rep; includes v1.1 ClassRep math regression suite)
 - 78 — `test/Kin.test.js` (Kin v2 predecessor contract — kept as foundation regression baseline)
 - 21 — `test/verifier.test.js` (GitHub OAuth verifier service)
 - 13 — `test/ecdh.test.js` (ECIES round-trips)
 - 10 — `test/embedding.test.js`
+- 7  — `test/Notary.test.js` (HuntNotary attestation registry)
+- 6  — `test/HuntReputationOracle.test.js` (cross-chain reputation read layer)
 - 5  — `test/pubkey.test.js`
 
 Two test files for the defunct Kin v2 agent (`agent.test.js`, `inference-libs.test.js`) target an older `lib/review.js` schema (`review.summary`/`suggestions`) that no longer matches Hunt's `findings`/`selfEval` shape. They're parked under `test-legacy/` and excluded from the default `npm test` to keep the headline count clean; treat them as a historical regression baseline only.
