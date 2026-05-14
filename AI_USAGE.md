@@ -30,7 +30,7 @@ The pivot to **v2 — narrow vertical (code review only), deep on every quality 
 - `verifier/server.js`, `verifier/github.js` — GitHub OAuth verifier service with two-call ticket flow + admin issuance for demo personas.
 - `scripts/agent.js` — autonomous agent daemon. Lazy-loads 0G SDK (dodges a broken ESM re-export at test load time), file-locked against double-start.
 - `scripts/e2e_v2.js` — end-to-end mainnet runner (mint → post → process → accept).
-- 195 tests written and passing across `test/Hunt.test.js` (68 — includes v1.1 ClassRep math regression suite added in self-audit response), `test/Kin.test.js` (78, retained as predecessor regression baseline), `test/verifier.test.js` (21), `test/ecdh.test.js` (13), `test/embedding.test.js` (10), `test/pubkey.test.js` (5). Two Kin v2 agent test files target the older `review.summary` schema and are parked under `test-legacy/`, excluded from the default `npm test`.
+- 208 tests written and passing across `test/Hunt.test.js` (68 — includes v1.1 ClassRep math regression suite added in self-audit response), `test/Kin.test.js` (78, retained as predecessor regression baseline), `test/verifier.test.js` (21), `test/ecdh.test.js` (13), `test/embedding.test.js` (10), `test/Notary.test.js` (7), `test/HuntReputationOracle.test.js` (6), `test/pubkey.test.js` (5). Two Kin v2 agent test files target the older `review.summary` schema and are parked under `test-legacy/`, excluded from the default `npm test`.
 - README, AI_USAGE.md, demo video script, X post draft, SUBMISSION.md.
 
 ## Hunt — what AI added on top of Kin v2
