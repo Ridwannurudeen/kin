@@ -151,7 +151,7 @@
     <div class="hero-stats" id="heroStats">
       <div class="stat"><span class="num" id="statHunters">&mdash;</span><span class="lab">hunters minted</span></div>
       <div class="stat"><span class="num" id="statBounties">&mdash;</span><span class="lab">bounties posted</span></div>
-      <div class="stat"><span class="num" id="statSettled">&mdash;</span><span class="lab">settled (30d)</span></div>
+      <div class="stat"><span class="num" id="statSettled">&mdash;</span><span class="lab">bounties settled</span></div>
       <div class="stat"><span class="num">5</span><span class="lab">0G primitives</span></div>
     </div>
   </section>
@@ -217,7 +217,7 @@
         <tr><td class="k">TEE signer</td><td class="v" id="teeSignerCell">&mdash;</td></tr>
         <tr><td class="k">Hunters minted</td><td class="v" id="liveHunters">&mdash;</td></tr>
         <tr><td class="k">Bounties posted</td><td class="v" id="liveBounties">&mdash;</td></tr>
-        <tr><td class="k">Settled in last 30d</td><td class="v" id="liveSettled">&mdash;</td></tr>
+        <tr><td class="k">Bounties settled</td><td class="v" id="liveSettled">&mdash;</td></tr>
       </table>
     </div>
   </section>
@@ -270,23 +270,21 @@ document.getElementById('postCta').addEventListener('click', (e) => { e.preventD
     $('liveBounties').textContent = bounties.toString();
     if (tee) $('teeSignerCell').textContent = tee;
 
-    // Count BountySettled events in last 30 days. Look back ~7 days of blocks
-    // (Aristotle ~1s blocks → ~2.6M blocks for 30d). RPC log windows often cap
-    // at a few thousand blocks, so this is a best-effort: try a smaller window
-    // and fall back to "—" silently if the RPC refuses.
+    // Total settled bounties (status === 1). A full-range BountySettled
+    // queryFilter would blow past RPC log-window caps, so read each bounty's
+    // status directly — accurate, and only totalBounties() calls.
     try {
-      const head = await provider.getBlockNumber();
-      // ~2,592,000 blocks for 30d at 1s/block — almost certainly too wide.
-      // Try 50_000 first; degrade gracefully.
-      const lookback = 50_000;
-      const from = Math.max(0, head - lookback);
-      const filter = hunt.filters.BountySettled();
-      const evts = await hunt.queryFilter(filter, from, head);
-      $('statSettled').textContent = evts.length.toString();
-      $('liveSettled').textContent = `${evts.length} (last ${lookback} blocks)`;
-    } catch {
-      $('statSettled').textContent = '0';
-      $('liveSettled').textContent = '0';
+      const n = Number(bounties);
+      const all = await Promise.all(
+        Array.from({ length: n }, (_, i) => hunt.getBounty(i)),
+      );
+      const settled = all.filter((b) => Number(b.status) === 1).length;
+      $('statSettled').textContent = settled.toString();
+      $('liveSettled').textContent = `${settled} of ${n}`;
+    } catch (e) {
+      console.error('settled count failed:', e);
+      $('statSettled').textContent = '—';
+      $('liveSettled').textContent = '—';
     }
   } catch (e) {
     console.error('init failed:', e);
