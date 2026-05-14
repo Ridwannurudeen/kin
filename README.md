@@ -14,60 +14,6 @@ Existing **AI auditors** ([Olympix](https://olympix.security/), [Nethermind Audi
 
 **Hunt v1 ships the verifiable substrate**: an operator-relayed attestation layer over real 0G Sealed Inference + per-CWE on-chain reputation, both proven live on Aristotle mainnet. **Hunt v2 (post-hackathon, weeks 2–10)** replaces the operator with a TEE-attestation-verifying signer set (so the on-chain digest is chain-enforced rather than relayed) and adds stake-backed adversarial falsification + always-on guardian network for post-deploy monitoring — both verified unbuilt in this space as of May 2026. Pillar-by-pillar plan with primary-source citations in [`doc/FUTURE.md`](doc/FUTURE.md).
 
-**Beyond crypto — Hunt as a general verifiable-AI primitive.** The same machinery (sealed inference, multi-specialist competition, on-chain per-domain reputation) applies anywhere ordinary people need verifiable AI on their private data. Three non-crypto verticals are positioned for v2, and the L1-L4 protocol-infrastructure layer is now shipped on Aristotle:
-
-- **Defending citizens against private-payor AI denials — [`audits/insurance/`](audits/insurance/README.md).** 73M ACA enrollees had in-network claims denied in 2023; <1% appealed; appeal-success was 40–75% when they did. Three live AI-appeal products (Counterforce Health, Claimable, Fight Health Insurance) have validated the category at 70–80% reversal — *none* ship TEE attestation, *all* route patient records through OpenAI/Anthropic. Regulatory frame already exists (Colorado SB24-205/SB26-189, EU AI Act Annex III). Architecture transfers 1:1; full plan + synthetic denial letter modeled on the public *Estate of Lokken v. UnitedHealth* pleadings in the README.
-
-- **Defending elderly, retired, and disabled citizens against public-payor adjudication — [`audits/benefits/`](audits/benefits/README.md).** ~330K SSDI cases pending an ALJ hearing as of Jan 2026 (the largest adjudication backlog in any US administrative system); 274-day average wait; 60-70% initial denial rate; appeal-success >50% with representation. Attorney contingency capped at 25% under 42 U.S.C. § 406 — economically rational for lawyers, structurally exclusionary for low-income claimants. Hunt's seven-class defect registry (medical-listing misapplication, RFC error, vocational-expert misclassification, duration-rule misapplication, SGA miscalculation, combined-impairments omission, treating-physician opinion-weight failure) maps to the SSA's own sequential-evaluation regulations. Same architecture; secondary surfaces for Medicare reconsideration + VA claims. Synthetic SSDI denial modeled on the SSA-1561 template with seven annotated defect patterns in the README.
-
-- **Giving citizens verifiable multi-specialist medical reads — [`audits/medical/`](audits/medical/README.md).** Published per-specialty disagreement rates (~14% major in general surgical pathology, 20–32% in radiology oncologic CT, up to 52% in neuro-oncology) are the empirical ground-truth signal that calibrates a "race of specialists" architecture in this domain — stronger than smart-contract auditing can claim. Scoped strictly as a *"Records Reader"* (surfaces questions to ask your physician, never diagnoses) to stay inside 21st Century Cures CDS exemptions + FDA Jan 2026 enforcement-discretion guidance. Full plan + a synthetic pathology report exhibiting the hardest interobserver call in breast biopsy (ADH vs. low-grade DCIS) in the README.
-
-- **Infrastructure layer — SDK + Notary + Reputation Oracle.** `packages/sdk/` extracts Hunt's digest, class hashing, ECIES, attestation, and Notary helpers for other 0G developers. [`contracts/Notary.sol`](contracts/Notary.sol) is live at [`0x968d5E070152A90Ae7a3c5251222FC163b72C7E2`](https://chainscan.0g.ai/address/0x968d5E070152A90Ae7a3c5251222FC163b72C7E2) as a hash-only AI conversation receipt layer. [`contracts/HuntReputationOracle.sol`](contracts/HuntReputationOracle.sol) is live at [`0xdf2f9587D5746cd1358d40804bE7885BDaaE45d2`](https://chainscan.0g.ai/address/0xdf2f9587D5746cd1358d40804bE7885BDaaE45d2), wrapping the deployed Hunt reputation ledger into a stable cross-chain-readable interface. [`doc/INSTITUTIONAL_PARTNERSHIP.md`](doc/INSTITUTIONAL_PARTNERSHIP.md) packages this as Hunt-as-a-Service for ecosystems, audit desks, and risk partners.
-
-The three verticals are different faces of the same primitive: **insurance** defends citizens against *private-payor* opaque AI; **benefits** defends them against *public-payor* opaque adjudication; **medical** gives them *better* verifiable AI than they could otherwise afford. Same Hunt machinery, same TEE attestation, same per-domain reputation — three counterparties, one substrate.
-
-A visual architecture diagram + live four-vertical fan-out is on the deployed frontend at [`hunt.gudman.xyz/verticals`](https://hunt.gudman.xyz/verticals.html). ASCII equivalent for offline scanning:
-
-```
-                       ┌───────────────────────────────────────┐
-                       │              0G primitives            │
-                       │  Sealed Inference (TEE attestation)   │
-                       │  Storage  (sealed encrypted input)    │
-                       │  Chain    (escrow + ecrecover + rep)  │
-                       └─────┬──────────┬──────────┬───────┬───┘
-                             │          │          │       │
-              ┌──────────────┘    ┌─────┘    ┌─────┘   ┌───┘
-              ▼                   ▼          ▼         ▼
-     ┌────────────────┐ ┌─────────────────┐ ┌────────────┐ ┌────────────┐
-     │ V1 — LIVE      │ │ V2 — Insurance  │ │ V2 — Bene- │ │ V2 — Medi- │
-     │ Smart contracts│ │ Defense vs.     │ │ fits       │ │ cal Records│
-     │ on Aristotle   │ │ private-payor   │ │ Defense vs.│ │ Reader     │
-     │                │ │ opaque AI       │ │ public-    │ │ (coopera-  │
-     │ bounty #3      │ │ (UnitedHealth   │ │ payor adju-│ │ tive 2nd   │
-     │ strict-verify  │ │  nH Predict,    │ │ dication   │ │ opinion)   │
-     │ EXIT 0         │ │  Cigna PXDX)    │ │ (SSDI/SSI/ │ │            │
-     │                │ │                 │ │  VA)       │ │ pathology  │
-     │ 7 bounties     │ │ 73M denials/yr  │ │ 330K cases │ │ 14% major  │
-     │ 4 settled      │ │ <1% appealed    │ │ pending an │ │ disagree-  │
-     │ 3 expired      │ │ 40-75% reverse  │ │ ALJ hearing│ │ ment in    │
-     │                │ │ on appeal       │ │ (Jan 2026) │ │ surgical   │
-     │ bounty #6      │ │                 │ │            │ │ pathology  │
-     │ ChartChain     │ │ Colorado        │ │ 20 C.F.R.  │ │            │
-     │ cross-poll.    │ │ SB24-205 frame  │ │ § 404.1520 │ │ FDA Jan    │
-     │                │ │                 │ │ frame      │ │ 2026 CDS   │
-     │ counterparty:  │ │ counterparty:   │ │ counter-   │ │ frame      │
-     │ vulnerable     │ │ private-payor   │ │ party:     │ │            │
-     │ smart contracts│ │ AI denial       │ │ public-    │ │ counter-   │
-     │                │ │ algorithm       │ │ payor adju-│ │ party:     │
-     │                │ │                 │ │ dication   │ │ cooperative│
-     │                │ │                 │ │            │ │ 2nd opinion│
-     └────────────────┘ └─────────────────┘ └────────────┘ └────────────┘
-       v1 load-bearing   v2 positioning    v2 positioning  v2 positioning
-       (live on-chain)   + runnable demo   + runnable demo + runnable demo
-```
-
-Each v2 vertical ships a runnable specialist brief script (`scripts/{insurance,benefits,medical}_specialist_brief.js`) that exercises the v1 `findingDigest` primitive against new domain inputs and produces real attestation digests offline. See the [`/verticals`](https://hunt.gudman.xyz/verticals.html) page for the live SVG version + card grid + linked READMEs.
-
 ## Honesty notes — read first
 
 Three things you should know before reading the rest of this README.
@@ -404,9 +350,7 @@ Kin v2's contract `0x47F25b2fAf6E5626946582F86F0e52A4517f3234` is preserved on-c
 - **Outreach templates** (security researchers + 0G core team): [`doc/OUTREACH_TEMPLATES.md`](doc/OUTREACH_TEMPLATES.md)
 - **Release assets** (video editor brief + YouTube description + X teaser thread): [`doc/RELEASE_ASSETS.md`](doc/RELEASE_ASSETS.md)
 - **Primary live audit — ChartChain** (Hunt audits another live 0G project on Aristotle mainnet): [`audits/chartchain/README.md`](audits/chartchain/README.md)
-- **v2 vertical — insurance-claim-denial defense** (verifiable AI defending citizens against private-payor opaque AI denials; full plan + runnable demonstration script + synthetic Lokken-pattern denial letter): [`audits/insurance/README.md`](audits/insurance/README.md)
-- **v2 vertical — Disability + Senior Benefits defense** (verifiable AI defending pro-se elderly, retired, and disabled claimants against public-payor opaque adjudication — SSDI/SSI/Medicare reconsideration/VA; full plan + runnable demonstration script + synthetic SSDI denial letter with 7 annotated defect patterns): [`audits/benefits/README.md`](audits/benefits/README.md)
-- **v2 vertical — medical Records Reader** (verifiable multi-specialist medical reads for ordinary patients; scope-locked to "questions for your physician" inside FDA Jan 2026 CDS guidance; full plan + runnable demonstration script + synthetic ADH/DCIS-borderline pathology report): [`audits/medical/README.md`](audits/medical/README.md)
+- **Expansion appendices**: [`audits/insurance/README.md`](audits/insurance/README.md), [`audits/benefits/README.md`](audits/benefits/README.md), [`audits/medical/README.md`](audits/medical/README.md)
 
 ## License
 
