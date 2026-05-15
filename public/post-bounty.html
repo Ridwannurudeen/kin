@@ -211,6 +211,15 @@
           <code>doc/FUTURE.md</code>). Your escrowed payout is refundable
           via <code>expireBounty</code> after the settle window, also
           callable by anyone.
+          <br /><br />
+          <strong>need OG?</strong> Mainnet acquisition path:
+          <a href="https://get.0g.ai/" target="_blank" rel="noreferrer">get.0g.ai &#x2197;</a>
+          &middot;
+          docs:
+          <a href="https://docs.0g.ai/" target="_blank" rel="noreferrer">docs.0g.ai &#x2197;</a>
+          &middot;
+          chain-add to your wallet happens automatically when you click
+          <em>connect wallet</em> above (chain id 16661).
         </div>
 
         <form id="postForm" class="post-form">
@@ -414,7 +423,8 @@
         const buffer = ethers.parseEther("0.005");
         if (bal < payoutWei + buffer) {
           throw new Error(
-            `wallet balance ${ethers.formatEther(bal)} OG < payout ${payoutStr} + 0.005 buffer`,
+            `wallet balance ${ethers.formatEther(bal)} OG < payout ${payoutStr} + 0.005 buffer. ` +
+              `New to 0G? Acquisition path: https://get.0g.ai/ · Docs: https://docs.0g.ai/ · Testnet faucet: https://faucet.0g.ai/`,
           );
         }
 

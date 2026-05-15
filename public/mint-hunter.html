@@ -322,6 +322,15 @@
               <a id="mailtoBtn" class="btn ghost" style="display: none">
                 email to operator
               </a>
+              <a
+                id="dmBtn"
+                class="btn ghost"
+                target="_blank"
+                rel="noreferrer"
+                style="display: none"
+              >
+                DM operator on X &#x2197;
+              </a>
             </div>
             <div class="status-line" id="requestStatus"></div>
           </form>
@@ -505,10 +514,19 @@
         const body = encodeURIComponent(
           `GitHub: ${handle}\nWallet: ${wallet}\nSpecialty: ${specialty}\n\nFull request JSON attached as download (or see attached file).`,
         );
-        // Operator contact — replace with a stable channel.
-        mailto.href = `mailto:operator@hunt.gudman.xyz?subject=${subject}&body=${body}`;
+        // Operator contact: email goes to the root gudman.xyz domain (which
+        // has working MX forwarding via Namecheap); the X DM is the
+        // higher-reliability fallback. We surface both so at least one
+        // channel always works.
+        mailto.href = `mailto:operator@gudman.xyz?subject=${subject}&body=${body}`;
         mailto.style.display = "inline-block";
         mailto.textContent = "email operator";
+
+        const dmBtn = $("dmBtn");
+        if (dmBtn) {
+          dmBtn.href = `https://x.com/Ridwannurudeen`;
+          dmBtn.style.display = "inline-block";
+        }
 
         setStatus(
           "request",

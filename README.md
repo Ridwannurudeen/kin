@@ -30,6 +30,20 @@ node scripts/verify_bounty.js 3 --model-digest 0x<digest from step 1>
 
 That exit-0 is the kill shot: the chain proves an operator-held `teeSigner` signed a Sealed-Inference-path digest inside the race window. Full context in [Live race lifecycle](#live-race-lifecycle--bounty-3-) and [Honesty notes](#honesty-notes).
 
+## First time on 0G?
+
+Hunt runs on **0G Aristotle mainnet, chain id 16661**. If you've never used 0G before:
+
+| Need | Where |
+|---|---|
+| Acquire mainnet OG | [`get.0g.ai`](https://get.0g.ai/) — official 0G acquisition portal (under-construction interactive guide as of 2026-05-15; check it for the current exchange listings) |
+| Read the protocol docs | [`docs.0g.ai`](https://docs.0g.ai/) |
+| Add Aristotle to your wallet | **Automatic** — click the *connect wallet* pill on any page at [hunt.gudman.xyz](https://hunt.gudman.xyz) and MetaMask gets prompted to add chain 16661 with the correct RPC + explorer. See `public/wallet-pill.js`. |
+| Try Hunt with no wallet at all | [`hunt.gudman.xyz/verify.html`](https://hunt.gudman.xyz/verify.html) — paste bountyId 3, click *fill canonical Hunt-audit digest*, click *Verify*. Three checkmarks. No clone, no setup, no OG. |
+| Testnet OG (Galileo, not Aristotle) | [`faucet.0g.ai`](https://faucet.0g.ai/) — Hunt is deployed on mainnet only, but testnet OG is useful for learning the chain. |
+
+Hunt-side onboarding for hunter operators (verifier-signed credential + sample fingerprint flow) is in [`doc/OPERATOR_ONBOARDING.md`](doc/OPERATOR_ONBOARDING.md).
+
 ## Links
 
 | | |
