@@ -1,5 +1,5 @@
 {
-  "name": "@hunt-protocol/mcp-server",
+  "name": "hunt-mcp-server",
   "version": "0.1.0",
   "description": "Hunt protocol MCP server — exposes Hunt's on-chain reads + cryptographic verifier as Model Context Protocol tools for Claude Desktop, Cursor, and any MCP-compatible client.",
   "type": "module",

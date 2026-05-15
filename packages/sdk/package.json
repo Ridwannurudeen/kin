@@ -1,5 +1,5 @@
 {
-  "name": "@hunt-protocol/verifiable-ai",
+  "name": "hunt-verifiable-ai",
   "version": "0.1.0",
   "description": "Verifiable AI primitives for 0G Aristotle - attestation digests, per-domain class hashing, ECIES envelopes. Extracted from the Hunt protocol.",
   "type": "module",

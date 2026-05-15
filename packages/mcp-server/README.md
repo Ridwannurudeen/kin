@@ -1,4 +1,4 @@
-# @hunt-protocol/mcp-server
+# hunt-mcp-server
 
 Hunt protocol as a **Model Context Protocol (MCP) server** for Claude Desktop, Cursor, and any MCP-compatible client.
 
@@ -15,7 +15,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
   "mcpServers": {
     "hunt": {
       "command": "npx",
-      "args": ["-y", "@hunt-protocol/mcp-server"]
+      "args": ["-y", "hunt-mcp-server"]
     }
   }
 }
