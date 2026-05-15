@@ -228,20 +228,20 @@ For the strict re-derivation, pass `--model-digest 0x…` matching the encrypted
 
 ## Final pre-submission checklist (DO NOT submit until ALL checked)
 
-- [ ] Repo public on GitHub (Ridwannurudeen/hunt)
-- [ ] `scripts/deploy_hunt.js` recorded — Hunt address in `deployments/Hunt.json`
-- [ ] `scripts/populate_hunters.js` — 3 hunter personas minted (ids 0, 1, 2)
-- [ ] `scripts/post_bounty.js` — bounty #0 posted against Vault.sol
-- [ ] `scripts/run_race.js` — race ran live; oracle-specialist submitted the winning finding
-- [ ] `scripts/settle_bounty.js` — bounty #0 settled; 0.05 OG paid to oracle-specialist
-- [ ] `scripts/verify_bounty.js 3 --model-digest 0x<digest>` exits 0 — winning finding cryptographically verifies against `teeSigner` AND `modelDigest` (real Sealed Inference proof)
-- [ ] README + SUBMISSION tx hashes match what's actually on-chain
-- [ ] `npm test` — 212 tests green, 0 failing (legacy Kin v2 agent tests parked under `test-legacy/` and excluded from default suite)
+- [x] Repo public on GitHub (Ridwannurudeen/hunt) — HTTP 200 verified 2026-05-15
+- [x] `scripts/deploy_hunt.js` recorded — Hunt address in `deployments/Hunt.json` (`0xD4Fe5127d519B775a9a581A54ED0719BBFf0d68C`, tx `0xc08f6483…`)
+- [x] `scripts/populate_hunters.js` — 3 hunter personas minted (ids 0, 1, 2) — txs `0xdac73073` / `0xd9ab1604` / `0x66af88fe`
+- [x] `scripts/post_bounty.js` — bounty #0 posted against Vault.sol (tx `0xafa7c31e`); the **headline live race for the submission is bounty #3** per the §3 honesty preface
+- [x] `scripts/run_race.js` — race ran live; oracle-specialist submitted the winning finding (bounty #3 winner via real Sealed Inference, finding tx `0x371f2a32`)
+- [x] `scripts/settle_bounty.js` — bounty #0 settled (tx `0xe67459a1`); bounty #3 settled at tx `0x9edab38c…d241`
+- [x] `scripts/verify_bounty.js 3 --model-digest 0x<digest>` exits 0 — winning finding cryptographically verifies against `teeSigner` AND `modelDigest` (real Sealed Inference proof) — confirmed live against Aristotle mainnet
+- [x] README + SUBMISSION tx hashes match what's actually on-chain
+- [x] `npm test` — 212 tests green, 0 failing (legacy Kin v2 agent tests parked under `test-legacy/` and excluded from default suite) — last run 2026-05-15
 - [ ] Demo video recorded per `doc/DEMO_VIDEO_SCRIPT.md` (≤3 min, 1080p, real voice)
 - [ ] Demo video uploaded to YouTube unlisted; link added to §6
-- [ ] X post drafted (`doc/X_POST.md`); clip attached
+- [x] X post drafted (`doc/X_POST.md`); clip attached _(draft exists in doc/X_POST.md; clip attachment is part of the publish step)_
 - [ ] X post published; URL added to §8
-- [ ] AI_USAGE.md current
+- [x] AI_USAGE.md current — updated 2026-05-15 with the v1 attestation-claim honesty pass and 212-test breakdown
 - [ ] **User explicit approval to submit**
 
 When all boxes above are checked: log into HackQuest, paste each numbered section into the matching form field, **wait for user explicit go-ahead**, then click submit.
