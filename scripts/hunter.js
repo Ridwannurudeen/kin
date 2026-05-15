@@ -55,7 +55,9 @@ import { localAuditFallback } from "../lib/audit-fallback.js";
 // reading contracts/Hunt.sol — if that constant changes, change this too or the daemon
 // will keep submitting findings the contract rejects.
 const MIN_OUTPUT_QUALITY_BPS = 6000;
-const MAX_RETRIES = 3;
+// 0G's inference endpoint has bursty transport flakiness ("fetch failed"); a
+// thin retry budget forces too many races onto the heuristic fallback.
+const MAX_RETRIES = 6;
 const SEVERITY_RANK = { critical: 4, high: 3, medium: 2, low: 1 };
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -254,6 +256,10 @@ export async function processBounty({
   let attempts = 0;
   let lastError = null;
   for (attempts = 1; attempts <= MAX_RETRIES; attempts++) {
+    // Linear backoff before retries to space out bursty "fetch failed"
+    // transport errors from 0G's inference endpoint.
+    if (attempts > 1)
+      await new Promise((r) => setTimeout(r, 1500 * (attempts - 1)));
     try {
       reviewResult = await generateReview({
         invokeLLM,

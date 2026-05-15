@@ -1,4 +1,4 @@
-// One-shot orchestrator: fire all 3 hunter personas in parallel against a single bounty.
+// One-shot orchestrator: run all 3 hunter personas against a single bounty.
 // Bypasses scripts/hunter.js's file-lock + single-hunter-per-process pattern for the demo.
 //
 // Usage: BOUNTY_ID=0 node scripts/run_race.js
@@ -132,23 +132,19 @@ async function runHunter(personaId) {
   }
 }
 
-// Fire all 3 hunters with a staggered start. The 0G inference proxy appears to rate-limit
-// or otherwise reject simultaneous getRequestHeaders signing from the same operator wallet
-// (observed in bounties #2 + #3: 1 of 3 made it through, the other 2 hit `fetch failed`
-// on every retry). 8s stagger gives the inference broker enough room to settle one
-// request before the next opens. Race semantics still hold — all 3 still race against
-// the same on-chain raceDeadline; the 8s × 3 = 24s start spread is tiny relative to the
-// 10-min window.
+// Run the 3 hunters strictly sequentially, not concurrently. The 0G inference proxy
+// rate-limits / rejects overlapping requests from the same operator wallet — and all 3
+// hunters share the funder's broker. The old 8s start-stagger was insufficient: hunters
+// run for minutes, so they still overlapped heavily and ~2 of 3 hit `fetch failed` on
+// every retry (observed across bounties #2,#3,#8–#17). Sequential execution gives each
+// hunter the endpoint to itself. Race semantics still hold — all 3 submit before the
+// same on-chain raceDeadline; post bounties with a longer race duration to fit 3 in.
 console.log("\n=== RACE START ===");
-const STAGGER_MS = 8000;
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const personaIds = Object.keys(hunterWallets);
-const results = await Promise.all(
-  personaIds.map(async (id, i) => {
-    if (i > 0) await sleep(i * STAGGER_MS);
-    return runHunter(id);
-  }),
-);
+const results = [];
+for (const id of personaIds) {
+  results.push(await runHunter(id));
+}
 
 console.log("\n=== RACE END ===");
 for (const r of results) {
