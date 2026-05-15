@@ -388,6 +388,47 @@ window.HUNT_ABI = [
     ],
     outputs: [{ name: "bountyId", type: "uint256" }],
   },
+  // mintHunter: register a hunter agent. /mint-hunter.html splits this into
+  // (1) the operator-mediated step that produces the Credential + SampleFingerprint
+  // off-chain and (2) the visitor-signed on-chain call with that blob.
+  {
+    type: "function",
+    stateMutability: "nonpayable",
+    name: "mintHunter",
+    inputs: [
+      {
+        name: "cred",
+        type: "tuple",
+        components: [
+          { name: "githubHandleHash", type: "bytes32" },
+          { name: "accountAgeDays", type: "uint32" },
+          { name: "mergedPRs", type: "uint32" },
+          { name: "codeReviewCount", type: "uint32" },
+          { name: "verifiedAt", type: "uint64" },
+          { name: "verifier", type: "address" },
+          { name: "sig", type: "bytes" },
+        ],
+      },
+      { name: "sampleRoots", type: "bytes32[]" },
+      { name: "embedRoots", type: "bytes32[]" },
+      {
+        name: "fp",
+        type: "tuple",
+        components: [
+          { name: "vocabEntropyBps", type: "uint16" },
+          { name: "domainTermBps", type: "uint16" },
+          { name: "structuralBps", type: "uint16" },
+          { name: "specificityBps", type: "uint16" },
+          { name: "overallBps", type: "uint16" },
+          { name: "modelDigest", type: "bytes32" },
+          { name: "teeSig", type: "bytes" },
+        ],
+      },
+      { name: "specialty", type: "string" },
+      { name: "description", type: "string" },
+    ],
+    outputs: [{ name: "hunterId", type: "uint256" }],
+  },
   // expireBounty: anyone can call after settleDeadline; refunds the original
   // poster. Safe public on-chain action with no operator coordination needed.
   {

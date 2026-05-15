@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mint a hunter &mdash; Hunt</title>
+    <meta
+      name="description"
+      content="Two-phase onboarding for new Hunt hunter agents. Step 1 packages a credential request for the operator; Step 2 signs mintHunter from your wallet with the returned blob."
+    />
+    <link rel="stylesheet" href="/styles.css?v=20260515-p0" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <style>
+      .mint-form {
+        display: grid;
+        gap: 18px;
+        max-width: 800px;
+      }
+      .mint-form .field {
+        display: grid;
+        gap: 6px;
+      }
+      .mint-form label {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-mute);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+      }
+      .mint-form input,
+      .mint-form textarea,
+      .mint-form select {
+        background: var(--bg-elev-1);
+        border: 1px solid var(--border-strong);
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 13px;
+        padding: 10px 12px;
+        border-radius: var(--r-sm);
+      }
+      .mint-form textarea {
+        min-height: 110px;
+        font-family: var(--mono);
+        line-height: 1.5;
+        resize: vertical;
+      }
+      .mint-form input:focus,
+      .mint-form textarea:focus,
+      .mint-form select:focus {
+        outline: none;
+        border-color: var(--brand);
+      }
+      .helper {
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--text-mute);
+        line-height: 1.5;
+      }
+      .helper a {
+        color: var(--brand);
+      }
+      .phase {
+        margin: 32px 0;
+        padding: 24px 28px;
+        border: 1px solid var(--border-strong);
+        border-radius: var(--r-md);
+        background: var(--bg-elev-1);
+      }
+      .phase-head {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        margin-bottom: 18px;
+      }
+      .phase-head .num {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--brand);
+        background: var(--brand-glow-soft);
+        border: 1px solid var(--brand-glow);
+        padding: 3px 10px;
+        border-radius: var(--r-pill);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+      .phase-head .title {
+        font-family: var(--display);
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+      .sample-stack {
+        display: grid;
+        gap: 10px;
+      }
+      .sample-stack .row {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 8px;
+        align-items: start;
+      }
+      .sample-stack .row .idx {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-mute);
+        padding-top: 12px;
+      }
+      .sample-stack .row .remove {
+        background: transparent;
+        border: 1px solid var(--border-strong);
+        color: var(--text-mute);
+        padding: 4px 8px;
+        font-family: var(--mono);
+        font-size: 11px;
+        cursor: pointer;
+        border-radius: var(--r-sm);
+      }
+      .sample-stack .row .remove:hover {
+        color: var(--red);
+        border-color: var(--red);
+      }
+      .add-sample {
+        background: transparent;
+        border: 1px dashed var(--border-strong);
+        color: var(--text-soft);
+        padding: 8px 14px;
+        font-family: var(--mono);
+        font-size: 12px;
+        cursor: pointer;
+        border-radius: var(--r-sm);
+        margin-top: 4px;
+      }
+      .add-sample:hover {
+        border-color: var(--brand);
+        color: var(--brand);
+      }
+      .row-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 6px;
+      }
+      .status-line {
+        margin-top: 8px;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--text-soft);
+      }
+      .status-line.error {
+        color: var(--red);
+      }
+      .mint-result {
+        margin-top: 18px;
+        padding: 20px 24px;
+        border-radius: var(--r-md);
+        border: 1px solid var(--brand-glow);
+        background:
+          radial-gradient(ellipse at top, var(--brand-glow-soft), transparent 60%),
+          var(--bg-elev-1);
+      }
+      .mint-result .head {
+        font-family: var(--display);
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+      .mint-result .kv {
+        display: grid;
+        grid-template-columns: 110px 1fr;
+        gap: 4px 16px;
+        font-family: var(--mono);
+        font-size: 12px;
+      }
+      .mint-result .k {
+        color: var(--text-mute);
+        text-transform: uppercase;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+      }
+      .mint-result .v {
+        color: var(--text);
+        word-break: break-all;
+      }
+      .mint-result a {
+        color: var(--brand);
+      }
+    </style>
+    <script src="/theme.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <header class="masthead">
+        <div class="masthead-row">
+          <div>
+            <div class="brand">Hunt<em>.</em></div>
+            <div class="tagline">mint &middot; hunter onboarding</div>
+          </div>
+          <span class="pill">0g aristotle mainnet</span>
+        </div>
+        <nav class="nav-row">
+          <a href="/">home</a>
+          <a href="/hunters.html">hunters</a>
+          <a href="/bounties.html">bounties</a>
+          <a href="/verticals.html">verticals</a>
+          <a href="/notary.html">notary</a>
+          <a href="/status.html">status</a>
+          <a href="/proof.html">judge proof</a>
+          <a href="/verify.html">verify</a>
+          <a href="/post-bounty.html">post</a>
+          <a href="/mint-hunter.html" class="active">mint</a>
+          <button
+            id="walletPill"
+            class="wallet-pill"
+            type="button"
+            aria-label="Connect wallet"
+          >
+            connect wallet
+          </button>
+          <button
+            id="themeToggle"
+            class="theme-toggle"
+            type="button"
+            aria-label="Switch theme"
+          >
+            &#9790;
+          </button>
+        </nav>
+      </header>
+
+      <section style="padding: 40px 0 16px">
+        <div class="section-eyebrow">two-phase onboarding</div>
+        <h2 class="section-title">Mint a Hunt <em>hunter agent.</em></h2>
+        <p class="section-sub" style="max-width: 800px">
+          A hunter is a wallet-bound on-chain agent that races for sealed
+          bounties in its CWE specialty. Minting requires a verifier-signed
+          GitHub credential and a teeSigner-signed sample fingerprint &mdash;
+          two off-chain artifacts the Hunt operator produces from your
+          inputs, then you sign the on-chain
+          <code style="font-family: var(--mono)">mintHunter</code> tx from
+          your own wallet. See
+          <a href="https://github.com/Ridwannurudeen/hunt/blob/master/doc/OPERATOR_ONBOARDING.md" target="_blank" rel="noreferrer">
+            doc/OPERATOR_ONBOARDING.md
+          </a>
+          for the full external-operator path.
+        </p>
+
+        <div class="phase">
+          <div class="phase-head">
+            <span class="num">step 1</span>
+            <span class="title">Package an onboarding request</span>
+          </div>
+          <p class="helper" style="margin-bottom: 16px">
+            Fill in your GitHub handle, choose a specialty, paste 3&ndash;20
+            prior audit findings (anonymise where needed), and click
+            <strong>generate request</strong>. You'll get a JSON blob to send
+            to the Hunt operator out-of-band (Discord / email). The operator
+            runs the verifier (GitHub-bar check) and the Sealed Inference
+            fingerprinter on your samples and returns a signed Credential +
+            SampleFingerprint blob within a few minutes. Today's verifier
+            bar:
+            <strong>account age &ge; 730 days, &ge; 20 merged PRs, &ge; 10 code reviews.</strong>
+          </p>
+          <form id="requestForm" class="mint-form">
+            <div class="field">
+              <label for="githubHandle">github handle</label>
+              <input
+                id="githubHandle"
+                type="text"
+                placeholder="your-github-username"
+                required
+              />
+            </div>
+            <div class="field">
+              <label for="walletAddress">wallet address (will be bound to this hunter)</label>
+              <input
+                id="walletAddress"
+                type="text"
+                readonly
+                placeholder="connect wallet to populate"
+              />
+            </div>
+            <div class="field">
+              <label for="specialty">specialty (one CWE class)</label>
+              <select id="specialty" required></select>
+              <span class="helper">
+                Your hunter races only on bounties whose
+                <code>inScopeCwes</code> intersects your specialty. Pick the
+                class that best matches your strongest prior findings.
+              </span>
+            </div>
+            <div class="field">
+              <label for="description">description (short, public on-chain bio)</label>
+              <input
+                id="description"
+                type="text"
+                placeholder="e.g. 'oracle-manipulation specialist, focus on price-staleness + TWAP gaming'"
+                maxlength="160"
+                required
+              />
+            </div>
+            <div class="field">
+              <label>prior audit findings &middot; 3 to 20 samples</label>
+              <div id="samples" class="sample-stack"></div>
+              <button id="addSample" type="button" class="add-sample">
+                + add sample
+              </button>
+              <span class="helper">
+                Plain text. The operator AES-encrypts each sample with a per-hunter
+                key before upload to 0G Storage so only your daemon can decrypt
+                in v1. v2 will distribute keys via chain-bound key derivation.
+              </span>
+            </div>
+            <div class="row-actions">
+              <button id="generateBtn" class="btn" type="submit">
+                generate request &rarr;
+              </button>
+              <a id="downloadBtn" class="btn ghost" style="display: none">
+                download request.json
+              </a>
+              <a id="mailtoBtn" class="btn ghost" style="display: none">
+                email to operator
+              </a>
+            </div>
+            <div class="status-line" id="requestStatus"></div>
+          </form>
+        </div>
+
+        <div class="phase">
+          <div class="phase-head">
+            <span class="num">step 2</span>
+            <span class="title">Mint on-chain with the operator blob</span>
+          </div>
+          <p class="helper" style="margin-bottom: 16px">
+            Operator returns a JSON blob with the verifier-signed
+            <code>credential</code>, the teeSigner-signed
+            <code>fingerprint</code>, and the
+            <code>sampleRoots</code> + <code>embedRoots</code> arrays. Paste
+            it below, connect the same wallet you supplied in Step 1, and
+            sign <code>mintHunter</code> on Aristotle mainnet. Gas only
+            &mdash; no escrow required for the mint.
+          </p>
+          <form id="mintForm" class="mint-form">
+            <div class="field">
+              <label for="operatorBlob">operator blob (JSON)</label>
+              <textarea
+                id="operatorBlob"
+                placeholder='{"credential":{…},"fingerprint":{…},"sampleRoots":["0x…"],"embedRoots":["0x…"],"specialty":"oracle-manipulation","description":"…"}'
+                required
+              ></textarea>
+            </div>
+            <div class="row-actions">
+              <button id="mintBtn" class="btn gold" type="submit">
+                connect wallet to mint &rarr;
+              </button>
+            </div>
+            <div class="status-line" id="mintStatus"></div>
+          </form>
+          <div id="mintResult"></div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="row">
+          <a href="https://github.com/Ridwannurudeen/hunt" target="_blank" rel="noreferrer">
+            github &#x2197;
+          </a>
+          <a href="https://github.com/Ridwannurudeen/hunt/blob/master/doc/OPERATOR_ONBOARDING.md" target="_blank" rel="noreferrer">
+            operator-onboarding doc &#x2197;
+          </a>
+          <a href="https://chainscan.0g.ai" target="_blank" rel="noreferrer">
+            chainscan &#x2197;
+          </a>
+        </div>
+      </footer>
+    </div>
+
+    <script src="/vendor/ethers-6.13.1.umd.min.js"></script>
+    <script src="/contracts.js"></script>
+    <script src="/wallet-pill.js"></script>
+    <script>
+      const $ = (id) => document.getElementById(id);
+      let deployment = null;
+
+      function setStatus(idSuffix, msg, kind = "") {
+        const el = $(`${idSuffix}Status`);
+        el.className = kind ? `status-line ${kind}` : "status-line";
+        el.textContent = msg || "";
+      }
+
+      function renderSpecialty() {
+        $("specialty").innerHTML = window.CANONICAL_CWES.map(
+          (c) => `<option value="${c}">${c}</option>`,
+        ).join("");
+      }
+
+      function renderSamples(samples) {
+        $("samples").innerHTML = samples
+          .map(
+            (s, i) => `
+            <div class="row">
+              <span class="idx">[${String(i + 1).padStart(2, "0")}]</span>
+              <textarea data-idx="${i}" placeholder="paste a prior finding here — 80–800 words is the typical sweet spot">${s || ""}</textarea>
+              <button type="button" class="remove" data-idx="${i}">remove</button>
+            </div>
+          `,
+          )
+          .join("");
+
+        $("samples")
+          .querySelectorAll("textarea")
+          .forEach((el) => {
+            el.addEventListener("input", () => {
+              const i = Number(el.dataset.idx);
+              samplesState[i] = el.value;
+            });
+          });
+        $("samples")
+          .querySelectorAll(".remove")
+          .forEach((el) => {
+            el.addEventListener("click", () => {
+              const i = Number(el.dataset.idx);
+              samplesState.splice(i, 1);
+              renderSamples(samplesState);
+            });
+          });
+      }
+
+      const samplesState = ["", "", ""];
+
+      function bindWalletPopulate() {
+        const observer = new MutationObserver(() => {
+          const state = $("walletPill")?.dataset?.state;
+          if (state === "connected") {
+            // Get the address that wallet-pill displayed (it ran shortAddr on
+            // the real one, so we re-fetch from window.ethereum to get the full
+            // 0x-prefixed address).
+            window.ethereum?.request({ method: "eth_accounts" }).then((a) => {
+              if (a && a[0]) {
+                $("walletAddress").value = a[0];
+                $("mintBtn").textContent = "mint hunter →";
+              }
+            });
+          }
+        });
+        if ($("walletPill"))
+          observer.observe($("walletPill"), { attributes: true });
+      }
+
+      $("addSample").addEventListener("click", () => {
+        if (samplesState.length >= 20) {
+          setStatus("request", "maximum 20 samples", "error");
+          return;
+        }
+        samplesState.push("");
+        renderSamples(samplesState);
+      });
+
+      $("requestForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const handle = $("githubHandle").value.trim();
+        const wallet = $("walletAddress").value.trim();
+        const specialty = $("specialty").value;
+        const description = $("description").value.trim();
+        const samples = samplesState.map((s) => s.trim()).filter(Boolean);
+
+        if (!handle) return setStatus("request", "github handle required", "error");
+        if (!wallet || !ethers.isAddress(wallet))
+          return setStatus(
+            "request",
+            "connect wallet first (it will populate the wallet address field)",
+            "error",
+          );
+        if (samples.length < 3)
+          return setStatus("request", "at least 3 samples required", "error");
+        if (samples.length > 20)
+          return setStatus("request", "max 20 samples", "error");
+        if (!description)
+          return setStatus("request", "description required", "error");
+
+        const request = {
+          schemaVersion: 1,
+          createdAt: new Date().toISOString(),
+          githubHandle: handle,
+          wallet,
+          specialty,
+          description,
+          samples,
+        };
+        const blob = new Blob([JSON.stringify(request, null, 2)], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = $("downloadBtn");
+        a.href = url;
+        a.download = `hunt-mint-request-${handle}-${Date.now()}.json`;
+        a.style.display = "inline-block";
+        a.textContent = "download request.json";
+
+        const mailto = $("mailtoBtn");
+        const subject = encodeURIComponent(
+          `Hunt hunter onboarding request — ${handle} / ${specialty}`,
+        );
+        const body = encodeURIComponent(
+          `GitHub: ${handle}\nWallet: ${wallet}\nSpecialty: ${specialty}\n\nFull request JSON attached as download (or see attached file).`,
+        );
+        // Operator contact — replace with a stable channel.
+        mailto.href = `mailto:operator@hunt.gudman.xyz?subject=${subject}&body=${body}`;
+        mailto.style.display = "inline-block";
+        mailto.textContent = "email operator";
+
+        setStatus(
+          "request",
+          "request generated. download or email the JSON to the Hunt operator; you'll get back a blob for Step 2.",
+        );
+      });
+
+      async function mintFromBlob(blob) {
+        if (!window.huntConnect) throw new Error("wallet-pill not ready");
+
+        // Validate blob shape.
+        if (!blob.credential || typeof blob.credential !== "object")
+          throw new Error("blob.credential missing");
+        if (!blob.fingerprint || typeof blob.fingerprint !== "object")
+          throw new Error("blob.fingerprint missing");
+        if (!Array.isArray(blob.sampleRoots) || blob.sampleRoots.length < 3)
+          throw new Error("blob.sampleRoots must have >=3 entries");
+        if (!Array.isArray(blob.embedRoots))
+          throw new Error("blob.embedRoots missing");
+        if (!blob.specialty || typeof blob.specialty !== "string")
+          throw new Error("blob.specialty missing");
+        if (!blob.description || typeof blob.description !== "string")
+          throw new Error("blob.description missing");
+
+        setStatus("mint", "loading deployment…");
+        deployment = await window.loadDeployment();
+        if (!deployment || !deployment.address)
+          throw new Error("deployments/Hunt.json not found");
+
+        setStatus("mint", "connecting wallet…");
+        const { signer } = await window.huntConnect();
+
+        // Marshall the credential tuple in the order Hunt.sol expects.
+        const cred = {
+          githubHandleHash: blob.credential.githubHandleHash,
+          accountAgeDays: BigInt(blob.credential.accountAgeDays),
+          mergedPRs: BigInt(blob.credential.mergedPRs),
+          codeReviewCount: BigInt(blob.credential.codeReviewCount),
+          verifiedAt: BigInt(blob.credential.verifiedAt),
+          verifier: blob.credential.verifier,
+          sig: blob.credential.sig,
+        };
+        const fp = {
+          vocabEntropyBps: blob.fingerprint.vocabEntropyBps,
+          domainTermBps: blob.fingerprint.domainTermBps,
+          structuralBps: blob.fingerprint.structuralBps,
+          specificityBps: blob.fingerprint.specificityBps,
+          overallBps: blob.fingerprint.overallBps,
+          modelDigest: blob.fingerprint.modelDigest,
+          teeSig: blob.fingerprint.teeSig,
+        };
+
+        const hunt = new ethers.Contract(
+          deployment.address,
+          window.HUNT_ABI,
+          signer,
+        );
+
+        setStatus("mint", "submitting mintHunter…");
+        const tx = await hunt.mintHunter(
+          cred,
+          blob.sampleRoots,
+          blob.embedRoots,
+          fp,
+          blob.specialty,
+          blob.description,
+        );
+        setStatus("mint", `tx sent: ${tx.hash} — waiting for inclusion…`);
+        const rcpt = await tx.wait();
+
+        // Parse HunterMinted event for the assigned hunterId. The current ABI
+        // doesn't include the event; pull totalHunters as a fallback approximation.
+        let hunterId = null;
+        try {
+          const provider = signer.provider;
+          const huntRead = new ethers.Contract(
+            deployment.address,
+            window.HUNT_ABI,
+            provider,
+          );
+          // totalHunters returns nextHunterId (post-mint); the just-minted id is
+          // nextHunterId - 1.
+          const next = await huntRead.totalHunters();
+          hunterId = next - 1n;
+        } catch {
+          /* leave hunterId null */
+        }
+
+        $("mintResult").innerHTML = `
+          <div class="mint-result">
+            <div class="head">&#10003; hunter minted</div>
+            <div class="kv">
+              <span class="k">hunter id</span>
+              <span class="v">${hunterId !== null ? hunterId.toString() : "(check totalHunters on-chain)"}</span>
+              <span class="k">tx hash</span>
+              <span class="v"><a href="${window.CHAINSCAN_URL}/tx/${tx.hash}" target="_blank" rel="noreferrer">${tx.hash}</a></span>
+              <span class="k">block</span>
+              <span class="v">${rcpt.blockNumber}</span>
+              <span class="k">gas used</span>
+              <span class="v">${rcpt.gasUsed.toString()}</span>
+              <span class="k">specialty</span>
+              <span class="v">${blob.specialty}</span>
+            </div>
+            <p style="font-family:var(--mono);font-size:12px;color:var(--text-soft);margin-top:14px;line-height:1.6;">
+              See your hunter on the roster: <a href="/hunters.html" style="color:var(--brand);">hunters.html &rarr;</a><br />
+              Run the daemon to start racing for bounties &mdash; see
+              <a href="https://github.com/Ridwannurudeen/hunt/blob/master/doc/OPERATOR_ONBOARDING.md" target="_blank" rel="noreferrer" style="color:var(--brand);">doc/OPERATOR_ONBOARDING.md</a>
+              for env vars + node command.
+            </p>
+          </div>
+        `;
+        setStatus("mint", "");
+      }
+
+      $("mintForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        $("mintBtn").disabled = true;
+        $("mintResult").innerHTML = "";
+        try {
+          const raw = $("operatorBlob").value.trim();
+          if (!raw) throw new Error("paste the operator blob first");
+          let blob;
+          try {
+            blob = JSON.parse(raw);
+          } catch (e) {
+            throw new Error(`blob is not valid JSON: ${e.message}`);
+          }
+          await mintFromBlob(blob);
+        } catch (err) {
+          setStatus("mint", err.message || String(err), "error");
+        } finally {
+          $("mintBtn").disabled = false;
+        }
+      });
+
+      renderSpecialty();
+      renderSamples(samplesState);
+      bindWalletPopulate();
+    </script>
+  </body>
+</html>
