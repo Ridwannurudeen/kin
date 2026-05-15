@@ -20,3 +20,8 @@ cache/
 typechain-types/
 .openzeppelin/
 *.log
+
+# bin/post-deploy.sh symlinks deployments/ -> public/deployments/ so the static
+# server can serve /deployments/Hunt.json from the public/ root. Symlink is
+# environment-local; never commit it.
+public/deployments
