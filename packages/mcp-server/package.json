@@ -1,0 +1,20 @@
+{
+  "name": "@hunt-protocol/mcp-server",
+  "version": "0.1.0",
+  "description": "Hunt protocol MCP server — exposes Hunt's on-chain reads + cryptographic verifier as Model Context Protocol tools for Claude Desktop, Cursor, and any MCP-compatible client.",
+  "type": "module",
+  "bin": {
+    "hunt-mcp": "src/server.js"
+  },
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "ethers": "^6.13.0"
+  },
+  "keywords": ["mcp", "model-context-protocol", "hunt", "0g", "ai", "audit"],
+  "license": "MIT",
+  "repository": "github:Ridwannurudeen/hunt"
+}
