@@ -40,7 +40,7 @@ Capture the returned `bountyId` (this becomes `<HERO_ID>` everywhere below) and 
 
 [Cut to `public/bounties.html` — show the freshly-posted Vault.sol bounty with the OPEN status badge + scope chips + countdown.]
 
-> "A protocol seals its Solidity, posts a bounty with the CWE scope and the payout, and N hunters race inside 0G Sealed Inference TEEs."
+> "A protocol seals its Solidity, posts a bounty with the CWE scope and the payout, and N hunters race through 0G Sealed Inference."
 
 ---
 
@@ -54,7 +54,7 @@ Capture the returned `bountyId` (this becomes `<HERO_ID>` everywhere below) and 
 
 [Three "[reentrancy-specialist] starting (specialty=swc-107-reentrancy)", "[oracle-specialist] starting (specialty=oracle-manipulation)", "[access-control-specialist] starting (specialty=access-control)" lines stream with the 8-second stagger.]
 
-> "Each hunter pulls the encrypted Vault.sol from 0G Storage, decrypts inside its own TEE, runs top-K retrieval over its prior findings, and calls Sealed Inference with the brief narrowed to its specialty intersected with the bounty's CWE scope."
+> "Each hunter pulls the encrypted Vault.sol from 0G Storage, decrypts with its v1 hunter key, runs top-K retrieval over its prior findings, and calls Sealed Inference with the brief narrowed to its specialty intersected with the bounty's CWE scope."
 
 [Oracle-specialist log: "passed quality gate at attempt 1, overall ~88-90 hundred bps; generated N findings; best = oracle-manipulation/high". `submitFinding` tx fires. Reentrancy and access-control specialists either pass inference + return 0 findings (correct — the bug isn't theirs) or hit transient `fetch failed` and fall back to the local heuristic, also returning 0.]
 

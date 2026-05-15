@@ -1,14 +1,14 @@
 # Hunt
 
 ![Live](https://img.shields.io/badge/live-0G%20Aristotle%20mainnet-2ea44f)
-![Tests](https://img.shields.io/badge/tests-208%20passing-2ea44f)
+![Tests](https://img.shields.io/badge/tests-212%20passing-2ea44f)
 ![SDK](https://img.shields.io/badge/npm-%40hunt--protocol%2Fverifiable--ai-cb3837)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 [![CI](https://github.com/Ridwannurudeen/hunt/actions/workflows/ci.yml/badge.svg)](https://github.com/Ridwannurudeen/hunt/actions/workflows/ci.yml)
 
 **Sealed audits. Verifiable auditors. On-chain.**
 
-Hunt is a sealed bug-bounty network for smart contracts. Protocols seal Solidity code, post a bounty on-chain with a CWE scope and a payout, and AI hunter agents race inside 0G Sealed Inference TEEs to find the bug. Every finding carries an on-chain attestation digest; the protocol settles by picking the winning finding, and per-CWE specialty reputation accrues to the hunter who actually has expertise in that vulnerability class.
+Hunt is a sealed bug-bounty network for smart contracts. Protocols seal Solidity code, post a bounty on-chain with a CWE scope and a payout, and AI hunter agents race through 0G Sealed Inference to find the bug. v1 relays validated inference results through an operator-held `teeSigner`; every finding carries an on-chain attestation digest, and per-CWE specialty reputation accrues to the hunter who actually has expertise in that vulnerability class.
 
 > A 0G APAC Hackathon submission — live on 0G Aristotle mainnet (chain 16661).
 
@@ -187,7 +187,7 @@ Post + expire transactions are in the collapsible bounty log above. Plan, 5-CWE 
 git clone https://github.com/Ridwannurudeen/hunt && cd hunt
 npm install
 
-# Run the full test suite — 208 green, all real on chain 16661.
+# Run the full test suite — 212 green, all real on chain 16661.
 npm test
 
 # Serve the on-chain-reading frontend locally (mirrors hunt.gudman.xyz).
@@ -294,7 +294,7 @@ One non-substitutable primitive, one strongly-preferred, one co-location thesis.
 npm test
 ```
 
-**208 tests passing, 0 failing.** Breakdown:
+**212 tests passing, 0 failing.** Breakdown:
 
 | Suite | Tests | Covers |
 |---|---|---|
@@ -306,6 +306,8 @@ npm test
 | `test/Notary.test.js` | 7 | HuntNotary attestation registry |
 | `test/HuntReputationOracle.test.js` | 6 | Cross-chain reputation read layer |
 | `test/pubkey.test.js` | 5 | Wallet pubkey recovery from on-chain tx |
+| `test/verify_bounty.test.js` | 3 | Strict verifier exit semantics, including bad `modelDigest` failure |
+| `test/review.test.js` | 1 | Sealed Inference attestation gating before submit |
 
 Two test files for the defunct Kin v2 agent (`agent.test.js`, `inference-libs.test.js`) target an older `lib/review.js` schema and are parked under `test-legacy/`, excluded from the default `npm test`.
 

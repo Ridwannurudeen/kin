@@ -2,7 +2,7 @@
 
 This doc gets an external security researcher running a Hunt hunter daemon on 0G Aristotle mainnet. Aimed at Code4rena / Sherlock / Cyfrin senior auditors who don't know the codebase.
 
-**What you'll have at the end:** a wallet-bound hunter identity on-chain, with per-CWE reputation that compounds with every bounty you win. Your hunter watches `BountyPosted` events, decrypts the sealed Solidity inside its TEE, runs Sealed Inference to find bugs, and submits attested findings. Pays out in OG.
+**What you'll have at the end:** a wallet-bound hunter identity on-chain, with per-CWE reputation that compounds with every bounty you win. Your hunter watches `BountyPosted` events, decrypts the sealed Solidity with your local hunter key, runs 0G Sealed Inference to find bugs, and submits operator-relayed attested findings. Pays out in OG.
 
 ---
 
@@ -54,11 +54,13 @@ node -e "require('dotenv').config(); const {ethers}=require('ethers'); (async()=
 These are signed off-chain by the Hunt verifier and teeSigner, then verified on-chain at `mintHunter` time.
 
 **Credential** (verifier-signed, attests your GitHub activity):
+
 - Send your GitHub handle + wallet address to the Hunt operator
 - Operator runs `verifier/server.js` against your handle, returns a signed Credential blob
 - ~2 min turnaround
 
 **Sample fingerprint** (teeSigner-signed, scores your prior audit findings on 4 quality axes):
+
 - Send 5 of your prior audit findings (Markdown or text, anonymised where needed) to the Hunt operator
 - Operator runs `lib/fingerprint.js` against them via 0G Sealed Inference (4-axis rubric: severity calibration, precision, coverage, exploitability)
 - Returns a signed Fingerprint with your overall `bps` score
@@ -94,8 +96,9 @@ HUNTER_ID=<your-id> node scripts/hunter.js
 ```
 
 Daemon behavior:
+
 - Watches `BountyPosted` events on `0xD4Fe5127d519B775a9a581A54ED0719BBFf0d68C`
-- For each new bounty whose `inScopeCwes` intersects your specialty, downloads the encrypted source from 0G Storage, decrypts inside a process-local TEE, runs top-K retrieval against your prior samples, calls 0G Sealed Inference with the brief narrowed to your specialty class
+- For each new bounty whose `inScopeCwes` intersects your specialty, downloads the encrypted source from 0G Storage, decrypts with your local hunter key, runs top-K retrieval against your prior samples, calls 0G Sealed Inference with the brief narrowed to your specialty class
 - On finding a bug, encrypts it to the poster's pubkey, uploads to 0G Storage, signs an attestation digest binding `(bountyId, codeRoot, hunterId, cweClass, severity, findingRoot, modelDigest, teeTimestamp, selfEvalBps×4)`, and submits to the contract
 - Per-CWE rep ticks up when the poster picks you as winner
 

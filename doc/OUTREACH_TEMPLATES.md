@@ -12,13 +12,14 @@ For the 4 days leading to the 0G APAC Hackathon submission (deadline 2026-05-16)
 
 > Hey {NAME} — caught your {HOOK: their most recent c4 finding or thread}. Sharp work.
 >
-> I'm shipping Hunt for the 0G APAC Hackathon (Track 3, deadline Friday). It's a sealed bug-bounty network — AI hunter agents race inside 0G Sealed Inference TEEs, per-CWE reputation accrues on-chain. Live mainnet: https://hunt.gudman.xyz, contract 0xD4Fe5127… on Aristotle.
+> I'm shipping Hunt for the 0G APAC Hackathon (Track 3, deadline Friday). It's a sealed bug-bounty network — AI hunter agents race through 0G Sealed Inference, v1 relays validated findings on-chain, and per-CWE reputation accrues on-chain. Live mainnet: https://hunt.gudman.xyz, contract 0xD4Fe5127… on Aristotle.
 >
 > Looking for **2–3 external operators** to spin up a hunter on their own wallet for the demo recording on {DATE}. Total commitment: 30 min setup + sit through one 10-min live race. Pays $1.5k. Onboarding doc: https://github.com/Ridwannurudeen/hunt/blob/master/doc/OPERATOR_ONBOARDING.md
 >
 > Catch: I need someone recognised — your name in the participant list materially strengthens the "real adversarial market" claim vs my three demo personas. Down?
 
 **Targets** (verify activity is current before sending):
+
 - Top 10 c4 wardens for the last quarter (publicly listed on https://code4rena.com/leaderboard)
 - @CyfrinJared, @CyfrinTincho, @PaulRBerg
 - @0xRajeev, @0xfoobar, @samczsun (long-shots — high value if they engage)
@@ -63,7 +64,7 @@ For the 4 days leading to the 0G APAC Hackathon submission (deadline 2026-05-16)
 
 > Hey {NAME} — fan of {HOOK: a specific tweet/thread of theirs}.
 >
-> Quick ask. Hunt is live on 0G Aristotle mainnet — sealed bug-bounty network where AI hunters race to find smart-contract bugs, every finding has an on-chain attestation digest (v1 operator-relayed over real Sealed Inference, v2 chain-enforced TEE bind), per-CWE rep on-chain. Friday is the 0G APAC Hackathon grand prize deadline.
+> Quick ask. Hunt is live on 0G Aristotle mainnet — sealed bug-bounty network where AI hunters race to find smart-contract bugs, every finding has an on-chain attestation digest (v1 operator-relayed over real Sealed Inference, v2 chain-enforced TEE-attestation bind), per-CWE rep on-chain. Friday is the 0G APAC Hackathon grand prize deadline.
 >
 > I'm getting 2–3 external operators to run hunters during the demo recording. Would you spin one up? Compensated either way ($1.5k flat) but I'd value the visibility of your name in the on-chain participant list more than the dollars matter.
 >
@@ -105,7 +106,8 @@ For the 4 days leading to the 0G APAC Hackathon submission (deadline 2026-05-16)
 > Available any 15-min slot in the next 48h.
 
 **Targets** (highest leverage first):
-- 0G Labs CEO Michael Heinrich (@_mheinrich on X)
+
+- 0G Labs CEO Michael Heinrich (@\_mheinrich on X)
 - 0G Labs core engineers active in Discord
 - 0G dev advocate / ecosystem team
 - 0G Compute team (closest fit — they built Sealed Inference)

@@ -9,7 +9,7 @@
 //   4. runs top-K retrieval over the samples vs the brief
 //   5. builds a briefSchemaVersion-2 audit brief from on-chain bounty fields + decrypted
 //      code, then calls Sealed Inference (review + self-eval in one shot)
-//   6. retries on LLM throw OR self-eval miss, MAX_RETRIES with MIN_OUTPUT_QUALITY_BPS
+//   6. retries on LLM throw, missing/invalid 0G attestation, or self-eval miss
 //   7. picks the best in-scope finding (highest severity, then array order)
 //   8. encrypts the finding to the bounty poster's pubkey, uploads to 0G Storage
 //   9. signs the finding attestation (lib/credential.signFindingAttestation)
@@ -41,7 +41,7 @@ import { encryptToPubkey } from "../lib/ecdh.js";
 import { pubkeyFromTx } from "../lib/pubkey.js";
 import { bufferToEmbed } from "../lib/embedding.js";
 import { topK } from "../lib/retrieval.js";
-import { generateReview } from "../lib/review.js";
+import { generateReview, hasValidSealedAttestation } from "../lib/review.js";
 import { signFindingAttestation } from "../lib/credential.js";
 import {
   CANONICAL_CWES,
@@ -249,7 +249,7 @@ export async function processBounty({
     context: `Hunt bounty #${bountyId} posted by ${bounty.poster}. raceDeadline=${bounty.raceDeadline}.`,
   };
 
-  // 6. Generate review, retry on quality gate failure OR LLM parse/transport error.
+  // 6. Generate review, retry on quality gate failure, bad attestation, or parse/transport error.
   // 0G Sealed Inference occasionally returns empty bodies; treat that the same as a
   // quality miss — retry up to MAX_RETRIES before giving up.
   let reviewResult;
@@ -273,6 +273,16 @@ export async function processBounty({
       );
       continue;
     }
+    if (!hasValidSealedAttestation(reviewResult)) {
+      lastError = new Error(
+        `0G attestation validation failed: ${JSON.stringify(reviewResult.attestationValid)}`,
+      );
+      logger(
+        `[bounty ${bountyId}] attempt ${attempts} attestation invalid (${reviewResult.attestationId || "missing ZG-Res-Key"} / ${JSON.stringify(reviewResult.attestationValid)}), retrying`,
+      );
+      reviewResult = null;
+      continue;
+    }
     if (reviewResult.selfEval.overallBps >= MIN_OUTPUT_QUALITY_BPS) break;
     logger(
       `[bounty ${bountyId}] attempt ${attempts} qualityScore ${reviewResult.selfEval.overallBps} below ${MIN_OUTPUT_QUALITY_BPS}, retrying`,
@@ -280,7 +290,7 @@ export async function processBounty({
   }
   if (!reviewResult) {
     logger(
-      `[bounty ${bountyId}] LLM failed ${MAX_RETRIES}x — falling back to local audit heuristic (lib/audit-fallback.js); last LLM error: ${lastError?.message?.slice(0, 120)}`,
+      `[bounty ${bountyId}] Sealed Inference failed ${MAX_RETRIES}x — falling back to local audit heuristic (lib/audit-fallback.js); last error: ${lastError?.message?.slice(0, 120)}`,
     );
     // Parse the decrypted code blob into {path: source} the same way extractContractsInScope does
     let codeFiles;

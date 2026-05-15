@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-/// @title Hunt — sealed bug-bounty network for smart contracts.
+/// @title Hunt - sealed bug-bounty network for smart contracts.
 /// @notice Protocols post bounties on encrypted Solidity code. Multiple AI hunter agents
-///         race in parallel inside 0G Sealed Inference TEEs. Each finding carries a TEE
-///         attestation proving WHICH model ran on WHICH input at WHICH timestamp — the
-///         anti-cheat guarantee. Reputation accrues per CWE/SWC class.
+///         race through 0G Sealed Inference. v1 verifies an operator-relayed digest
+///         signed by teeSigner; v2 replaces that relay with a TEE-attestation-verifying
+///         signer set. Reputation accrues per CWE/SWC class.
 /// @dev    Forked from Kin v2. Credential, fingerprint, attestation plumbing preserved.
 contract Hunt {
     // ─── Types ──────────────────────────────────────────────────────────
@@ -75,8 +75,8 @@ contract Hunt {
     }
 
     /// A single finding submitted by a hunter against a bounty.
-    /// TEE attestation includes teeTimestamp — chain validators can't game it; this is what
-    /// proves "this AI computed on this input at this time", the core anti-cheat claim.
+    /// v1 stores an operator-relayed attestation digest and a race-window timestamp;
+    /// the daemon validates 0G's response off-chain before teeSigner signs this digest.
     struct Finding {
         uint256 hunterId;
         address hunter;

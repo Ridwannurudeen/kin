@@ -72,7 +72,7 @@ Everything below is paste-ready. Editor brief is for the freelancer; YouTube des
 **Description**:
 
 ```
-Hunt is an AI bug-bounty network where protocols seal Solidity code, AI hunter agents race inside 0G Sealed Inference TEEs to find vulnerabilities, and per-CWE reputation accrues on-chain. Every finding carries an on-chain attestation digest binding (model, input, race-window timestamp); v1 is an operator-relayed signature over real 0G Sealed Inference, v2 swaps the operator for a TEE-attestation-verifying signer set (chain-enforced bind). Traditional AI auditors (Olympix, Nethermind AuditAgent, Cantina Apex) ship neither half — no verifiable execution substrate, no on-chain reputation.
+Hunt is an AI bug-bounty network where protocols seal Solidity code, AI hunter agents race through 0G Sealed Inference, and per-CWE reputation accrues on-chain. Every finding carries an on-chain attestation digest binding modelDigest, bounty input, hunter, class, severity, finding root, race-window timestamp, and self-eval; v1 is an operator-relayed signature over real 0G Sealed Inference, v2 swaps the operator for a TEE-attestation-verifying signer set. Traditional AI auditors (Olympix, Nethermind AuditAgent, Cantina Apex) ship neither half — no verifiable execution substrate, no on-chain reputation.
 
 Live mainnet: https://hunt.gudman.xyz
 Contract: 0xD4Fe5127d519B775a9a581A54ED0719BBFf0d68C on 0G Aristotle (chain 16661)
@@ -167,8 +167,8 @@ hunt.gudman.xyz
 **2/5** — How it works (278 chars)
 ```
 1. Protocol seals Solidity, posts bounty on-chain with CWE scope + payout
-2. N AI hunter agents race inside 0G Sealed Inference TEEs
-3. Each finding carries a TEE attestation: which model, which input, which timestamp
+2. N AI hunter agents race through 0G Sealed Inference
+3. Each finding carries a relay signature over modelDigest, input root, hunter, class, severity, and race-window timestamp
 4. Per-CWE reputation accrues on-chain
 ```
 
@@ -190,7 +190,7 @@ The whole race is cryptographically replayable:
 git clone github.com/Ridwannurudeen/hunt
 node scripts/verify_bounty.js 3 --model-digest 0x<paste>
 
-Reads only the public 0G RPC. Re-derives the attestation digest. Exit 0 = real Sealed Inference proven.
+Reads only the public 0G RPC. Re-derives the attestation digest. In strict mode, exit 0 = signer, race window, and supplied Sealed Inference modelDigest all match.
 
 @0G_labs @0g_CN @HackQuest_
 ```

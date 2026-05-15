@@ -12,7 +12,7 @@ Pre-filled answers for the 0G APAC Hackathon submission form. **Review each fiel
 (Pivoted on 2026-05-11 from predecessor **Kin v2** on the same codebase. Kin v2 contract `0x47F25b…` is preserved on-chain as the historical reference. The credential / fingerprint / attestation plumbing is forked from Kin v2 — `contracts/Hunt.sol` carries the fork note in its docstring.)
 
 ## 2. One-sentence description (≤30 words)
-Hunt is a sealed bug-bounty network for smart contracts — protocols post encrypted Solidity, AI hunter agents race in 0G Sealed Inference TEEs, per-CWE-class reputation accrues on-chain.
+Hunt is a sealed bug-bounty network for smart contracts — protocols post encrypted Solidity, AI hunter agents race through 0G Sealed Inference, and v1 relays validated findings on-chain for per-CWE-class reputation.
 
 ## 3. Short summary
 
@@ -32,7 +32,7 @@ Hunt is a sealed bug-bounty network for smart contracts — protocols post encry
 - **TEE attestation chain-of-custody**: `teeSigner` address on-chain; off-chain relay produces the digest `Hunt.sol` recovers. v1 = one operator-held key. v2 = TEE-attestation-verifying relay set that signs only when 0G's per-response attestation validates against the model that produced the answer.
 - **Credential verifier**: `verifier/server.js` enforces the GitHub-activity bar (≥730d account age, ≥20 merged PRs, ≥10 reviews) and signs a wallet-bound, replay-protected Credential the contract recovers on mint.
 
-**Engineering depth.** 208 tests passing, 0 failing (68 Hunt contract — including the v1.1 ClassRep math regression suite added in self-audit response; 78 Kin contract foundation, 21 verifier, 13 ECDH, 10 embedding, 7 HuntNotary, 6 HuntReputationOracle, 5 pubkey-recover). Two Kin v2 agent legacy test files target the older `review.summary` schema and are parked under `test-legacy/`, excluded from the default `npm test`. Race-deadline enforcement, settle-window enforcement, CWE-scope filter, per-hunter specialty intersection (`scripts/hunter.js` `hunterSpecialtyCwes` param), per-finding `teeTimestamp` window check, self-eval `MIN_FINDING_QUALITY_BPS` floor — all on-chain. Local-fallback path (`lib/audit-fallback.js`) is documented and stamps a distinct `modelDigest` on-chain so judges can audit which path each finding took. Standalone verifier (`scripts/verify_bounty.js`) re-derives the attestation digest from on-chain fields and runs `ecrecover` independently — judges can run it without project setup; pass `--model-digest 0x<digest>` for strict cryptographic re-derivation (one-liner in §9).
+**Engineering depth.** 212 tests passing, 0 failing (68 Hunt contract — including the v1.1 ClassRep math regression suite added in self-audit response; 78 Kin contract foundation, 21 verifier, 13 ECDH, 10 embedding, 7 HuntNotary, 6 HuntReputationOracle, 5 pubkey-recover, 3 strict verifier semantics, 1 Sealed Inference attestation gate). Two Kin v2 agent legacy test files target the older `review.summary` schema and are parked under `test-legacy/`, excluded from the default `npm test`. Race-deadline enforcement, settle-window enforcement, CWE-scope filter, per-hunter specialty intersection (`scripts/hunter.js` `hunterSpecialtyCwes` param), per-finding `teeTimestamp` window check, self-eval `MIN_FINDING_QUALITY_BPS` floor — all on-chain. Local-fallback path (`lib/audit-fallback.js`) is documented and stamps a distinct `modelDigest` on-chain so judges can audit which path each finding took. Standalone verifier (`scripts/verify_bounty.js`) re-derives the attestation digest from on-chain fields and runs `ecrecover` independently — judges can run it without project setup; pass `--model-digest 0x<digest>` for strict cryptographic re-derivation (one-liner in §9).
 
 ## 4. Track
 
@@ -236,7 +236,7 @@ For the strict re-derivation, pass `--model-digest 0x…` matching the encrypted
 - [ ] `scripts/settle_bounty.js` — bounty #0 settled; 0.05 OG paid to oracle-specialist
 - [ ] `scripts/verify_bounty.js 3 --model-digest 0x<digest>` exits 0 — winning finding cryptographically verifies against `teeSigner` AND `modelDigest` (real Sealed Inference proof)
 - [ ] README + SUBMISSION tx hashes match what's actually on-chain
-- [ ] `npm test` — 208 tests green, 0 failing (legacy Kin v2 agent tests parked under `test-legacy/` and excluded from default suite)
+- [ ] `npm test` — 212 tests green, 0 failing (legacy Kin v2 agent tests parked under `test-legacy/` and excluded from default suite)
 - [ ] Demo video recorded per `doc/DEMO_VIDEO_SCRIPT.md` (≤3 min, 1080p, real voice)
 - [ ] Demo video uploaded to YouTube unlisted; link added to §6
 - [ ] X post drafted (`doc/X_POST.md`); clip attached

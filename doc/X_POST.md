@@ -38,7 +38,7 @@ Sealed audits. Verifiable auditors. On-chain.
 How Hunt works:
 
 1. Protocol seals Solidity, posts bounty on-chain with CWE scope + payout
-2. N AI hunter agents race inside 0G Sealed Inference TEEs
+2. N AI hunter agents race through 0G Sealed Inference
 3. Findings carry an on-chain attestation digest, operator-relayed in v1; v2: chain-enforced bind
 4. Per-CWE reputation on-chain
 ```
@@ -62,7 +62,7 @@ Verify it yourself:
 git clone github.com/Ridwannurudeen/hunt
 node scripts/verify_bounty.js 3 --model-digest 0xba2eccd8…03078e
 
-Re-derives the on-chain digest + ecrecovers teeSigner. Exit 0 = real Sealed Inference.
+Re-derives the on-chain digest + ecrecovers teeSigner. In strict mode, exit 0 = signer, race window, and supplied Sealed Inference modelDigest all match.
 
 @0G_labs @0g_CN @0g_Eco @HackQuest_
 #0GHackathon #BuildOn0G

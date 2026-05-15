@@ -173,7 +173,7 @@ What the in-tree fix doesn't do: it doesn't redeploy. The deployed mainnet contr
 What judges can verify:
 
 - Diff: the v1.1 changes are concentrated in `contracts/Hunt.sol` and `test/Hunt.test.js` — search for the comment `v1.1` in either file.
-- Tests: 4 new tests cover (a) `submissions++` on submit alone, (b) accumulation across multiple submissions same CWE, (c) losing hunter retains `submissions == 1` after winner is settled, (d) `totalEarnedWei` correctly stores a 20-ether payout that would have wrapped under `uint64`. `npm test` → 208 passing, 0 failing.
+- Tests: 4 ClassRep tests cover (a) `submissions++` on submit alone, (b) accumulation across multiple submissions same CWE, (c) losing hunter retains `submissions == 1` after winner is settled, (d) `totalEarnedWei` correctly stores a 20-ether payout that would have wrapped under `uint64`. The current suite also covers strict verifier failure on a bad `modelDigest` and Sealed Inference attestation gating. `npm test` → 212 passing, 0 failing.
 - Live state: `getClassRep(hunterId, cweClass)` on the deployed `0xD4Fe5127…` still returns the v1.0-counted values. Bounty #3 strict-verify still exits 0 against that address.
 
 ---
@@ -223,7 +223,7 @@ The v1 smart-contract narrative is still the load-bearing demo. The new vertical
 What is **not** claimed for the May 2026 submission:
 
 - No new specialists are minted on-chain. The hunter mints stay at the original three (`reentrancy`, `oracle`, `access-control`) so the live `getHunter` calls return v1-consistent data.
-- No new bounties fire on the new verticals. Bounty #3's strict-verify exit 0 remains the load-bearing cryptographic proof.
+- No new bounties fire on the new verticals. Bounty #3's strict verifier remains the load-bearing cryptographic receipt: signer, race window, and supplied Sealed Inference modelDigest must all match.
 - No claim that the v1 0G Sealed Inference model (`zai-org/GLM-5-FP8`) produces useful output on medical or legal text without retuning. The READMEs are explicit that on-chain firing waits for fine-tuning + validation against public corpora (weeks 8–12 post-hackathon for insurance; weeks 12–20 for medical, plus CLIA-certified human-in-the-loop partnership).
 
 The bar this submission clears: smart-contract auditing is the load-bearing v1 vertical with a settled mainnet artifact (bounty #3) cryptographically verifiable today, plus two documented v2 verticals with runnable demonstration scripts that exercise the same on-chain primitive against new domain inputs.

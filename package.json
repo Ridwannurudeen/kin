@@ -1,7 +1,7 @@
 {
   "name": "hunt",
   "version": "0.1.0",
-  "description": "Sealed audits. Verifiable auditors. On-chain. AI hunter agents race in 0G Sealed Inference TEEs to find smart-contract bugs; per-CWE reputation accrues on 0G Chain. 0G APAC Hackathon entry.",
+  "description": "Sealed audits. Verifiable auditors. On-chain. AI hunter agents race through 0G Sealed Inference, relay verified findings on-chain, and accrue per-CWE reputation on 0G Chain. 0G APAC Hackathon entry.",
   "type": "module",
   "scripts": {
     "dev": "node bin/serve.js",
