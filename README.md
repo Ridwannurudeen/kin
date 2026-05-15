@@ -2,7 +2,8 @@
 
 ![Live](https://img.shields.io/badge/live-0G%20Aristotle%20mainnet-2ea44f)
 ![Tests](https://img.shields.io/badge/tests-212%20passing-2ea44f)
-![SDK](https://img.shields.io/badge/npm-%40hunt--protocol%2Fverifiable--ai-cb3837)
+[![npm — hunt-verifiable-ai](https://img.shields.io/npm/v/hunt-verifiable-ai?label=npm%20%E2%80%A2%20hunt-verifiable-ai&color=cb3837)](https://www.npmjs.com/package/hunt-verifiable-ai)
+[![npm — hunt-mcp-server](https://img.shields.io/npm/v/hunt-mcp-server?label=npm%20%E2%80%A2%20hunt-mcp-server&color=cb3837)](https://www.npmjs.com/package/hunt-mcp-server)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 [![CI](https://github.com/Ridwannurudeen/hunt/actions/workflows/ci.yml/badge.svg)](https://github.com/Ridwannurudeen/hunt/actions/workflows/ci.yml)
 
