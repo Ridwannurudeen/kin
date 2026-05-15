@@ -75,7 +75,12 @@
       <a href="/notary.html">notary</a>
       <a href="/status.html" class="active">status</a>
       <a href="/proof.html">judge proof</a>
+      <a href="/verify.html">verify</a>
+      <a href="/post-bounty.html">post</a>
+      <a href="/mint-hunter.html">mint</a>
+      <a href="/expire-bounty.html">expire</a>
       <a href="https://github.com/Ridwannurudeen/hunt" target="_blank" rel="noreferrer">github &#x2197;</a>
+      <button id="walletPill" class="wallet-pill" type="button" aria-label="Connect wallet">connect wallet</button>
       <button id="themeToggle" class="theme-toggle" type="button" aria-label="Switch theme">&#9790;</button>
     </nav>
   </header>
@@ -118,6 +123,7 @@
 
 <script src="/vendor/ethers-6.13.1.umd.min.js"></script>
 <script src="/contracts.js"></script>
+<script src="/wallet-pill.js"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 

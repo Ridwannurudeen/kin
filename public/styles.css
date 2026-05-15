@@ -976,7 +976,11 @@ pre {
   .skill-row .price { font-size: 16px; }
   .skill-row button { width: 100%; }
   .footer .row { flex-direction: column; gap: 12px; }
-  table.kv-table td { font-size: 12px; }
+  .container { padding: 0 16px; }
+  table.kv-table { table-layout: fixed; width: 100%; }
+  table.kv-table td { font-size: 12px; word-break: break-word; overflow-wrap: anywhere; }
+  table.kv-table td.k { width: 42%; }
+  table.kv-table td.v { width: 58%; }
 }
 
 /* ─── Reduced motion ──────────────────────────────────────────────── */
