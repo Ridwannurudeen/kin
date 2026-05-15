@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expire a bounty &mdash; Hunt</title>
+    <meta
+      name="description"
+      content="Anyone can call expireBounty() on a Hunt bounty whose race has ended without a winner, or whose settle window has closed. Refunds the escrow to the original poster. No operator coordination required."
+    />
+    <link rel="stylesheet" href="/styles.css?v=20260515-p0" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <style>
+      .expire-form {
+        display: grid;
+        gap: 14px;
+        margin-top: 24px;
+        max-width: 640px;
+      }
+      .expire-form .field {
+        display: grid;
+        gap: 6px;
+      }
+      .expire-form label {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-mute);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+      }
+      .expire-form input {
+        background: var(--bg-elev-1);
+        border: 1px solid var(--border-strong);
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 13px;
+        padding: 10px 12px;
+        border-radius: var(--r-sm);
+      }
+      .expire-form input:focus {
+        outline: none;
+        border-color: var(--brand);
+      }
+      .helper {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-mute);
+        line-height: 1.6;
+      }
+      .preview {
+        margin-top: 20px;
+        padding: 18px 20px;
+        border: 1px solid var(--border);
+        border-radius: var(--r-md);
+        background: var(--bg-elev-1);
+        font-family: var(--mono);
+        font-size: 12px;
+        line-height: 1.7;
+      }
+      .preview .row {
+        display: grid;
+        grid-template-columns: 170px 1fr;
+        gap: 6px 16px;
+      }
+      .preview .k {
+        color: var(--text-mute);
+        text-transform: uppercase;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+      }
+      .preview .v {
+        color: var(--text);
+        word-break: break-all;
+      }
+      .preview .ok {
+        color: var(--brand);
+      }
+      .preview .bad {
+        color: var(--red);
+      }
+      .result {
+        margin-top: 20px;
+        padding: 22px;
+        border-radius: var(--r-md);
+        border: 1px solid var(--brand-glow);
+        background:
+          radial-gradient(ellipse at top, var(--brand-glow-soft), transparent 60%),
+          var(--bg-elev-1);
+      }
+      .result.error {
+        border-color: rgba(220, 50, 47, 0.5);
+        background: rgba(220, 50, 47, 0.06);
+      }
+      .result .head {
+        font-family: var(--display);
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+      .result .kv {
+        display: grid;
+        grid-template-columns: 130px 1fr;
+        gap: 4px 16px;
+        font-family: var(--mono);
+        font-size: 12px;
+      }
+      .result .k {
+        color: var(--text-mute);
+        text-transform: uppercase;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+      }
+      .result .v {
+        color: var(--text);
+        word-break: break-all;
+      }
+      .result a {
+        color: var(--brand);
+      }
+      .status-line {
+        margin-top: 8px;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--text-soft);
+      }
+      .status-line.error {
+        color: var(--red);
+      }
+    </style>
+    <script src="/theme.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <header class="masthead">
+        <div class="masthead-row">
+          <div>
+            <div class="brand">Hunt<em>.</em></div>
+            <div class="tagline">expire &middot; refund stalled bounties</div>
+          </div>
+          <span class="pill">0g aristotle mainnet</span>
+        </div>
+        <nav class="nav-row">
+          <a href="/">home</a>
+          <a href="/hunters.html">hunters</a>
+          <a href="/bounties.html">bounties</a>
+          <a href="/verticals.html">verticals</a>
+          <a href="/notary.html">notary</a>
+          <a href="/status.html">status</a>
+          <a href="/proof.html">judge proof</a>
+          <a href="/verify.html">verify</a>
+          <a href="/post-bounty.html">post</a>
+          <a href="/mint-hunter.html">mint</a>
+          <a href="/expire-bounty.html" class="active">expire</a>
+          <button
+            id="walletPill"
+            class="wallet-pill"
+            type="button"
+            aria-label="Connect wallet"
+          >
+            connect wallet
+          </button>
+          <button
+            id="themeToggle"
+            class="theme-toggle"
+            type="button"
+            aria-label="Switch theme"
+          >
+            &#9790;
+          </button>
+        </nav>
+      </header>
+
+      <section style="padding: 40px 0 16px">
+        <div class="section-eyebrow">anyone-callable &middot; public good</div>
+        <h2 class="section-title">
+          Expire a stalled <em>bounty.</em>
+        </h2>
+        <p class="section-sub" style="max-width: 800px">
+          Hunt's <code style="font-family: var(--mono)">expireBounty</code> is
+          a permissionless cleanup action. Anyone can call it on a bounty
+          whose <strong>race window has ended with no findings</strong>, or
+          whose <strong>settle window has closed without the poster picking
+          a winner</strong>. The escrowed payout refunds to the original
+          poster. The caller pays only gas — no operator coordination
+          required.
+        </p>
+
+        <form id="expireForm" class="expire-form">
+          <div class="field">
+            <label for="bountyId">bounty id</label>
+            <input
+              id="bountyId"
+              type="number"
+              min="0"
+              step="1"
+              placeholder="e.g. 17"
+              required
+            />
+            <span class="helper">
+              Tip: <code>bounty #17</code> is currently expirable (settle
+              window closed). Try it.
+            </span>
+          </div>
+          <div class="field">
+            <label>pre-flight check</label>
+            <div class="preview" id="preview">
+              Enter a bounty id and click <strong>check</strong> to see
+              whether <code>expireBounty</code> would succeed against
+              current chain state.
+            </div>
+          </div>
+          <div class="row" style="display: flex; gap: 12px; flex-wrap: wrap">
+            <button id="checkBtn" type="button" class="btn">
+              check &rarr;
+            </button>
+            <button id="expireBtn" type="submit" class="btn gold" disabled>
+              connect wallet to expire &rarr;
+            </button>
+            <span class="status-line" id="status"></span>
+          </div>
+        </form>
+
+        <div id="result"></div>
+      </section>
+
+      <footer class="footer">
+        <div class="row">
+          <a
+            href="https://github.com/Ridwannurudeen/hunt"
+            target="_blank"
+            rel="noreferrer"
+          >
+            github &#x2197;
+          </a>
+          <a
+            href="https://chainscan.0g.ai"
+            target="_blank"
+            rel="noreferrer"
+          >
+            chainscan &#x2197;
+          </a>
+          <span class="footer-note">
+            contract: <code>Hunt.expireBounty(uint256)</code>
+          </span>
+        </div>
+      </footer>
+    </div>
+
+    <script src="/vendor/ethers-6.13.1.umd.min.js"></script>
+    <script src="/contracts.js"></script>
+    <script src="/wallet-pill.js"></script>
+    <script>
+      const $ = (id) => document.getElementById(id);
+      let deployment = null;
+      let lastChecked = null;
+
+      function setStatus(msg, kind = "") {
+        const el = $("status");
+        el.className = kind ? `status-line ${kind}` : "status-line";
+        el.textContent = msg || "";
+      }
+
+      function escapeHtml(s) {
+        return String(s).replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      }
+
+      function tick(b) {
+        return b
+          ? '<span class="ok">&#10003;</span>'
+          : '<span class="bad">&#10007;</span>';
+      }
+
+      async function check(bountyId) {
+        if (!deployment) {
+          setStatus("loading deployment…");
+          deployment = await window.loadDeployment();
+        }
+        if (!deployment || !deployment.address) {
+          throw new Error("deployments/Hunt.json not found");
+        }
+        const provider = new ethers.JsonRpcProvider(window.RPC_URL);
+        const hunt = new ethers.Contract(
+          deployment.address,
+          window.HUNT_ABI,
+          provider,
+        );
+        const [bounty, findingsCount] = await Promise.all([
+          hunt.getBounty(BigInt(bountyId)),
+          hunt.getFindingsCount(BigInt(bountyId)),
+        ]);
+        if (bounty.postedAt === 0n) {
+          throw new Error(`bounty #${bountyId} does not exist`);
+        }
+        const now = Math.floor(Date.now() / 1000);
+        const statusInt = Number(bounty.status);
+        const isOpen = statusInt === 0;
+        const raceEnded = now > Number(bounty.raceDeadline);
+        const settleEnded = now > Number(bounty.settleDeadline);
+        const noFindings = Number(findingsCount) === 0;
+        // Hunt.sol:380 — bool noFindings = findingsMap[bountyId].length == 0 && block.timestamp > b.raceDeadline;
+        // Hunt.sol:381 — bool settleExpired = block.timestamp > b.settleDeadline;
+        // require(noFindings || settleExpired, "still active");
+        const canExpire =
+          isOpen && ((noFindings && raceEnded) || settleEnded);
+
+        lastChecked = {
+          bountyId,
+          bounty,
+          findingsCount: Number(findingsCount),
+          canExpire,
+        };
+        $("preview").innerHTML = `
+          <div class="row">
+            <span class="k">bounty</span><span class="v">#${escapeHtml(String(bountyId))}</span>
+            <span class="k">status</span><span class="v">${isOpen ? "Open" : statusInt === 1 ? "Settled" : statusInt === 2 ? "Expired" : `status-${statusInt}`} ${tick(isOpen)}</span>
+            <span class="k">poster</span><span class="v"><a href="${window.CHAINSCAN_URL}/address/${bounty.poster}" target="_blank" rel="noreferrer">${escapeHtml(bounty.poster)}</a></span>
+            <span class="k">payout escrowed</span><span class="v">${ethers.formatEther(bounty.maxPayout)} OG (refunds to poster)</span>
+            <span class="k">race deadline</span><span class="v">${new Date(Number(bounty.raceDeadline) * 1000).toISOString()} &middot; ended ${tick(raceEnded)}</span>
+            <span class="k">settle deadline</span><span class="v">${new Date(Number(bounty.settleDeadline) * 1000).toISOString()} &middot; ended ${tick(settleEnded)}</span>
+            <span class="k">findings</span><span class="v">${findingsCount.toString()}</span>
+            <span class="k">no-findings + past-race</span><span class="v">${tick(noFindings && raceEnded)} (path A)</span>
+            <span class="k">past settle deadline</span><span class="v">${tick(settleEnded)} (path B)</span>
+            <span class="k">eligible to expire</span><span class="v ${canExpire ? "ok" : "bad"}"><strong>${canExpire ? "YES" : "NO"}</strong></span>
+          </div>
+        `;
+        if (canExpire) {
+          $("expireBtn").disabled = !window.huntConnect;
+        }
+        return canExpire;
+      }
+
+      async function expire() {
+        if (!lastChecked || !lastChecked.canExpire) {
+          throw new Error("run pre-flight check first; bounty must be eligible");
+        }
+        if (!window.huntConnect) throw new Error("wallet-pill not ready");
+        setStatus("connecting wallet…");
+        const { signer } = await window.huntConnect();
+        setStatus("submitting expireBounty…");
+        const hunt = new ethers.Contract(
+          deployment.address,
+          window.HUNT_ABI,
+          signer,
+        );
+        const tx = await hunt.expireBounty(BigInt(lastChecked.bountyId));
+        setStatus(`tx sent: ${tx.hash} — waiting for inclusion…`);
+        const rcpt = await tx.wait();
+
+        $("result").innerHTML = `
+          <div class="result">
+            <div class="head">&#10003; bounty #${lastChecked.bountyId} expired</div>
+            <div class="kv">
+              <span class="k">tx hash</span>
+              <span class="v"><a href="${window.CHAINSCAN_URL}/tx/${tx.hash}" target="_blank" rel="noreferrer">${tx.hash}</a></span>
+              <span class="k">block</span>
+              <span class="v">${rcpt.blockNumber}</span>
+              <span class="k">gas used</span>
+              <span class="v">${rcpt.gasUsed.toString()}</span>
+              <span class="k">refunded</span>
+              <span class="v">${ethers.formatEther(lastChecked.bounty.maxPayout)} OG → <a href="${window.CHAINSCAN_URL}/address/${lastChecked.bounty.poster}" target="_blank" rel="noreferrer">${lastChecked.bounty.poster}</a></span>
+            </div>
+            <p style="font-family:var(--mono);font-size:12px;color:var(--text-soft);margin-top:14px;line-height:1.6;">
+              <code>BountyExpired</code> event fired on-chain. The bounty no
+              longer shows as Open on <a href="/bounties.html" style="color:var(--brand);">bounties.html</a>.
+            </p>
+          </div>
+        `;
+        setStatus("");
+        lastChecked = null;
+      }
+
+      $("checkBtn").addEventListener("click", async () => {
+        const idStr = $("bountyId").value.trim();
+        if (!idStr) {
+          setStatus("bounty id required", "error");
+          return;
+        }
+        $("result").innerHTML = "";
+        setStatus("reading on-chain state…");
+        try {
+          const ok = await check(idStr);
+          setStatus(
+            ok
+              ? "eligible — connect wallet and click expire"
+              : "not eligible — see preview for why",
+            ok ? "" : "error",
+          );
+        } catch (err) {
+          setStatus(err.message || String(err), "error");
+        }
+      });
+
+      $("expireForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        $("expireBtn").disabled = true;
+        try {
+          await expire();
+        } catch (err) {
+          setStatus(err.message || String(err), "error");
+          $("expireBtn").disabled = false;
+        }
+      });
+
+      // Enable expire button once wallet connects.
+      const observer = new MutationObserver(() => {
+        const state = $("walletPill")?.dataset?.state;
+        if (state === "connected" && lastChecked?.canExpire) {
+          $("expireBtn").disabled = false;
+          $("expireBtn").textContent = `expire bounty #${lastChecked.bountyId} →`;
+        }
+      });
+      if ($("walletPill"))
+        observer.observe($("walletPill"), { attributes: true });
+    </script>
+  </body>
+</html>

@@ -204,6 +204,7 @@
           <a href="/verify.html">verify</a>
           <a href="/post-bounty.html">post</a>
           <a href="/mint-hunter.html">mint</a>
+          <a href="/expire-bounty.html">expire</a>
           <a
             href="https://github.com/Ridwannurudeen/hunt"
             target="_blank"
@@ -246,8 +247,11 @@
           <a href="/hunters.html" class="btn lg gold"
             >view live hunters &rarr;</a
           >
-          <a href="#" class="btn lg ghost" id="postCta"
-            >post a bounty (coming soon)</a
+          <a href="/post-bounty.html" class="btn lg ghost" id="postCta"
+            >post a bounty &rarr;</a
+          >
+          <a href="/verify.html" class="btn lg ghost"
+            >verify a finding &rarr;</a
           >
         </div>
 
@@ -265,7 +269,8 @@
             ><span class="lab">bounties settled</span>
           </div>
           <div class="stat">
-            <span class="num">5</span><span class="lab">0G primitives</span>
+            <span class="num" id="statPaid">&mdash;</span
+            ><span class="lab">OG paid to hunters</span>
           </div>
         </div>
       </section>
@@ -442,10 +447,6 @@
     <script>
       const $ = (id) => document.getElementById(id);
 
-      document.getElementById("postCta").addEventListener("click", (e) => {
-        e.preventDefault();
-      });
-
       (async function init() {
         await loadDeployment();
         const addr = window.HUNT_ADDRESS;
@@ -485,13 +486,21 @@
             const all = await Promise.all(
               Array.from({ length: n }, (_, i) => hunt.getBounty(i)),
             );
-            const settled = all.filter((b) => Number(b.status) === 1).length;
-            $("statSettled").textContent = settled.toString();
-            $("liveSettled").textContent = `${settled} of ${n}`;
+            const settledBounties = all.filter((b) => Number(b.status) === 1);
+            $("statSettled").textContent = settledBounties.length.toString();
+            $("liveSettled").textContent = `${settledBounties.length} of ${n}`;
+            // Cumulative OG paid to hunters (sum of maxPayout for settled bounties).
+            const paidWei = settledBounties.reduce(
+              (acc, b) => acc + b.maxPayout,
+              0n,
+            );
+            const paidStr = Number(ethers.formatEther(paidWei)).toFixed(2);
+            $("statPaid").textContent = paidStr;
           } catch (e) {
             console.error("settled count failed:", e);
             $("statSettled").textContent = "—";
             $("liveSettled").textContent = "—";
+            $("statPaid").textContent = "—";
           }
         } catch (e) {
           console.error("init failed:", e);
