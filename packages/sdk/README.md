@@ -1,4 +1,4 @@
-# @hunt-protocol/verifiable-ai
+# hunt-verifiable-ai
 
 Verifiable AI primitives for 0G Aristotle, extracted from the Hunt protocol.
 
@@ -13,25 +13,31 @@ The code here is intentionally small. It is the protocol substrate, not the full
 
 ## Install
 
-This SDK is pre-1.0 and currently lives inside the Hunt repo.
+Published on npm:
+
+```bash
+npm install hunt-verifiable-ai
+```
+
+Your app must provide `ethers` as a peer dep:
+
+```bash
+npm install ethers
+```
+
+Or work from source:
 
 ```bash
 git clone https://github.com/Ridwannurudeen/hunt
 cd hunt/packages/sdk
-npm test
-```
-
-Your app must provide `ethers`:
-
-```bash
-npm install ethers
+npm install && npm test
 ```
 
 ## Quickstart
 
 ```js
 import { ethers } from 'ethers';
-import { classToBytes32, findingDigest, signAttestation, verifyAttestation } from '@hunt-protocol/verifiable-ai';
+import { classToBytes32, findingDigest, signAttestation, verifyAttestation } from 'hunt-verifiable-ai';
 
 const wallet = ethers.Wallet.createRandom();
 const params = {
