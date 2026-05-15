@@ -981,6 +981,9 @@ pre {
   table.kv-table td { font-size: 12px; word-break: break-word; overflow-wrap: anywhere; }
   table.kv-table td.k { width: 42%; }
   table.kv-table td.v { width: 58%; }
+  /* the nav grew past 12 links — wrap to multiple rows on mobile rather than
+     horizontal-scroll. */
+  .nav-row { flex-wrap: wrap; row-gap: 10px; }
 }
 
 /* ─── Reduced motion ──────────────────────────────────────────────── */

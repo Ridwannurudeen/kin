@@ -55,9 +55,26 @@ Hunt-side onboarding for hunter operators (verifier-signed credential + sample f
 | **Submission doc** | [`doc/SUBMISSION.md`](doc/SUBMISSION.md) |
 | **Anticipated judge questions** | [`doc/JUDGE_FAQ.md`](doc/JUDGE_FAQ.md) |
 | **v2 roadmap** (4-pillar plan vs verified May 2026 landscape) | [`doc/FUTURE.md`](doc/FUTURE.md) |
-| **L1 SDK** — `@hunt-protocol/verifiable-ai` | [`packages/sdk/README.md`](packages/sdk/README.md) |
+| **npm SDK** — verifiable-AI primitives | [`hunt-verifiable-ai`](https://www.npmjs.com/package/hunt-verifiable-ai) &middot; [`packages/sdk`](packages/sdk) |
+| **MCP server** — Claude Desktop / Cursor compatible | [`hunt-mcp-server`](https://www.npmjs.com/package/hunt-mcp-server) &middot; [`packages/mcp-server`](packages/mcp-server) |
+| **Public read API** — `/api/*`, OpenAPI 3, Swagger UI | [`hunt.gudman.xyz/api/docs`](https://hunt.gudman.xyz/api/docs) |
+| **Live event stream** — every Hunt tx, real-time | [`hunt.gudman.xyz/live.html`](https://hunt.gudman.xyz/live.html) |
+| **Build with Hunt** — copy-paste integration snippets | [`hunt.gudman.xyz/integration.html`](https://hunt.gudman.xyz/integration.html) |
 | **AI usage disclosure** | [`AI_USAGE.md`](AI_USAGE.md) |
 | **More docs** (Notary, Reputation Oracle, partnership, onboarding) | [Project layout](#project-layout) |
+
+## 0G primitive map — what runs where
+
+A reference for anyone reading the code: which Hunt file talks to which 0G primitive, with one canonical call-site each.
+
+| 0G primitive | Used for | Reference file:line |
+|---|---|---|
+| **0G Compute** (Sealed Inference) | Hunter review + self-eval + fingerprint generation. Consumes `ZG-Res-Key` attestation via `broker.inference.processResponse`. | [`scripts/hunter.js:384`](scripts/hunter.js) — `createZGComputeNetworkBroker(operator)`<br>[`lib/review.js`](lib/review.js) — combined review+self-eval call<br>[`lib/fingerprint.js`](lib/fingerprint.js) — 4-axis sample scoring at mint time |
+| **0G Storage** | Sealed bounty code blobs, per-hunter encrypted sample/embedding records, ECIES-wrapped findings to poster pubkey. | [`lib/storage.js`](lib/storage.js) — `uploadRaw`, `downloadRaw`, `uploadEncryptedRecord`<br>[`scripts/post_bounty.js`](scripts/post_bounty.js) — symmetric-encrypt + upload of Vault.sol<br>[`scripts/hunter.js:159`](scripts/hunter.js) — download + decrypt code blob |
+| **0G Chain** (Aristotle, 16661) | Hunter registry, bounty escrow, race + settle window, finding `ecrecover` against `teeSigner`, per-CWE `ClassRep` ledger. | [`contracts/Hunt.sol:200`](contracts/Hunt.sol) — `mintHunter`<br>[`contracts/Hunt.sol:250`](contracts/Hunt.sol) — `postBounty`<br>[`contracts/Hunt.sol:277`](contracts/Hunt.sol) — `submitFinding`<br>[`contracts/Hunt.sol:329`](contracts/Hunt.sol) — `settleBounty` |
+| **Agent-identity** (semantic) | Hunt's on-chain hunter registry serves as an agent-ID primitive: each hunter has a wallet-bound `hunterId`, verifier-signed Credential, TEE-signed SampleFingerprint, per-CWE ClassRep. Not the official 0G Agent ID SDK (which doesn't ship at npm as of 2026-05-15) but functionally equivalent for Hunt's domain. | [`contracts/Hunt.sol:200-239`](contracts/Hunt.sol) — `mintHunter` |
+
+The standalone verifier [`scripts/verify_bounty.js`](scripts/verify_bounty.js) is a 250-LOC tutorial in how to talk to all three primitives from outside the project: read on-chain state from `0G Chain`, re-derive the digest, run `ecrecover`, optionally fetch the encrypted code from `0G Storage`. It's also exposed as a browser tool at [`/verify.html`](https://hunt.gudman.xyz/verify.html) and as an MCP tool `hunt_verify_bounty`.
 
 ## Contracts — 0G Aristotle mainnet (chain 16661)
 

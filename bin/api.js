@@ -337,6 +337,7 @@ function indexHandler(_req, res) {
     chain: "0G Aristotle (chainId 16661)",
     cache_ttl_seconds: CACHE_TTL_MS / 1000,
     endpoints: {
+      "GET /api/health": "uptime + rpc reachability",
       "GET /api/stats": "aggregate protocol numbers",
       "GET /api/hunters": "all minted hunters",
       "GET /api/hunters/:id": "single hunter detail",
@@ -345,8 +346,231 @@ function indexHandler(_req, res) {
       "GET /api/bounties/:id/findings": "findings for a bounty (full structs)",
       "GET /api/rep/:hunterId/:cwe":
         "per-CWE ClassRep entry (cwe is either bytes32 or canonical kebab string)",
+      "GET /api/openapi.json": "OpenAPI 3.0 spec for this API",
+      "GET /api/docs": "Swagger UI (interactive browser explorer)",
     },
+    docs: "https://hunt.gudman.xyz/api/docs",
   });
+}
+
+async function healthHandler(_req, res) {
+  const t0 = Date.now();
+  let rpcOk = false;
+  let block = null;
+  try {
+    if (!_provider) await ensureContract();
+    block = await _provider.getBlockNumber();
+    rpcOk = true;
+  } catch {
+    // rpcOk stays false
+  }
+  jsonResponse(res, rpcOk ? 200 : 503, {
+    status: rpcOk ? "healthy" : "degraded",
+    rpc: RPC_URL,
+    rpcOk,
+    aristotleBlock: block,
+    cacheEntries: cache.size,
+    rttMs: Date.now() - t0,
+    uptime_s: Math.round(process.uptime()),
+    pid: process.pid,
+  });
+}
+
+const OPENAPI_SPEC = {
+  openapi: "3.0.3",
+  info: {
+    title: "Hunt — public read API",
+    description:
+      "Read-only HTTP/JSON API over the Hunt protocol on 0G Aristotle mainnet (chain 16661). Thin proxy over on-chain reads at https://evmrpc.0g.ai with a 30s server-side cache. No auth, CORS-open. Hunt itself is the sealed bug-bounty network for smart contracts where AI hunter agents race per CWE specialty for an on-chain payout.",
+    version: "1.0.0",
+    contact: { name: "Hunt", url: "https://hunt.gudman.xyz" },
+    license: { name: "MIT" },
+  },
+  servers: [{ url: "https://hunt.gudman.xyz", description: "production" }],
+  tags: [
+    { name: "meta", description: "API metadata + health" },
+    { name: "stats", description: "aggregate protocol numbers" },
+    { name: "hunters", description: "minted hunter agents" },
+    { name: "bounties", description: "posted + settled bounties" },
+    { name: "reputation", description: "per-CWE empirical reputation" },
+  ],
+  paths: {
+    "/api": {
+      get: {
+        tags: ["meta"],
+        summary: "endpoint index",
+        responses: {
+          200: {
+            description: "endpoint registry + docs link",
+            content: { "application/json": { schema: { type: "object" } } },
+          },
+        },
+      },
+    },
+    "/api/health": {
+      get: {
+        tags: ["meta"],
+        summary: "service health + rpc reachability",
+        responses: {
+          200: { description: "healthy" },
+          503: { description: "degraded (rpc unreachable)" },
+        },
+      },
+    },
+    "/api/stats": {
+      get: {
+        tags: ["stats"],
+        summary: "aggregate protocol stats",
+        responses: {
+          200: {
+            description:
+              "totals + bounty status breakdown + cumulative OG paid to hunters",
+          },
+        },
+      },
+    },
+    "/api/hunters": {
+      get: {
+        tags: ["hunters"],
+        summary: "list every minted hunter",
+        responses: { 200: { description: "hunters array" } },
+      },
+    },
+    "/api/hunters/{id}": {
+      get: {
+        tags: ["hunters"],
+        summary: "single hunter detail",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "integer", minimum: 0 },
+            example: 1,
+          },
+        ],
+        responses: {
+          200: { description: "hunter tuple" },
+          404: { description: "not found" },
+        },
+      },
+    },
+    "/api/bounties": {
+      get: {
+        tags: ["bounties"],
+        summary: "list every bounty",
+        responses: { 200: { description: "bounties array" } },
+      },
+    },
+    "/api/bounties/{id}": {
+      get: {
+        tags: ["bounties"],
+        summary: "single bounty detail + findings count",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "integer", minimum: 0 },
+            example: 3,
+          },
+        ],
+        responses: {
+          200: { description: "bounty tuple" },
+          404: { description: "not found" },
+        },
+      },
+    },
+    "/api/bounties/{id}/findings": {
+      get: {
+        tags: ["bounties"],
+        summary: "every finding submitted against a bounty",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "integer", minimum: 0 },
+            example: 3,
+          },
+        ],
+        responses: { 200: { description: "findings array (full structs)" } },
+      },
+    },
+    "/api/rep/{hunterId}/{cwe}": {
+      get: {
+        tags: ["reputation"],
+        summary: "per-CWE ClassRep entry for a hunter",
+        description:
+          "cwe accepts either a 32-byte hex string OR a canonical kebab-case CWE name like 'oracle-manipulation' (server will keccak256 it for you).",
+        parameters: [
+          {
+            name: "hunterId",
+            in: "path",
+            required: true,
+            schema: { type: "integer", minimum: 0 },
+            example: 1,
+          },
+          {
+            name: "cwe",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            example: "oracle-manipulation",
+          },
+        ],
+        responses: { 200: { description: "ClassRep tuple" } },
+      },
+    },
+  },
+};
+
+function openapiHandler(_req, res) {
+  jsonResponse(res, 200, OPENAPI_SPEC);
+}
+
+function docsHandler(_req, res) {
+  const html = `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hunt API &mdash; Swagger UI</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+    <style>
+      body { margin: 0; background: #0b0d12; }
+      #swagger-ui { max-width: 1200px; margin: 0 auto; }
+      .topbar { display: none; }
+      /* Override Swagger UI light defaults for a less-jarring dark page header. */
+      .swagger-ui .info { padding: 28px 24px; background: #14171f; color: #f5f6f9; border-radius: 12px; }
+      .swagger-ui .info .title, .swagger-ui .info p, .swagger-ui .info li { color: #f5f6f9; }
+    </style>
+  </head>
+  <body>
+    <div id="swagger-ui"></div>
+    <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+    <script>
+      window.onload = () => {
+        window.ui = SwaggerUIBundle({
+          url: "/api/openapi.json",
+          dom_id: "#swagger-ui",
+          deepLinking: true,
+          presets: [SwaggerUIBundle.presets.apis],
+          layout: "BaseLayout",
+          tryItOutEnabled: true,
+        });
+      };
+    </script>
+  </body>
+</html>`;
+  res.writeHead(200, {
+    "content-type": "text/html; charset=utf-8",
+    "content-length": Buffer.byteLength(html),
+    "access-control-allow-origin": "*",
+    "cache-control": "public, max-age=300",
+  });
+  res.end(html);
 }
 
 export function handleApi(req, res) {
@@ -384,6 +608,12 @@ export function handleApi(req, res) {
 
   (async () => {
     try {
+      if (parts.length === 1 && parts[0] === "health")
+        return healthHandler(req, res);
+      if (parts.length === 1 && parts[0] === "openapi.json")
+        return openapiHandler(req, res);
+      if (parts.length === 1 && parts[0] === "docs")
+        return docsHandler(req, res);
       if (parts.length === 1 && parts[0] === "stats")
         return statsHandler(req, res);
       if (parts.length === 1 && parts[0] === "hunters")

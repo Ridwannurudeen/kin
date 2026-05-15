@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live activity &mdash; Hunt</title>
+    <meta
+      name="description"
+      content="Real-time stream of Hunt protocol events on 0G Aristotle mainnet — bounty posts, finding submits, settlements, expires, hunter mints — pulled directly from the public 0G RPC."
+    />
+    <link rel="stylesheet" href="/styles.css?v=20260515-p0" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <style>
+      .live-controls {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        flex-wrap: wrap;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--text-soft);
+        margin-top: 12px;
+      }
+      .live-controls .dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--brand);
+        margin-right: 6px;
+        animation: pulse 1.4s ease-in-out infinite;
+        vertical-align: 1px;
+      }
+      .live-controls .meta { color: var(--text-mute); }
+      .feed { display: grid; gap: 10px; margin-top: 24px; }
+      .ev {
+        display: grid;
+        grid-template-columns: 110px 1fr auto;
+        gap: 16px;
+        padding: 14px 18px;
+        border: 1px solid var(--border);
+        border-radius: var(--r-md);
+        background: var(--bg-elev-1);
+        font-family: var(--mono);
+        font-size: 12px;
+        align-items: center;
+      }
+      @media (max-width: 720px) {
+        .ev {
+          grid-template-columns: 1fr;
+          gap: 6px;
+        }
+      }
+      .ev .kind {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        padding: 4px 10px;
+        border-radius: var(--r-pill);
+        font-weight: 600;
+        text-align: center;
+      }
+      .ev.posted .kind   { background: var(--brand-glow-soft); color: var(--brand); border: 1px solid var(--brand-glow); }
+      .ev.submitted .kind { background: rgba(99,140,255,0.12); color: #88b3ff; border: 1px solid rgba(99,140,255,0.3); }
+      .ev.settled .kind  { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(245,200,66,0.3); }
+      .ev.expired .kind  { background: var(--bg-elev-2); color: var(--text-mute); border: 1px solid var(--border); }
+      .ev.minted .kind   { background: rgba(180,90,255,0.12); color: #c79bff; border: 1px solid rgba(180,90,255,0.3); }
+      .ev .body { color: var(--text); line-height: 1.5; }
+      .ev .body strong { color: var(--text); }
+      .ev .body .mono { font-family: var(--mono); color: var(--text-soft); font-size: 11px; }
+      .ev .ts {
+        color: var(--text-mute);
+        font-size: 11px;
+        text-align: right;
+      }
+      .ev .ts a {
+        color: var(--brand);
+        display: block;
+      }
+      .status-line {
+        margin-top: 14px;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--text-mute);
+      }
+      .status-line.error {
+        color: var(--red);
+      }
+      .empty {
+        padding: 60px 0;
+        text-align: center;
+        color: var(--text-mute);
+        font-family: var(--mono);
+        font-size: 13px;
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.35; }
+      }
+    </style>
+    <script src="/theme.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <header class="masthead">
+        <div class="masthead-row">
+          <div>
+            <div class="brand">Hunt<em>.</em></div>
+            <div class="tagline">live &middot; on-chain event stream</div>
+          </div>
+          <span class="pill">0g aristotle mainnet</span>
+        </div>
+        <nav class="nav-row">
+          <a href="/">home</a>
+          <a href="/hunters.html">hunters</a>
+          <a href="/bounties.html">bounties</a>
+          <a href="/verticals.html">verticals</a>
+          <a href="/notary.html">notary</a>
+          <a href="/status.html">status</a>
+          <a href="/proof.html">judge proof</a>
+          <a href="/verify.html">verify</a>
+          <a href="/post-bounty.html">post</a>
+          <a href="/mint-hunter.html">mint</a>
+          <a href="/expire-bounty.html">expire</a>
+          <a href="/live.html" class="active">live</a>
+          <button
+            id="walletPill"
+            class="wallet-pill"
+            type="button"
+            aria-label="Connect wallet"
+          >
+            connect wallet
+          </button>
+          <button
+            id="themeToggle"
+            class="theme-toggle"
+            type="button"
+            aria-label="Switch theme"
+          >
+            &#9790;
+          </button>
+        </nav>
+      </header>
+
+      <section style="padding: 40px 0 16px">
+        <div class="section-eyebrow">live stream &middot; 0g rpc &middot; no setup</div>
+        <h2 class="section-title">
+          Hunt activity, <em>in real time.</em>
+        </h2>
+        <p class="section-sub" style="max-width: 800px">
+          Pulled directly from the public 0G Aristotle RPC. Bounty posts,
+          finding submits, settlements, expires, hunter mints — every
+          event the
+          <code style="font-family: var(--mono)">Hunt.sol</code> contract
+          emits, in chronological order with tx links. Auto-refresh every
+          20 seconds.
+        </p>
+
+        <div class="live-controls">
+          <span><span class="dot"></span><strong>live</strong></span>
+          <span class="meta">chain block: <span id="block">…</span></span>
+          <span class="meta">contract: <a id="contractLink" target="_blank" rel="noreferrer">…</a></span>
+          <span class="meta">window: last <span id="windowBlocks">50k</span> blocks</span>
+          <button id="refreshBtn" class="btn ghost" type="button" style="font-size: 11px; padding: 6px 12px;">
+            refresh now &rarr;
+          </button>
+        </div>
+
+        <div class="feed" id="feed">
+          <div class="empty">loading events…</div>
+        </div>
+
+        <div class="status-line" id="status"></div>
+      </section>
+
+      <footer class="footer">
+        <div class="row">
+          <a
+            href="https://github.com/Ridwannurudeen/hunt"
+            target="_blank"
+            rel="noreferrer"
+          >
+            github &#x2197;
+          </a>
+          <a href="/api/" target="_blank" rel="noreferrer">
+            JSON API &#x2197;
+          </a>
+          <a href="/api/docs" target="_blank" rel="noreferrer">
+            Swagger UI &#x2197;
+          </a>
+        </div>
+      </footer>
+    </div>
+
+    <script src="/vendor/ethers-6.13.1.umd.min.js"></script>
+    <script src="/contracts.js"></script>
+    <script src="/wallet-pill.js"></script>
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const POLL_INTERVAL_MS = 20_000;
+      const WINDOW_BLOCKS = 50_000;
+      let provider = null;
+      let hunt = null;
+      let pollTimer = null;
+      let seenKeys = new Set();
+      let allEvents = [];
+
+      function escapeHtml(s) {
+        return String(s).replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      }
+
+      function setStatus(msg, kind = "") {
+        const el = $("status");
+        el.className = kind ? `status-line ${kind}` : "status-line";
+        el.textContent = msg || "";
+      }
+
+      function shortAddr(a) {
+        const s = String(a || "");
+        return s.length < 12 ? s : `${s.slice(0, 8)}…${s.slice(-6)}`;
+      }
+
+      function shortHash(h) {
+        const s = String(h || "");
+        return s.length < 14 ? s : `${s.slice(0, 10)}…${s.slice(-8)}`;
+      }
+
+      function cweName(bytes32) {
+        try {
+          return window.bytes32ToCwe(bytes32) || shortHash(bytes32);
+        } catch {
+          return shortHash(bytes32);
+        }
+      }
+
+      const SEVERITY_LABEL = {
+        1: "low",
+        2: "medium",
+        3: "high",
+        4: "critical",
+      };
+
+      function ago(blockTs) {
+        if (!blockTs) return "";
+        const diff = Math.max(0, Math.floor(Date.now() / 1000) - Number(blockTs));
+        if (diff < 60) return `${diff}s ago`;
+        if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+        if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+        return `${Math.floor(diff / 86400)}d ago`;
+      }
+
+      function renderEvent(ev) {
+        const tx = ev.transactionHash;
+        const txUrl = `${window.CHAINSCAN_URL}/tx/${tx}`;
+        const blockNo = ev.blockNumber;
+        const tsAgo = ev.timestamp ? ago(ev.timestamp) : `block ${blockNo}`;
+        let kindClass = "";
+        let kindLabel = "";
+        let bodyHtml = "";
+
+        const args = ev.args || {};
+        if (ev.name === "BountyPosted") {
+          kindClass = "posted";
+          kindLabel = "bounty posted";
+          const payoutOG = ethers.formatEther(args.maxPayout || 0n);
+          bodyHtml = `bounty <strong>#${args.bountyId}</strong> posted by <span class="mono">${escapeHtml(shortAddr(args.poster))}</span> · payout <strong>${payoutOG} OG</strong>`;
+        } else if (ev.name === "FindingSubmitted") {
+          kindClass = "submitted";
+          kindLabel = "finding submitted";
+          bodyHtml = `hunter <strong>#${args.hunterId}</strong> submitted finding <strong>[${args.findingIdx}]</strong> on bounty <strong>#${args.bountyId}</strong> · <span class="mono">${escapeHtml(cweName(args.cweClass))}</span> · severity <strong>${SEVERITY_LABEL[Number(args.severity)] || args.severity}</strong>`;
+        } else if (ev.name === "BountySettled") {
+          kindClass = "settled";
+          kindLabel = "settled";
+          const paidOG = ethers.formatEther(args.paid || 0n);
+          bodyHtml = `bounty <strong>#${args.bountyId}</strong> settled · winner hunter <strong>#${args.winningHunterId}</strong> on <span class="mono">${escapeHtml(cweName(args.cweClass))}</span> · paid <strong>${paidOG} OG</strong>`;
+        } else if (ev.name === "BountyExpired") {
+          kindClass = "expired";
+          kindLabel = "expired";
+          const refOG = ethers.formatEther(args.refunded || 0n);
+          bodyHtml = `bounty <strong>#${args.bountyId}</strong> expired · refund <strong>${refOG} OG</strong> to poster`;
+        } else if (ev.name === "HunterMinted") {
+          kindClass = "minted";
+          kindLabel = "hunter minted";
+          const bps = args.fingerprintOverallBps;
+          bodyHtml = `hunter <strong>#${args.hunterId}</strong> · <span class="mono">${escapeHtml(args.specialty || "")}</span> · owner <span class="mono">${escapeHtml(shortAddr(args.owner))}</span> · fingerprint <strong>${bps}</strong> bps`;
+        } else {
+          kindClass = "posted";
+          kindLabel = ev.name;
+          bodyHtml = `<span class="mono">${escapeHtml(JSON.stringify(args).slice(0, 120))}</span>`;
+        }
+
+        return `
+          <div class="ev ${kindClass}">
+            <div class="kind">${escapeHtml(kindLabel)}</div>
+            <div class="body">${bodyHtml}</div>
+            <div class="ts">
+              <span>${escapeHtml(tsAgo)}</span>
+              <a href="${txUrl}" target="_blank" rel="noreferrer">tx ${escapeHtml(shortHash(tx))} &#x2197;</a>
+            </div>
+          </div>
+        `;
+      }
+
+      async function withRetry(fn, retries = 2) {
+        let last;
+        for (let i = 0; i <= retries; i++) {
+          try {
+            return await fn();
+          } catch (e) {
+            last = e;
+            await new Promise((r) => setTimeout(r, 400));
+          }
+        }
+        throw last;
+      }
+
+      async function fetchEvents() {
+        const head = await withRetry(() => provider.getBlockNumber());
+        $("block").textContent = head.toLocaleString();
+        const from = Math.max(0, head - WINDOW_BLOCKS);
+
+        const eventNames = [
+          "BountyPosted",
+          "FindingSubmitted",
+          "BountySettled",
+          "BountyExpired",
+          "HunterMinted",
+        ];
+
+        const allLogs = (
+          await Promise.all(
+            eventNames.map(async (name) => {
+              try {
+                const filter = hunt.filters[name]();
+                const logs = await withRetry(() =>
+                  hunt.queryFilter(filter, from, head),
+                );
+                return logs.map((l) => ({
+                  name,
+                  transactionHash: l.transactionHash,
+                  blockNumber: l.blockNumber,
+                  logIndex: l.index ?? l.logIndex,
+                  args: l.args,
+                }));
+              } catch (e) {
+                console.warn(`[live] ${name} query failed:`, e.message);
+                return [];
+              }
+            }),
+          )
+        ).flat();
+
+        // Resolve block timestamps for chronological labeling (parallel-safe, cached
+        // per block number).
+        const uniqueBlocks = Array.from(
+          new Set(allLogs.map((l) => l.blockNumber)),
+        );
+        const tsMap = new Map();
+        await Promise.all(
+          uniqueBlocks.map(async (bn) => {
+            try {
+              const b = await withRetry(() => provider.getBlock(bn));
+              if (b?.timestamp) tsMap.set(bn, Number(b.timestamp));
+            } catch {}
+          }),
+        );
+        for (const l of allLogs) {
+          l.timestamp = tsMap.get(l.blockNumber) || null;
+        }
+
+        // Sort desc by block / logIndex.
+        allLogs.sort((a, b) => {
+          if (b.blockNumber !== a.blockNumber)
+            return b.blockNumber - a.blockNumber;
+          return (b.logIndex || 0) - (a.logIndex || 0);
+        });
+
+        // Dedupe via tx+logIndex (rerenders should be stable).
+        const next = [];
+        const newSeen = new Set();
+        for (const l of allLogs) {
+          const key = `${l.transactionHash}#${l.logIndex}`;
+          if (newSeen.has(key)) continue;
+          newSeen.add(key);
+          next.push(l);
+        }
+
+        seenKeys = newSeen;
+        allEvents = next;
+
+        if (next.length === 0) {
+          $("feed").innerHTML = `<div class="empty">no events in the last ${WINDOW_BLOCKS.toLocaleString()} blocks</div>`;
+        } else {
+          $("feed").innerHTML = next.map(renderEvent).join("");
+        }
+
+        setStatus(
+          `last refresh: ${new Date().toLocaleTimeString()} · ${next.length} events in last ${WINDOW_BLOCKS.toLocaleString()} blocks`,
+        );
+      }
+
+      async function init() {
+        setStatus("loading deployment…");
+        const dep = await window.loadDeployment();
+        if (!dep || !dep.address) {
+          setStatus("deployments/Hunt.json not found", "error");
+          return;
+        }
+        provider = new ethers.JsonRpcProvider(window.RPC_URL);
+        hunt = new ethers.Contract(dep.address, window.HUNT_ABI, provider);
+        $("contractLink").href = `${window.CHAINSCAN_URL}/address/${dep.address}`;
+        $("contractLink").textContent = shortAddr(dep.address);
+        $("windowBlocks").textContent = WINDOW_BLOCKS.toLocaleString();
+        setStatus("fetching events…");
+        try {
+          await fetchEvents();
+        } catch (e) {
+          setStatus(`fetch failed: ${e.message}`, "error");
+        }
+        pollTimer = setInterval(async () => {
+          try {
+            await fetchEvents();
+          } catch (e) {
+            setStatus(`refresh failed: ${e.message}`, "error");
+          }
+        }, POLL_INTERVAL_MS);
+      }
+
+      $("refreshBtn").addEventListener("click", async () => {
+        setStatus("refreshing…");
+        try {
+          await fetchEvents();
+        } catch (e) {
+          setStatus(`refresh failed: ${e.message}`, "error");
+        }
+      });
+
+      // Pause polling when tab is hidden, resume when visible.
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden && pollTimer) {
+          clearInterval(pollTimer);
+          pollTimer = null;
+        } else if (!document.hidden && !pollTimer && provider) {
+          pollTimer = setInterval(fetchEvents, POLL_INTERVAL_MS);
+        }
+      });
+
+      init();
+    </script>
+  </body>
+</html>
