@@ -357,6 +357,47 @@ window.HUNT_ABI = [
     ],
   },
 
+  // ── on-chain constants exposed to the browser ──────────────────────────
+  {
+    type: "function",
+    stateMutability: "view",
+    name: "MIN_RACE_DURATION",
+    inputs: [],
+    outputs: [{ type: "uint64" }],
+  },
+  {
+    type: "function",
+    stateMutability: "view",
+    name: "MAX_RACE_DURATION",
+    inputs: [],
+    outputs: [{ type: "uint64" }],
+  },
+
+  // ── state-changing entry points (browser-callable) ─────────────────────
+  // postBounty: escrow a payout and post a sealed bounty against a known codeRoot.
+  // The browser cannot upload to 0G Storage today, so /post-bounty.html demos
+  // posting against an existing on-chain codeRoot (bounty #3's staged Vault.sol).
+  {
+    type: "function",
+    stateMutability: "payable",
+    name: "postBounty",
+    inputs: [
+      { name: "codeRoot", type: "bytes32" },
+      { name: "inScopeCwes", type: "bytes32[]" },
+      { name: "raceDuration", type: "uint64" },
+    ],
+    outputs: [{ name: "bountyId", type: "uint256" }],
+  },
+  // expireBounty: anyone can call after settleDeadline; refunds the original
+  // poster. Safe public on-chain action with no operator coordination needed.
+  {
+    type: "function",
+    stateMutability: "nonpayable",
+    name: "expireBounty",
+    inputs: [{ name: "bountyId", type: "uint256" }],
+    outputs: [],
+  },
+
   // ── events (used for stats + chainscan deep-links) ────────────────────
   {
     type: "event",

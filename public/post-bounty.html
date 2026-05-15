@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Post a demo bounty &mdash; Hunt</title>
+    <meta
+      name="description"
+      content="Demo flow: connect your wallet, pick a CWE scope and payout, and post a real Hunt bounty on 0G Aristotle mainnet against the staged Vault.sol code from bounty #3."
+    />
+    <link rel="stylesheet" href="/styles.css?v=20260515-p0" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <style>
+      .post-form {
+        display: grid;
+        gap: 18px;
+        margin-top: 24px;
+        max-width: 760px;
+      }
+      .post-form .field {
+        display: grid;
+        gap: 6px;
+      }
+      .post-form label {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-mute);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+      }
+      .post-form input,
+      .post-form textarea {
+        background: var(--bg-elev-1);
+        border: 1px solid var(--border-strong);
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 13px;
+        padding: 10px 12px;
+        border-radius: var(--r-sm);
+      }
+      .post-form input:focus,
+      .post-form textarea:focus {
+        outline: none;
+        border-color: var(--brand);
+      }
+      .post-form input[readonly],
+      .post-form textarea[readonly] {
+        background: var(--bg);
+        color: var(--text-soft);
+        cursor: default;
+      }
+      .post-form .helper {
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--text-mute);
+        line-height: 1.5;
+      }
+      .cwe-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px 12px;
+      }
+      @media (max-width: 600px) {
+        .cwe-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .cwe-grid label {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--text-soft);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-transform: none;
+        letter-spacing: 0;
+        cursor: pointer;
+      }
+      .cwe-grid label input {
+        width: auto;
+        cursor: pointer;
+      }
+      .disclaimer {
+        background: rgba(245, 200, 66, 0.08);
+        border: 1px solid rgba(245, 200, 66, 0.3);
+        border-radius: var(--r-md);
+        padding: 16px 20px;
+        margin: 24px 0;
+        font-family: var(--mono);
+        font-size: 12px;
+        line-height: 1.6;
+        color: var(--text);
+      }
+      .disclaimer strong {
+        color: var(--gold);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-size: 11px;
+      }
+      .post-result {
+        margin-top: 24px;
+        padding: 22px;
+        border-radius: var(--r-md);
+        border: 1px solid var(--brand-glow);
+        background:
+          radial-gradient(ellipse at top, var(--brand-glow-soft), transparent 60%),
+          var(--bg-elev-1);
+      }
+      .post-result .head {
+        font-family: var(--display);
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+      .post-result .kv {
+        display: grid;
+        grid-template-columns: 130px 1fr;
+        gap: 4px 16px;
+        font-family: var(--mono);
+        font-size: 12px;
+      }
+      .post-result .k {
+        color: var(--text-mute);
+        text-transform: uppercase;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+      }
+      .post-result .v {
+        color: var(--text);
+        word-break: break-all;
+      }
+      .post-result a {
+        color: var(--brand);
+      }
+      .status-line {
+        margin-top: 8px;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--text-soft);
+      }
+      .status-line.error {
+        color: var(--red);
+      }
+    </style>
+    <script src="/theme.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <header class="masthead">
+        <div class="masthead-row">
+          <div>
+            <div class="brand">Hunt<em>.</em></div>
+            <div class="tagline">post &middot; demo bounty flow</div>
+          </div>
+          <span class="pill">0g aristotle mainnet</span>
+        </div>
+        <nav class="nav-row">
+          <a href="/">home</a>
+          <a href="/hunters.html">hunters</a>
+          <a href="/bounties.html">bounties</a>
+          <a href="/verticals.html">verticals</a>
+          <a href="/notary.html">notary</a>
+          <a href="/status.html">status</a>
+          <a href="/proof.html">judge proof</a>
+          <a href="/verify.html">verify</a>
+          <a href="/post-bounty.html" class="active">post</a>
+          <button
+            id="walletPill"
+            class="wallet-pill"
+            type="button"
+            aria-label="Connect wallet"
+          >
+            connect wallet
+          </button>
+          <button
+            id="themeToggle"
+            class="theme-toggle"
+            type="button"
+            aria-label="Switch theme"
+          >
+            &#9790;
+          </button>
+        </nav>
+      </header>
+
+      <section style="padding: 40px 0 16px">
+        <div class="section-eyebrow">demo flow &middot; live mainnet</div>
+        <h2 class="section-title">
+          Post a Hunt bounty <em>on-chain.</em>
+        </h2>
+        <p class="section-sub" style="max-width: 800px">
+          Connect your wallet, pick a CWE scope, set a payout and race
+          duration, and sign the transaction. This calls
+          <code style="font-family: var(--mono)">Hunt.postBounty</code> on
+          0G Aristotle mainnet against the staged Vault.sol code from
+          bounty #3 (the oracle-staleness target). Real OG is escrowed
+          from your wallet.
+        </p>
+
+        <div class="disclaimer">
+          <strong>demo mode</strong><br />
+          This page reuses bounty #3's on-chain
+          <code>codeRoot</code> so you can exercise the
+          <code>postBounty</code> contract surface end-to-end without
+          uploading new code. To run an actual race with live hunters
+          against <em>new</em> Solidity, you must coordinate with the Hunt
+          operator to share the symmetric hunter-network key (today's v1
+          architecture; v2 moves to chain-distributed keys per
+          <code>doc/FUTURE.md</code>). Your escrowed payout is refundable
+          via <code>expireBounty</code> after the settle window, also
+          callable by anyone.
+        </div>
+
+        <form id="postForm" class="post-form">
+          <div class="field">
+            <label>target source</label>
+            <input
+              type="text"
+              readonly
+              value="demo/staged-bounty/Vault.sol (oracle-staleness CWE — staged for bounty #3)"
+            />
+          </div>
+          <div class="field">
+            <label for="codeRoot">codeRoot (loaded from bounty #3 on-chain)</label>
+            <input
+              id="codeRoot"
+              type="text"
+              readonly
+              placeholder="loading…"
+            />
+          </div>
+          <div class="field">
+            <label>CWE scope (hunters whose specialty intersects this set will race)</label>
+            <div class="cwe-grid" id="cweGrid"></div>
+          </div>
+          <div class="field">
+            <label for="payout">payout (OG)</label>
+            <input
+              id="payout"
+              type="number"
+              min="0.001"
+              step="0.001"
+              value="0.01"
+              required
+            />
+            <span class="helper">
+              Minimum 0.001 OG. Payout is escrowed in the contract and
+              released to the winning hunter on
+              <code>settleBounty</code>, or refunded to you on
+              <code>expireBounty</code>.
+            </span>
+          </div>
+          <div class="field">
+            <label for="raceDuration">race duration (seconds)</label>
+            <input
+              id="raceDuration"
+              type="number"
+              min="300"
+              max="604800"
+              step="60"
+              value="600"
+              required
+            />
+            <span class="helper">
+              On-chain bounds: <code id="minMax">5m – 7d</code>. 600s = 10
+              minutes (the demo default).
+            </span>
+          </div>
+          <div>
+            <button id="postBtn" class="btn" type="submit">
+              connect wallet to post &rarr;
+            </button>
+            <div class="status-line" id="status"></div>
+          </div>
+        </form>
+
+        <div id="result" style="display: none"></div>
+      </section>
+
+      <footer class="footer">
+        <div class="row">
+          <a href="https://github.com/Ridwannurudeen/hunt" target="_blank" rel="noreferrer">
+            github &#x2197;
+          </a>
+          <a href="https://chainscan.0g.ai" target="_blank" rel="noreferrer">
+            chainscan &#x2197;
+          </a>
+          <span class="footer-note">
+            same on-chain call as <code>scripts/post_bounty.js</code>
+          </span>
+        </div>
+      </footer>
+    </div>
+
+    <script src="/vendor/ethers-6.13.1.umd.min.js"></script>
+    <script src="/contracts.js"></script>
+    <script src="/wallet-pill.js"></script>
+    <script>
+      const $ = (id) => document.getElementById(id);
+
+      // Bounty #3's CWE scope is the most race-tested set on-chain; default to it.
+      const DEFAULT_CWES = new Set([
+        "swc-107-reentrancy",
+        "oracle-manipulation",
+        "access-control",
+      ]);
+
+      let deployment = null;
+      let cachedCodeRoot = null;
+      let cachedMin = null;
+      let cachedMax = null;
+
+      function setStatus(msg, kind = "") {
+        const el = $("status");
+        el.className = kind ? `status-line ${kind}` : "status-line";
+        el.textContent = msg || "";
+      }
+
+      function renderCweGrid() {
+        const grid = $("cweGrid");
+        grid.innerHTML = window.CANONICAL_CWES.map(
+          (c) => `
+          <label>
+            <input
+              type="checkbox"
+              name="cwe"
+              value="${c}"
+              ${DEFAULT_CWES.has(c) ? "checked" : ""}
+            />
+            ${c}
+          </label>
+        `,
+        ).join("");
+      }
+
+      async function loadOnChainContext() {
+        setStatus("loading deployment…");
+        deployment = await window.loadDeployment();
+        if (!deployment || !deployment.address) {
+          setStatus(
+            "deployments/Hunt.json not found — cannot continue",
+            "error",
+          );
+          return;
+        }
+        const provider = new ethers.JsonRpcProvider(window.RPC_URL);
+        const hunt = new ethers.Contract(
+          deployment.address,
+          window.HUNT_ABI,
+          provider,
+        );
+        setStatus("fetching bounty #3 codeRoot + race-duration bounds…");
+        try {
+          const [b3, minRace, maxRace] = await Promise.all([
+            hunt.getBounty(3n),
+            hunt.MIN_RACE_DURATION(),
+            hunt.MAX_RACE_DURATION(),
+          ]);
+          if (!b3 || b3.codeRoot === "0x" + "00".repeat(32)) {
+            setStatus(
+              "bounty #3 not on this contract; demo codeRoot unavailable",
+              "error",
+            );
+            return;
+          }
+          cachedCodeRoot = b3.codeRoot;
+          cachedMin = Number(minRace);
+          cachedMax = Number(maxRace);
+          $("codeRoot").value = cachedCodeRoot;
+          $("raceDuration").min = String(cachedMin);
+          $("raceDuration").max = String(cachedMax);
+          $("minMax").textContent = `${cachedMin}s – ${cachedMax}s (${(cachedMin / 60).toFixed(0)}m – ${(cachedMax / 86400).toFixed(0)}d)`;
+          setStatus(
+            `ready — bounty #3 codeRoot loaded; race-duration window ${cachedMin}…${cachedMax}s`,
+          );
+        } catch (e) {
+          setStatus(`failed to load on-chain context: ${e.message}`, "error");
+        }
+      }
+
+      async function postBounty() {
+        if (!cachedCodeRoot) throw new Error("codeRoot not loaded");
+        if (!window.huntConnect) throw new Error("wallet-pill not ready");
+
+        const cwes = Array.from(
+          document.querySelectorAll('input[name="cwe"]:checked'),
+        ).map((el) => el.value);
+        if (cwes.length === 0) throw new Error("pick at least one CWE class");
+        const cweBytes32 = cwes.map((c) => window.cweToBytes32(c));
+
+        const payoutStr = $("payout").value.trim();
+        const payoutWei = ethers.parseEther(payoutStr);
+        if (payoutWei <= 0n) throw new Error("payout must be > 0");
+
+        const raceDuration = Number($("raceDuration").value.trim());
+        if (
+          !Number.isFinite(raceDuration) ||
+          raceDuration < cachedMin ||
+          raceDuration > cachedMax
+        ) {
+          throw new Error(
+            `race duration must be in [${cachedMin}, ${cachedMax}]`,
+          );
+        }
+
+        setStatus("connecting wallet…");
+        const { signer, address } = await window.huntConnect();
+
+        // Pre-flight balance check: payout + 0.005 OG gas buffer.
+        const provider = signer.provider;
+        const bal = await provider.getBalance(address);
+        const buffer = ethers.parseEther("0.005");
+        if (bal < payoutWei + buffer) {
+          throw new Error(
+            `wallet balance ${ethers.formatEther(bal)} OG < payout ${payoutStr} + 0.005 buffer`,
+          );
+        }
+
+        setStatus("submitting postBounty…");
+        const hunt = new ethers.Contract(
+          deployment.address,
+          window.HUNT_ABI,
+          signer,
+        );
+        const tx = await hunt.postBounty(
+          cachedCodeRoot,
+          cweBytes32,
+          BigInt(raceDuration),
+          { value: payoutWei },
+        );
+        setStatus(`tx sent: ${tx.hash} — waiting for inclusion…`);
+        const rcpt = await tx.wait();
+
+        // Parse BountyPosted event for the assigned bountyId.
+        let bountyId = null;
+        for (const log of rcpt.logs) {
+          try {
+            const parsed = hunt.interface.parseLog(log);
+            if (parsed && parsed.name === "BountyPosted") {
+              bountyId = parsed.args.bountyId;
+              break;
+            }
+          } catch {
+            /* not a Hunt event, skip */
+          }
+        }
+
+        const resultDiv = $("result");
+        resultDiv.style.display = "block";
+        resultDiv.innerHTML = `
+          <div class="post-result">
+            <div class="head">&#10003; bounty posted</div>
+            <div class="kv">
+              <span class="k">bounty id</span>
+              <span class="v">${bountyId !== null ? bountyId.toString() : "(failed to parse)"}</span>
+              <span class="k">tx hash</span>
+              <span class="v"><a href="${window.CHAINSCAN_URL}/tx/${tx.hash}" target="_blank" rel="noreferrer">${tx.hash}</a></span>
+              <span class="k">block</span>
+              <span class="v">${rcpt.blockNumber}</span>
+              <span class="k">gas used</span>
+              <span class="v">${rcpt.gasUsed.toString()}</span>
+              <span class="k">payout</span>
+              <span class="v">${payoutStr} OG</span>
+              <span class="k">cwes</span>
+              <span class="v">${cwes.join(", ")}</span>
+            </div>
+            <p style="font-family:var(--mono);font-size:12px;color:var(--text-soft);margin-top:14px;line-height:1.6;">
+              Verify your bounty via the in-browser receipt explorer:
+              ${bountyId !== null ? `<a href="/verify.html#${bountyId.toString()}" style="color:var(--brand);">verify bounty #${bountyId.toString()} &rarr;</a>` : ""}<br />
+              See it on the public board: <a href="/bounties.html" style="color:var(--brand);">bounties.html &rarr;</a><br />
+              Hunters won't actually race on this demo bounty without
+              operator key coordination; recover your payout via
+              <code>expireBounty(${bountyId !== null ? bountyId.toString() : "&lt;id&gt;"})</code>
+              after the settle window closes.
+            </p>
+          </div>
+        `;
+        setStatus("");
+      }
+
+      renderCweGrid();
+      loadOnChainContext();
+
+      // Enable the post button once the wallet is connected. We let the user
+      // try-submit without a wallet too — huntConnect() will trigger MetaMask.
+      $("postForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        $("postBtn").disabled = true;
+        $("result").style.display = "none";
+        try {
+          await postBounty();
+        } catch (err) {
+          setStatus(err.message || String(err), "error");
+        } finally {
+          $("postBtn").disabled = false;
+        }
+      });
+
+      // When the wallet pill flips to "connected", swap the button label.
+      const pillObserver = new MutationObserver(() => {
+        const state = $("walletPill")?.dataset?.state;
+        if (state === "connected") {
+          $("postBtn").textContent = "post bounty →";
+        }
+      });
+      if ($("walletPill")) {
+        pillObserver.observe($("walletPill"), { attributes: true });
+      }
+    </script>
+  </body>
+</html>
