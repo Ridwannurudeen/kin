@@ -176,6 +176,37 @@ body { transition: background-color 240ms var(--ease), color 240ms var(--ease); 
   background: var(--brand-glow-soft);
 }
 
+/* Wallet-connect pill — sits at the right end of .nav-row, just left of theme toggle. */
+.wallet-pill {
+  margin-left: auto;
+  background: var(--brand-glow-soft);
+  border: 1px solid var(--brand-glow);
+  color: var(--brand);
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1;
+  padding: 5px 12px;
+  border-radius: var(--r-pill);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: color 180ms var(--ease), border-color 180ms var(--ease), background 180ms var(--ease);
+}
+.wallet-pill:hover {
+  color: var(--text);
+  border-color: var(--brand);
+  background: var(--brand);
+}
+.wallet-pill[data-state="connected"] {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--brand);
+}
+.wallet-pill[data-state="error"] {
+  background: transparent;
+  color: var(--red);
+  border-color: var(--red);
+}
+
 /* ─── Reset + base ───────────────────────────────────────────────── */
 
 * { box-sizing: border-box; margin: 0; padding: 0; }

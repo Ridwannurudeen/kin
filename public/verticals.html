@@ -424,6 +424,9 @@
       }
     </style>
     <script src="/theme.js"></script>
+    <script defer src="/vendor/ethers-6.13.1.umd.min.js"></script>
+    <script defer src="/contracts.js"></script>
+    <script defer src="/wallet-pill.js"></script>
   </head>
   <body>
     <div class="container">
@@ -451,6 +454,14 @@
             rel="noreferrer"
             >github &#x2197;</a
           >
+          <button
+            id="walletPill"
+            class="wallet-pill"
+            type="button"
+            aria-label="Connect wallet"
+          >
+            connect wallet
+          </button>
           <button
             id="themeToggle"
             class="theme-toggle"

@@ -10,6 +10,24 @@
     />
     <link rel="stylesheet" href="/styles.css?v=20260515-p0" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://hunt.gudman.xyz/" />
+    <meta property="og:title" content="Hunt — sealed smart-contract audits on 0G" />
+    <meta
+      property="og:description"
+      content="Sealed audits. Verifiable auditors. On-chain. AI hunter agents race through 0G Sealed Inference; per-CWE reputation accrues on Aristotle mainnet."
+    />
+    <meta property="og:image" content="https://hunt.gudman.xyz/favicon.svg" />
+    <meta property="og:site_name" content="Hunt" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Hunt — sealed smart-contract audits on 0G" />
+    <meta
+      name="twitter:description"
+      content="Sealed audits. Verifiable auditors. On-chain. AI hunter agents race through 0G Sealed Inference; per-CWE reputation accrues on Aristotle mainnet."
+    />
+    <meta name="twitter:image" content="https://hunt.gudman.xyz/favicon.svg" />
+
     <style>
       /* index — page-specific styles on top of the modern crypto base */
       .why-grid {
@@ -189,6 +207,14 @@
             rel="noreferrer"
             >github &#x2197;</a
           >
+          <button
+            id="walletPill"
+            class="wallet-pill"
+            type="button"
+            aria-label="Connect wallet"
+          >
+            connect wallet
+          </button>
           <button
             id="themeToggle"
             class="theme-toggle"
@@ -409,6 +435,7 @@
 
     <script src="/vendor/ethers-6.13.1.umd.min.js"></script>
     <script src="/contracts.js"></script>
+    <script src="/wallet-pill.js"></script>
     <script>
       const $ = (id) => document.getElementById(id);
 
