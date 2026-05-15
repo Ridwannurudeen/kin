@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify a finding &mdash; Hunt</title>
+    <meta
+      name="description"
+      content="Re-derive Hunt's attestation digest in your browser, recover the teeSigner from the on-chain signature, and check the race-window timestamp. Same logic as scripts/verify_bounty.js, one click."
+    />
+    <link rel="stylesheet" href="/styles.css?v=20260515-p0" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <style>
+      .verify-form {
+        display: grid;
+        gap: 14px;
+        margin-top: 24px;
+      }
+      .verify-form .field {
+        display: grid;
+        gap: 6px;
+      }
+      .verify-form label {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-mute);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+      }
+      .verify-form input {
+        background: var(--bg-elev-1);
+        border: 1px solid var(--border-strong);
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 13px;
+        padding: 10px 12px;
+        border-radius: var(--r-sm);
+      }
+      .verify-form input:focus {
+        outline: none;
+        border-color: var(--brand);
+      }
+      .verify-form .row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .verify-form .btn {
+        font-family: var(--mono);
+      }
+      .helper {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-mute);
+        line-height: 1.6;
+      }
+      .helper a {
+        color: var(--brand);
+      }
+      .verdict {
+        margin-top: 32px;
+        padding: 24px;
+        border-radius: var(--r-md);
+        border: 1px solid var(--border-strong);
+        background: var(--bg-elev-1);
+      }
+      .verdict.pass {
+        border-color: var(--brand-glow);
+        background:
+          radial-gradient(ellipse at top, var(--brand-glow-soft), transparent 60%),
+          var(--bg-elev-1);
+      }
+      .verdict.fail {
+        border-color: rgba(220, 50, 47, 0.5);
+        background: rgba(220, 50, 47, 0.06);
+      }
+      .verdict .head {
+        font-family: var(--display);
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 6px;
+        letter-spacing: -0.01em;
+      }
+      .verdict .sub {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--text-soft);
+        line-height: 1.6;
+      }
+      .bounty-summary {
+        margin-top: 24px;
+        padding: 18px 20px;
+        border: 1px solid var(--border);
+        border-radius: var(--r-md);
+        background: var(--bg-elev-1);
+      }
+      .bounty-summary .kv {
+        display: grid;
+        grid-template-columns: 150px 1fr;
+        gap: 6px 18px;
+        font-family: var(--mono);
+        font-size: 12px;
+      }
+      .bounty-summary .k {
+        color: var(--text-mute);
+        text-transform: uppercase;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+      }
+      .bounty-summary .v {
+        color: var(--text);
+        word-break: break-all;
+      }
+      @media (max-width: 600px) {
+        .bounty-summary .kv {
+          grid-template-columns: 1fr;
+        }
+      }
+      .finding-card {
+        margin-top: 16px;
+        padding: 18px 20px;
+        border: 1px solid var(--border);
+        border-radius: var(--r-md);
+        background: var(--bg-elev-1);
+      }
+      .finding-card.winner {
+        border-color: var(--brand-glow);
+        box-shadow: inset 3px 0 0 var(--brand);
+      }
+      .finding-card .head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 12px;
+        font-family: var(--mono);
+        font-size: 13px;
+      }
+      .finding-card .head .winning-pill {
+        font-size: 10px;
+        background: var(--brand);
+        color: var(--bg);
+        padding: 3px 9px;
+        border-radius: var(--r-pill);
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-weight: 600;
+      }
+      .check-row {
+        display: grid;
+        grid-template-columns: 22px 200px 1fr;
+        gap: 10px;
+        font-family: var(--mono);
+        font-size: 12px;
+        padding: 6px 0;
+        border-bottom: 1px dashed var(--border);
+      }
+      .check-row:last-child {
+        border-bottom: none;
+      }
+      .check-row .tick {
+        font-weight: 600;
+      }
+      .check-row .tick.ok {
+        color: var(--brand);
+      }
+      .check-row .tick.fail {
+        color: var(--red);
+      }
+      .check-row .label {
+        color: var(--text-mute);
+        text-transform: uppercase;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+      }
+      .check-row .value {
+        color: var(--text-soft);
+        word-break: break-all;
+      }
+      .status-line {
+        margin-top: 14px;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--text-soft);
+      }
+      .status-line.error {
+        color: var(--red);
+      }
+    </style>
+    <script src="/theme.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <header class="masthead">
+        <div class="masthead-row">
+          <div>
+            <div class="brand">Hunt<em>.</em></div>
+            <div class="tagline">verify &middot; in-browser receipt explorer</div>
+          </div>
+          <span class="pill">0g aristotle mainnet</span>
+        </div>
+        <nav class="nav-row">
+          <a href="/">home</a>
+          <a href="/hunters.html">hunters</a>
+          <a href="/bounties.html">bounties</a>
+          <a href="/verticals.html">verticals</a>
+          <a href="/notary.html">notary</a>
+          <a href="/status.html">status</a>
+          <a href="/proof.html">judge proof</a>
+          <a href="/verify.html" class="active">verify</a>
+          <button
+            id="walletPill"
+            class="wallet-pill"
+            type="button"
+            aria-label="Connect wallet"
+          >
+            connect wallet
+          </button>
+          <button
+            id="themeToggle"
+            class="theme-toggle"
+            type="button"
+            aria-label="Switch theme"
+          >
+            &#9790;
+          </button>
+        </nav>
+      </header>
+
+      <section style="padding: 40px 0 16px">
+        <div class="section-eyebrow">canonical verifier &middot; browser</div>
+        <h2 class="section-title">
+          Verify a Hunt finding <em>cryptographically.</em>
+        </h2>
+        <p class="section-sub" style="max-width: 800px">
+          This page runs the same checks as
+          <code style="font-family: var(--mono)">scripts/verify_bounty.js</code>
+          but in your browser. It reads the on-chain bounty + findings from
+          0G's public RPC, recovers the signer from each finding's signature,
+          and (in strict mode) re-derives the attestation digest from the
+          on-chain fields plus the
+          <code style="font-family: var(--mono)">modelDigest</code> you supply.
+          Nothing here trusts the Hunt operator &mdash; only the contract and
+          the math.
+        </p>
+
+        <form id="verifyForm" class="verify-form">
+          <div class="field">
+            <label for="bountyId">bounty id</label>
+            <input
+              id="bountyId"
+              type="number"
+              min="0"
+              step="1"
+              placeholder="3"
+              value="3"
+              required
+            />
+          </div>
+          <div class="field">
+            <label for="modelDigest">
+              modelDigest (optional &mdash; leave blank for non-strict)
+            </label>
+            <input
+              id="modelDigest"
+              type="text"
+              placeholder="0x… (32 bytes)"
+              spellcheck="false"
+            />
+            <span class="helper">
+              The canonical Hunt-audit Sealed Inference digest is
+              <code>keccak256(utf8("zai-org/GLM-5-FP8|hunt-audit-v1"))</code>.
+              <a href="#" id="fillCanonical">Fill it in</a>.
+            </span>
+          </div>
+          <div class="row">
+            <button id="verifyBtn" class="btn" type="submit">
+              verify &rarr;
+            </button>
+            <span class="status-line" id="status"></span>
+          </div>
+        </form>
+      </section>
+
+      <section id="result" style="padding: 0 0 64px; display: none">
+        <div id="bountySummary"></div>
+        <div id="findings"></div>
+        <div id="verdict"></div>
+      </section>
+
+      <footer class="footer">
+        <div class="row">
+          <a href="https://github.com/Ridwannurudeen/hunt" target="_blank" rel="noreferrer">
+            github &#x2197;
+          </a>
+          <a href="https://chainscan.0g.ai" target="_blank" rel="noreferrer">
+            chainscan &#x2197;
+          </a>
+          <span class="footer-note">
+            same logic as <code>scripts/verify_bounty.js</code>
+          </span>
+        </div>
+      </footer>
+    </div>
+
+    <script src="/vendor/ethers-6.13.1.umd.min.js"></script>
+    <script src="/contracts.js"></script>
+    <script src="/wallet-pill.js"></script>
+    <script>
+      const $ = (id) => document.getElementById(id);
+
+      const STATUS_LABEL = { 0: "Open", 1: "Settled", 2: "Expired" };
+      const SEVERITY_LABEL = {
+        1: "low",
+        2: "medium",
+        3: "high",
+        4: "critical",
+      };
+      const ZERO_BYTES32 = "0x" + "00".repeat(32);
+      const CANONICAL_HUNT_AUDIT_DIGEST = () =>
+        ethers.keccak256(ethers.toUtf8Bytes("zai-org/GLM-5-FP8|hunt-audit-v1"));
+
+      function escapeHtml(s) {
+        return String(s).replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      }
+
+      function tick(ok) {
+        return ok
+          ? '<span class="tick ok">&#10003;</span>'
+          : '<span class="tick fail">&#10007;</span>';
+      }
+
+      function setStatus(msg, kind = "") {
+        const el = $("status");
+        el.className = kind ? `status-line ${kind}` : "status-line";
+        el.textContent = msg || "";
+      }
+
+      // Mirror scripts/verify_bounty.js deriveDigest exactly.
+      function deriveDigest(bountyId, codeRoot, hunterId, f, modelDigest) {
+        return ethers.keccak256(
+          ethers.AbiCoder.defaultAbiCoder().encode(
+            [
+              "uint256",
+              "bytes32",
+              "uint256",
+              "bytes32",
+              "uint8",
+              "bytes32",
+              "bytes32",
+              "uint64",
+              "uint16",
+              "uint16",
+              "uint16",
+              "uint16",
+            ],
+            [
+              bountyId,
+              codeRoot,
+              hunterId,
+              f.cweClass,
+              Number(f.severity),
+              f.findingRoot,
+              modelDigest,
+              f.teeTimestamp,
+              Number(f.severityCalibrationBpsSelfEval),
+              Number(f.precisionBpsSelfEval),
+              Number(f.coverageBpsSelfEval),
+              Number(f.exploitabilityBpsSelfEval),
+            ],
+          ),
+        );
+      }
+
+      function recoverSigner(digest, sig) {
+        // Hunt.sol _recoverEth applies the "\x19Ethereum Signed Message:\n32" prefix
+        // before ecrecover. ethers.verifyMessage on the raw 32 bytes does the same.
+        try {
+          return ethers.verifyMessage(ethers.getBytes(digest), sig);
+        } catch {
+          return null;
+        }
+      }
+
+      function winningFindingPasses({
+        sigOk,
+        teeInWindow,
+        digestMatch,
+        strictMode,
+      }) {
+        return sigOk && teeInWindow && (!strictMode || digestMatch);
+      }
+
+      function renderBountySummary(bounty, address, teeSigner, statusInt) {
+        const winIdx =
+          statusInt === 1 ? Number(bounty.winningFindingIdx) : null;
+        const statusStr = STATUS_LABEL[statusInt] || `status-${statusInt}`;
+        return `
+          <div class="bounty-summary">
+            <div class="kv">
+              <span class="k">contract</span>
+              <span class="v">
+                <a href="${window.CHAINSCAN_URL}/address/${address}" target="_blank" rel="noreferrer">${escapeHtml(address)}</a>
+              </span>
+              <span class="k">teeSigner</span>
+              <span class="v"><a href="${window.CHAINSCAN_URL}/address/${teeSigner}" target="_blank" rel="noreferrer">${escapeHtml(teeSigner)}</a></span>
+              <span class="k">status</span>
+              <span class="v">${escapeHtml(statusStr)}</span>
+              <span class="k">poster</span>
+              <span class="v"><a href="${window.CHAINSCAN_URL}/address/${bounty.poster}" target="_blank" rel="noreferrer">${escapeHtml(bounty.poster)}</a></span>
+              <span class="k">maxPayout</span>
+              <span class="v">${ethers.formatEther(bounty.maxPayout)} OG</span>
+              <span class="k">codeRoot</span>
+              <span class="v">${escapeHtml(bounty.codeRoot)}</span>
+              <span class="k">postedAt</span>
+              <span class="v">${bounty.postedAt} (${new Date(Number(bounty.postedAt) * 1000).toISOString()})</span>
+              <span class="k">raceDeadline</span>
+              <span class="v">${bounty.raceDeadline} (${new Date(Number(bounty.raceDeadline) * 1000).toISOString()})</span>
+              <span class="k">findings</span>
+              <span class="v">${bounty.findings ?? ""}</span>
+              ${winIdx !== null ? `<span class="k">winningIdx</span><span class="v">${winIdx}</span>` : ""}
+            </div>
+          </div>
+        `;
+      }
+
+      function renderFinding(
+        bountyId,
+        bounty,
+        f,
+        idx,
+        isWinning,
+        modelDigest,
+        teeSigner,
+        strictMode,
+      ) {
+        const sev = SEVERITY_LABEL[Number(f.severity)] || `sev-${f.severity}`;
+        const recovered = recoverSigner(f.attestationDigest, f.attestationSig);
+        const sigOk =
+          !!recovered &&
+          recovered.toLowerCase() === teeSigner.toLowerCase();
+        const derived = deriveDigest(
+          BigInt(bountyId),
+          bounty.codeRoot,
+          f.hunterId,
+          f,
+          modelDigest,
+        );
+        const digestMatch =
+          derived.toLowerCase() === f.attestationDigest.toLowerCase();
+        const teeInWindow =
+          f.teeTimestamp >= bounty.postedAt &&
+          f.teeTimestamp <= bounty.raceDeadline;
+
+        return {
+          html: `
+            <div class="finding-card ${isWinning ? "winner" : ""}">
+              <div class="head">
+                <span>
+                  finding[${idx}] &middot; hunter #${f.hunterId}
+                  &middot; <strong>${escapeHtml(sev)}</strong>
+                </span>
+                ${isWinning ? '<span class="winning-pill">winning</span>' : ""}
+              </div>
+              <div class="check-row">
+                <span>${tick(sigOk)}</span>
+                <span class="label">signer == teeSigner</span>
+                <span class="value">${escapeHtml(recovered || "(recover failed)")}</span>
+              </div>
+              <div class="check-row">
+                <span>${tick(teeInWindow)}</span>
+                <span class="label">teeTimestamp in race window</span>
+                <span class="value">teeTimestamp=${f.teeTimestamp}, postedAt=${bounty.postedAt}, raceDeadline=${bounty.raceDeadline}</span>
+              </div>
+              <div class="check-row">
+                <span>${tick(digestMatch)}</span>
+                <span class="label">
+                  digest re-derives
+                  ${strictMode ? "(strict)" : "(non-strict — modelDigest=0x0)"}
+                </span>
+                <span class="value">${escapeHtml(derived)}</span>
+              </div>
+            </div>
+          `,
+          isWinning,
+          sigOk,
+          teeInWindow,
+          digestMatch,
+        };
+      }
+
+      function renderVerdict(
+        statusInt,
+        winningResult,
+        strictMode,
+        findingsCount,
+      ) {
+        if (statusInt !== 1 || !winningResult) {
+          return `
+            <div class="verdict">
+              <div class="head">No winning finding yet</div>
+              <div class="sub">
+                Bounty status is
+                ${escapeHtml(STATUS_LABEL[statusInt] || `status-${statusInt}`)}.
+                ${findingsCount} submitted finding(s) checked above.
+              </div>
+            </div>
+          `;
+        }
+        const ok = winningFindingPasses({
+          sigOk: winningResult.sigOk,
+          teeInWindow: winningResult.teeInWindow,
+          digestMatch: winningResult.digestMatch,
+          strictMode,
+        });
+        const okLine = strictMode
+          ? "signer recovers, race window holds, supplied modelDigest re-derives the on-chain digest."
+          : "signer recovers and race window holds. modelDigest not supplied &mdash; this is a non-strict pass; re-run with the canonical Hunt-audit digest for the full cryptographic check.";
+        return `
+          <div class="verdict ${ok ? "pass" : "fail"}">
+            <div class="head">
+              ${ok ? "&#10003; winning finding verifies" : "&#10007; verification failed"}
+            </div>
+            <div class="sub">
+              ${ok ? okLine : "At least one canonical check on the winning finding failed. Inspect the rows above."}
+            </div>
+          </div>
+        `;
+      }
+
+      async function withRetry(fn, retries = 2) {
+        let lastErr;
+        for (let i = 0; i <= retries; i++) {
+          try {
+            return await fn();
+          } catch (e) {
+            lastErr = e;
+            await new Promise((r) => setTimeout(r, 350));
+          }
+        }
+        throw lastErr;
+      }
+
+      async function verify(bountyIdStr, modelDigestStr) {
+        setStatus("loading deployment…");
+        const deployment = await window.loadDeployment();
+        if (!deployment || !deployment.address) {
+          throw new Error("deployments/Hunt.json not found");
+        }
+        const provider = new ethers.JsonRpcProvider(window.RPC_URL);
+        const hunt = new ethers.Contract(
+          deployment.address,
+          window.HUNT_ABI,
+          provider,
+        );
+        const strictMode = !!modelDigestStr;
+        const modelDigest = strictMode ? modelDigestStr : ZERO_BYTES32;
+        if (strictMode && !ethers.isHexString(modelDigest, 32)) {
+          throw new Error("modelDigest must be a 32-byte hex string (0x…)");
+        }
+        const bountyId = BigInt(bountyIdStr);
+
+        setStatus("reading on-chain state…");
+        const [bounty, findings, teeSigner] = await withRetry(() =>
+          Promise.all([
+            hunt.getBounty(bountyId),
+            hunt.getFindings(bountyId),
+            hunt.teeSigner(),
+          ]),
+        );
+
+        if (bounty.postedAt === 0n) {
+          throw new Error(`bounty #${bountyIdStr} does not exist`);
+        }
+
+        const statusInt = Number(bounty.status);
+        const winIdx =
+          statusInt === 1 ? Number(bounty.winningFindingIdx) : -1;
+
+        // Render summary
+        $("bountySummary").innerHTML = renderBountySummary(
+          {
+            poster: bounty.poster,
+            maxPayout: bounty.maxPayout,
+            codeRoot: bounty.codeRoot,
+            postedAt: bounty.postedAt,
+            raceDeadline: bounty.raceDeadline,
+            winningFindingIdx: bounty.winningFindingIdx,
+            findings: findings.length,
+          },
+          deployment.address,
+          teeSigner,
+          statusInt,
+        );
+
+        // Render findings + collect winning result
+        let winningResult = null;
+        let findingsHtml = "";
+        for (let i = 0; i < findings.length; i++) {
+          const f = findings[i];
+          const isWinning = i === winIdx;
+          const result = renderFinding(
+            bountyId,
+            bounty,
+            f,
+            i,
+            isWinning,
+            modelDigest,
+            teeSigner,
+            strictMode,
+          );
+          findingsHtml += result.html;
+          if (isWinning) winningResult = result;
+        }
+        $("findings").innerHTML = findingsHtml;
+
+        // Verdict
+        $("verdict").innerHTML = renderVerdict(
+          statusInt,
+          winningResult,
+          strictMode,
+          findings.length,
+        );
+
+        $("result").style.display = "block";
+        setStatus(
+          `verified ${findings.length} finding(s) against ${deployment.address}`,
+        );
+      }
+
+      $("fillCanonical").addEventListener("click", (e) => {
+        e.preventDefault();
+        $("modelDigest").value = CANONICAL_HUNT_AUDIT_DIGEST();
+      });
+
+      $("verifyForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const bountyId = $("bountyId").value.trim();
+        const modelDigest = $("modelDigest").value.trim();
+        $("result").style.display = "none";
+        $("bountySummary").innerHTML = "";
+        $("findings").innerHTML = "";
+        $("verdict").innerHTML = "";
+        if (!bountyId) {
+          setStatus("bounty id required", "error");
+          return;
+        }
+        try {
+          await verify(bountyId, modelDigest);
+        } catch (err) {
+          setStatus(err.message || String(err), "error");
+        }
+      });
+    </script>
+  </body>
+</html>
