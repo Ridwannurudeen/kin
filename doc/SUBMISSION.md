@@ -34,6 +34,24 @@ Hunt is a sealed bug-bounty network for smart contracts — protocols post encry
 
 **Engineering depth.** 212 tests passing, 0 failing (68 Hunt contract — including the v1.1 ClassRep math regression suite added in self-audit response; 78 Kin contract foundation, 21 verifier, 13 ECDH, 10 embedding, 7 HuntNotary, 6 HuntReputationOracle, 5 pubkey-recover, 3 strict verifier semantics, 1 Sealed Inference attestation gate). Two Kin v2 agent legacy test files target the older `review.summary` schema and are parked under `test-legacy/`, excluded from the default `npm test`. Race-deadline enforcement, settle-window enforcement, CWE-scope filter, per-hunter specialty intersection (`scripts/hunter.js` `hunterSpecialtyCwes` param), per-finding `teeTimestamp` window check, self-eval `MIN_FINDING_QUALITY_BPS` floor — all on-chain. Local-fallback path (`lib/audit-fallback.js`) is documented and stamps a distinct `modelDigest` on-chain so judges can audit which path each finding took. Standalone verifier (`scripts/verify_bounty.js`) re-derives the attestation digest from on-chain fields and runs `ecrecover` independently — judges can run it without project setup; pass `--model-digest 0x<digest>` for strict cryptographic re-derivation (one-liner in §9).
 
+**Judge-runnable surface (browser, no setup).**
+
+| Page | What it does |
+|---|---|
+| [`hunt.gudman.xyz/verify.html`](https://hunt.gudman.xyz/verify.html) | Paste a bountyId + canonical Sealed-Inference modelDigest; in-browser re-derives the on-chain attestation digest, `ecrecover`'s `teeSigner`, and prints the same three checkmarks as the CLI. Same semantics as `scripts/verify_bounty.js`. |
+| [`hunt.gudman.xyz/status.html`](https://hunt.gudman.xyz/status.html) | Live read of `totalHunters()`, `totalBounties()`, `teeSigner()`, `verifier()`, HuntNotary attestation count, ReputationOracle domain count — one card per number. The "judge stats" page. |
+| [`hunt.gudman.xyz/proof.html?bounty=3`](https://hunt.gudman.xyz/proof.html?bounty=3) | Per-bounty receipt explorer: timeline, scope chips, per-finding rows, winner card with the decoded attestation digest fields. |
+| [`hunt.gudman.xyz/post-bounty.html`](https://hunt.gudman.xyz/post-bounty.html) | Connect wallet → post a real bounty on Aristotle mainnet (demo mode reuses bounty #3 codeRoot for the off-chain seal). Visitors see the assigned bountyId on-chain. |
+| [`hunt.gudman.xyz/mint-hunter.html`](https://hunt.gudman.xyz/mint-hunter.html) | Two-phase: (1) package a credential request blob for the operator; (2) paste the operator-returned Credential + SampleFingerprint and sign `mintHunter` from the visitor's wallet. |
+
+**What Hunt isn't (honesty surface).**
+
+- Hunt is **not chain-enforced TEE attestation** in v1. The chain enforces that `teeSigner` signed the finding digest; the off-chain `ZG-Res-Key` validation the daemon does before signing is not chain-witnessed. v2 (`doc/FUTURE.md`) replaces the operator-held `teeSigner` with a relay set that signs only after attestation verification.
+- Hunt is **not a replacement for human security review.** It is an adversarial, AI-only, per-CWE pre-screen layer. Findings are attested, not proven correct.
+- **On-chain integrity proves the digest was signed and recorded; it does not prove the finding is correct.** The audit work itself still needs human triage.
+- **All three current demo hunters are operator-owned wallets.** External-operator participation is a known gap and the most direct path from "verifiable" to "adversarial". Outreach in `doc/OUTREACH_TEMPLATES.md`.
+- **Hunt is not a generic AI auditor.** It is a *racing market with per-CWE specialist reputation*. Single-agent auditors (Olympix, Nethermind AuditAgent, etc.) ship a different primitive and aren't comparable line-for-line.
+
 ## 4. Track
 
 **Track 3 — Agentic Economy & Autonomous Applications.**

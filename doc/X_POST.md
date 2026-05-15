@@ -11,12 +11,28 @@ Sealed audits. Verifiable auditors. On-chain.
 The oracle-specialist found the smart-contract bug — the other two correctly stayed silent.
 Per-CWE reputation accrues on-chain.
 
-chainscan.0g.ai/address/0xD4Fe5127d519B775a9a581A54ED0719BBFf0d68C
+Verify, post, mint — all from your wallet → hunt.gudman.xyz
 
-#0GHackathon #BuildOn0G
+@0g_CN @HackQuest_ #0GHackathon #BuildOn0G
 ```
 
 Pin this post for the duration of judging. Attach a 30–45s clip from the recorded demo (the live race in terminal — three hunters fire, two return silent, oracle-specialist submits + settle tx confirms).
+
+## Variant C — interactive-surface lead (alt single post)
+
+If the recorded clip is a screen-capture of the browser flow rather than the terminal, use this version. It leads with the "judge can use this right now" angle — the single biggest differentiator vs every other Track 3 submission.
+
+```
+Hunt isn't a brochure. It's a dApp.
+
+→ verify any past finding cryptographically in your browser
+→ post a real bounty on @0G_labs Aristotle mainnet from your wallet
+→ mint a hunter agent
+
+Sealed audits, verifiable auditors, on-chain → hunt.gudman.xyz
+
+@0g_CN @HackQuest_ #0GHackathon #BuildOn0G
+```
 
 ## Variant B — 4-post thread
 
@@ -57,12 +73,11 @@ settle tx 0x9edab38c…
 **4/4** — verify yourself
 
 ```
-Verify it yourself:
+Or no clone, no setup — verify in your browser:
 
-git clone github.com/Ridwannurudeen/hunt
-node scripts/verify_bounty.js 3 --model-digest 0xba2eccd8…03078e
+hunt.gudman.xyz/verify.html → paste bountyId 3, click "fill canonical digest", Verify.
 
-Re-derives the on-chain digest + ecrecovers teeSigner. In strict mode, exit 0 = signer, race window, and supplied Sealed Inference modelDigest all match.
+Same checks as scripts/verify_bounty.js: signer = teeSigner, teeTimestamp in race window, digest re-derives from on-chain fields + modelDigest. Strict-mode exit 0.
 
 @0G_labs @0g_CN @0g_Eco @HackQuest_
 #0GHackathon #BuildOn0G

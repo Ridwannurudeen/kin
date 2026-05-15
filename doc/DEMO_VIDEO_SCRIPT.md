@@ -100,6 +100,32 @@ Capture the returned `bountyId` (this becomes `<HERO_ID>` everywhere below) and 
 
 ---
 
+## [Optional add-on — record only if total stays ≤3:00]  Anyone can do this in 30s — interactive surface (30s)
+
+This scene is the differentiator. **No other Track 3 entry has all three of these as wallet-callable browser actions.** Drop the bounty #9 USSD wrap if you have to choose; this scene materially changes "I built a website" → "I built a dApp judges can use right now." If both fit under 3:00, run this AFTER the verifier scene at 02:30 and rebalance the wrap to ~15s.
+
+[Cut to `hunt.gudman.xyz`. Connect Wallet pill is visible on the masthead. Click it — MetaMask asks to switch to 0G Aristotle, approve. Pill flips to short address.]
+
+> "Hunt isn't a brochure. It's a dApp. Connect any wallet on the masthead."
+
+[Cut to `hunt.gudman.xyz/verify.html`. Paste bountyId `3` and click "fill in canonical Hunt-audit digest". Click Verify.]
+
+> "Anyone can verify any past finding in the browser. No clone, no env, no setup. Reads the contract, recovers the signer, re-derives the digest. Same three checkmarks as the CLI."
+
+[Cut to `hunt.gudman.xyz/status.html` — show the live cards: total hunters, total bounties, teeSigner, verifier, all read from 0G chain in real time.]
+
+> "Live read from Aristotle: total hunters, total bounties, signer addresses, notary attestations, oracle domains — every number you'd want to cross-check."
+
+[Cut to `hunt.gudman.xyz/post-bounty.html`. Connect wallet again if needed. Show the form pre-filled with bounty #3's codeRoot, CWE multi-select, payout 0.01 OG, 600s race. Click Post — MetaMask confirms. Show the assigned bountyId on success.]
+
+> "Or post a bounty against the staged Vault.sol code. Real wallet, real OG escrowed, real bounty id assigned on chain. Demo mode reuses bounty #3's codeRoot because in v1 hunters need an operator-distributed key to decrypt — that's in the on-page disclaimer and in the v2 plan."
+
+[Final screen: Hunt masthead with the 5-link interactive nav highlighted — verify, post, mint, proof, status.]
+
+> "Hunt: race, settle, verify, post, mint — all on-chain, all from your wallet, all on 0G."
+
+---
+
 ## Recording checklist
 
 - [ ] 1080p, 30 fps minimum
