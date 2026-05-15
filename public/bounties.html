@@ -1,198 +1,418 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bounties &mdash; Hunt</title>
-<link rel="stylesheet" href="/styles.css">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<style>
-  .bounty-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 32px; }
-  .bounty-card {
-    background: var(--surface-glass);
-    backdrop-filter: blur(16px);
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    padding: 22px 26px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    transition: all 240ms var(--ease);
-    position: relative;
-    overflow: hidden;
-  }
-  .bounty-card:hover { border-color: var(--border-strong); transform: translateY(-1px); }
-  @media (max-width: 720px) { .bounty-card { grid-template-columns: 1fr; gap: 16px; } }
-  .bounty-card.open    { box-shadow: inset 3px 0 0 var(--brand), 0 0 0 0 var(--brand-glow); }
-  .bounty-card.open:hover { box-shadow: inset 3px 0 0 var(--brand), 0 8px 24px var(--brand-glow-soft); }
-  .bounty-card.settled { box-shadow: inset 3px 0 0 var(--gold); }
-  .bounty-card.expired { box-shadow: inset 3px 0 0 var(--text-mute); opacity: 0.78; }
-  .bounty-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 12px; }
-  .bounty-head .id { font-family: var(--display); font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
-  .bounty-head .id .hash { color: var(--brand); text-shadow: 0 0 16px var(--brand-glow); font-weight: 600; }
-  .status-badge { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; padding: 4px 10px; border-radius: var(--r-pill); font-weight: 500; }
-  .status-badge.open    { background: var(--brand-glow-soft); color: var(--brand); border: 1px solid var(--brand-glow); }
-  .status-badge.settled { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(245,200,66,0.3); }
-  .status-badge.expired { background: var(--bg-elev-2); color: var(--text-mute); border: 1px solid var(--border); }
-  .meta-line { font-family: var(--mono); font-size: 11px; color: var(--text-soft); margin: 5px 0; }
-  .meta-line .k { color: var(--text-mute); text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em; margin-right: 6px; }
-  .scope { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
-  .scope .chip {
-    font-family: var(--mono);
-    font-size: 10px;
-    padding: 4px 9px;
-    background: var(--bg-elev-2);
-    border: 1px solid var(--border-strong);
-    border-radius: var(--r-pill);
-    color: var(--text-soft);
-    text-transform: lowercase;
-  }
-  .countdown { font-family: var(--display); font-size: 30px; font-weight: 600; letter-spacing: -0.02em; color: var(--brand); text-shadow: 0 0 24px var(--brand-glow); }
-  .countdown.urgent { color: var(--red); text-shadow: 0 0 24px var(--red-glow); }
-  .countdown .pulse { margin-right: 10px; background: var(--brand); animation: pulse 0.8s ease-in-out infinite; }
-  .countdown.urgent .pulse { background: var(--red); box-shadow: 0 0 12px var(--red); }
-  .findings-list { margin-top: 14px; }
-  .findings-list .row { display: grid; grid-template-columns: 60px 1fr 70px 70px 60px; gap: 8px; padding: 8px 0; font-family: var(--mono); font-size: 12px; border-bottom: 1px dashed var(--border); }
-  .findings-list .row.head { font-size: 10px; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--border-strong); }
-  .findings-list .row.winning { background: var(--brand-glow-soft); padding: 8px; margin: 0 -8px; border-radius: var(--r-sm); }
-  .findings-list .sev { text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em; font-weight: 500; }
-  .findings-list .sev.critical { color: var(--red); font-weight: 600; }
-  .findings-list .sev.high     { color: var(--warning); }
-  .findings-list .sev.medium   { color: var(--text); }
-  .findings-list .sev.low      { color: var(--text-mute); }
-  .panel-r { border-left: 1px solid var(--border); padding-left: 24px; }
-  @media (max-width: 720px) { .panel-r { border-left: none; padding-left: 0; border-top: 1px solid var(--border); padding-top: 16px; } }
-  .empty { padding: 80px 0; text-align: center; color: var(--text-mute); font-family: var(--serif); font-style: italic; font-size: 19px; }
-  .won-pill {
-    font-family: var(--mono);
-    font-size: 9px;
-    background: var(--brand);
-    color: var(--bg);
-    padding: 3px 9px;
-    border-radius: var(--r-pill);
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    margin-left: 8px;
-    font-weight: 600;
-    box-shadow: 0 0 16px var(--brand-glow);
-  }
-</style>
-<script src="/theme.js"></script>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bounties &mdash; Hunt</title>
+    <link rel="stylesheet" href="/styles.css?v=20260515-p0" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <style>
+      .bounty-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+        margin-top: 32px;
+      }
+      .bounty-card {
+        background: var(--surface-glass);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--border);
+        border-radius: var(--r-lg);
+        padding: 22px 26px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        transition: all 240ms var(--ease);
+        position: relative;
+        overflow: hidden;
+        min-width: 0;
+      }
+      .bounty-card > div {
+        min-width: 0;
+      }
+      .bounty-card:hover {
+        border-color: var(--border-strong);
+        transform: translateY(-1px);
+      }
+      @media (max-width: 720px) {
+        .bounty-card {
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+      }
+      .bounty-card.open {
+        box-shadow:
+          inset 3px 0 0 var(--brand),
+          0 0 0 0 var(--brand-glow);
+      }
+      .bounty-card.open:hover {
+        box-shadow:
+          inset 3px 0 0 var(--brand),
+          0 8px 24px var(--brand-glow-soft);
+      }
+      .bounty-card.settled {
+        box-shadow: inset 3px 0 0 var(--gold);
+      }
+      .bounty-card.expired {
+        box-shadow: inset 3px 0 0 var(--text-mute);
+        opacity: 0.78;
+      }
+      .bounty-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      .bounty-head .id {
+        font-family: var(--display);
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--text);
+        letter-spacing: -0.01em;
+      }
+      .bounty-head .id .hash {
+        color: var(--brand);
+        text-shadow: 0 0 16px var(--brand-glow);
+        font-weight: 600;
+      }
+      .status-badge {
+        font-family: var(--mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        padding: 4px 10px;
+        border-radius: var(--r-pill);
+        font-weight: 500;
+      }
+      .status-badge.open {
+        background: var(--brand-glow-soft);
+        color: var(--brand);
+        border: 1px solid var(--brand-glow);
+      }
+      .status-badge.settled {
+        background: var(--gold-glow);
+        color: var(--gold);
+        border: 1px solid rgba(245, 200, 66, 0.3);
+      }
+      .status-badge.expired {
+        background: var(--bg-elev-2);
+        color: var(--text-mute);
+        border: 1px solid var(--border);
+      }
+      .meta-line {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-soft);
+        margin: 5px 0;
+      }
+      .meta-line .k {
+        color: var(--text-mute);
+        text-transform: uppercase;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        margin-right: 6px;
+      }
+      .scope {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 10px 0;
+      }
+      .scope .chip {
+        font-family: var(--mono);
+        font-size: 10px;
+        padding: 4px 9px;
+        background: var(--bg-elev-2);
+        border: 1px solid var(--border-strong);
+        border-radius: var(--r-pill);
+        color: var(--text-soft);
+        text-transform: lowercase;
+      }
+      .countdown {
+        font-family: var(--display);
+        font-size: 30px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        color: var(--brand);
+        text-shadow: 0 0 24px var(--brand-glow);
+      }
+      .countdown.urgent {
+        color: var(--red);
+        text-shadow: 0 0 24px var(--red-glow);
+      }
+      .countdown .pulse {
+        margin-right: 10px;
+        background: var(--brand);
+        animation: pulse 0.8s ease-in-out infinite;
+      }
+      .countdown.urgent .pulse {
+        background: var(--red);
+        box-shadow: 0 0 12px var(--red);
+      }
+      .findings-list {
+        margin-top: 14px;
+      }
+      .findings-list .row {
+        display: grid;
+        grid-template-columns: 60px 1fr 70px 70px 60px;
+        gap: 8px;
+        padding: 8px 0;
+        font-family: var(--mono);
+        font-size: 12px;
+        border-bottom: 1px dashed var(--border);
+      }
+      .findings-list .row.head {
+        font-size: 10px;
+        color: var(--text-mute);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        border-bottom: 1px solid var(--border-strong);
+      }
+      .findings-list .row.winning {
+        background: var(--brand-glow-soft);
+        padding: 8px;
+        margin: 0 -8px;
+        border-radius: var(--r-sm);
+      }
+      .findings-list .sev {
+        text-transform: uppercase;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        font-weight: 500;
+      }
+      .findings-list .sev.critical {
+        color: var(--red);
+        font-weight: 600;
+      }
+      .findings-list .sev.high {
+        color: var(--warning);
+      }
+      .findings-list .sev.medium {
+        color: var(--text);
+      }
+      .findings-list .sev.low {
+        color: var(--text-mute);
+      }
+      .panel-r {
+        border-left: 1px solid var(--border);
+        padding-left: 24px;
+      }
+      @media (max-width: 720px) {
+        .panel-r {
+          border-left: none;
+          padding-left: 0;
+          border-top: 1px solid var(--border);
+          padding-top: 16px;
+        }
+      }
+      .empty {
+        padding: 80px 0;
+        text-align: center;
+        color: var(--text-mute);
+        font-family: var(--serif);
+        font-style: italic;
+        font-size: 19px;
+      }
+      .won-pill {
+        font-family: var(--mono);
+        font-size: 9px;
+        background: var(--brand);
+        color: var(--bg);
+        padding: 3px 9px;
+        border-radius: var(--r-pill);
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        margin-left: 8px;
+        font-weight: 600;
+        box-shadow: 0 0 16px var(--brand-glow);
+      }
+      @media (max-width: 520px) {
+        .bounty-card {
+          padding: 22px 20px;
+        }
+        .bounty-head {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+        .status-badge {
+          align-self: flex-start;
+        }
+        .findings-list .row {
+          grid-template-columns: 48px minmax(0, 1fr) 58px 54px;
+        }
+        .findings-list .row span:last-child {
+          display: none;
+        }
+      }
+    </style>
+    <script src="/theme.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <header class="masthead">
+        <div class="masthead-row">
+          <div>
+            <div class="brand">Hunt<em>.</em></div>
+            <div class="tagline">bounty board &middot; the live race</div>
+          </div>
+          <span class="pill">0g aristotle mainnet</span>
+        </div>
+        <nav class="nav-row">
+          <a href="/">home</a>
+          <a href="/hunters.html">hunters</a>
+          <a href="/bounties.html" class="active">bounties</a>
+          <a href="/verticals.html">verticals</a>
+          <a href="/notary.html">notary</a>
+          <a href="/status.html">status</a>
+          <a href="/proof.html">judge proof</a>
+          <button
+            id="themeToggle"
+            class="theme-toggle"
+            type="button"
+            aria-label="Switch theme"
+          >
+            &#9790;
+          </button>
+        </nav>
+      </header>
 
-<div class="container">
+      <section style="padding: 48px 0">
+        <div class="section-eyebrow">live race</div>
+        <h2 class="section-title">Open <em>bounties.</em></h2>
+        <p
+          style="
+            font-family: var(--serif);
+            font-size: 17px;
+            color: var(--ink-soft);
+            max-width: 720px;
+            line-height: 1.55;
+          "
+        >
+          Open bounties first (closest deadline). Each finding is TEE-attested
+          at submit time. The contract enforces
+          <span style="font-family: var(--mono); font-size: 13px"
+            >teeTimestamp &isin; [postedAt, raceDeadline]</span
+          >
+          &mdash; you can't pre-compute.
+        </p>
 
-  <header class="masthead">
-    <div class="masthead-row">
-      <div>
-        <div class="brand">Hunt<em>.</em></div>
-        <div class="tagline">bounty board &middot; the live race</div>
-      </div>
-      <span class="pill">0g aristotle mainnet</span>
+        <div id="grid" class="bounty-grid">
+          <p class="empty">loading bounties from chain&hellip;</p>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="row">
+          <span
+            >Contract:
+            <span
+              id="contractAddr"
+              style="font-family: var(--mono); font-size: 13px"
+              >&mdash;</span
+            ></span
+          >
+          <a id="contractLink" target="_blank" rel="noreferrer"
+            >chainscan &#x2197;</a
+          >
+        </div>
+      </footer>
     </div>
-    <nav class="nav-row">
-      <a href="/">home</a>
-      <a href="/hunters.html">hunters</a>
-      <a href="/bounties.html" class="active">bounties</a>
-      <a href="/verticals.html">verticals</a>
-      <a href="/notary.html">notary</a>
-      <a href="/status.html">status</a>
-      <a href="/proof.html">judge proof</a>
-      <button id="themeToggle" class="theme-toggle" type="button" aria-label="Switch theme">&#9790;</button>
-    </nav>
-  </header>
 
-  <section style="padding: 48px 0;">
-    <div class="section-eyebrow">live race</div>
-    <h2 class="section-title">Open <em>bounties.</em></h2>
-    <p style="font-family: var(--serif); font-size: 17px; color: var(--ink-soft); max-width: 720px; line-height: 1.55;">
-      Open bounties first (closest deadline). Each finding is TEE-attested at submit time. The contract enforces <span style="font-family:var(--mono); font-size:13px;">teeTimestamp &isin; [postedAt, raceDeadline]</span> &mdash; you can't pre-compute.
-    </p>
+    <script src="/vendor/ethers-6.13.1.umd.min.js"></script>
+    <script src="/contracts.js"></script>
+    <script>
+      const $ = (id) => document.getElementById(id);
 
-    <div id="grid" class="bounty-grid">
-      <p class="empty">loading bounties from chain&hellip;</p>
-    </div>
-  </section>
+      function escapeHtml(s) {
+        return String(s).replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      }
 
-  <footer class="footer">
-    <div class="row">
-      <span>Contract: <span id="contractAddr" style="font-family: var(--mono); font-size: 13px;">&mdash;</span></span>
-      <a id="contractLink" target="_blank" rel="noreferrer">chainscan &#x2197;</a>
-    </div>
-  </footer>
-</div>
+      function fmtCountdown(secs) {
+        if (secs <= 0) return "00:00";
+        const m = Math.floor(secs / 60);
+        const s = secs % 60;
+        if (m >= 60) {
+          const h = Math.floor(m / 60);
+          return `${h}h ${m % 60}m`;
+        }
+        return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+      }
 
-<script src="/vendor/ethers-6.13.1.umd.min.js"></script>
-<script src="/contracts.js"></script>
-<script>
-const $ = (id) => document.getElementById(id);
+      function relSec(ts, base) {
+        const d = Number(ts) - Number(base);
+        return (d >= 0 ? "+" : "") + d + "s";
+      }
 
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
-}
+      // Cached state. We re-render every second only the countdowns; full reload every 30s.
+      const cardState = []; // { id, b, findings, openEl, settledEl }
 
-function fmtCountdown(secs) {
-  if (secs <= 0) return '00:00';
-  const m = Math.floor(secs / 60);
-  const s = secs % 60;
-  if (m >= 60) {
-    const h = Math.floor(m / 60);
-    return `${h}h ${m % 60}m`;
-  }
-  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-}
+      function renderBountyCard(b, findings) {
+        const id = Number(b.id);
+        const statusInt = Number(b.status);
+        const statusKey = ["open", "settled", "expired"][statusInt] || "open";
+        const inScope = (b.inScopeCwes || []).map(
+          (h) => window.bytes32ToCwe(h) || window.shortHash(h),
+        );
+        const scopeChips = inScope.length
+          ? inScope
+              .map((c) => `<span class="chip">${escapeHtml(c)}</span>`)
+              .join("")
+          : '<span class="chip" style="font-style:italic;">any class</span>';
 
-function relSec(ts, base) {
-  const d = Number(ts) - Number(base);
-  return (d >= 0 ? '+' : '') + d + 's';
-}
-
-// Cached state. We re-render every second only the countdowns; full reload every 30s.
-const cardState = []; // { id, b, findings, openEl, settledEl }
-
-function renderBountyCard(b, findings) {
-  const id = Number(b.id);
-  const statusInt = Number(b.status);
-  const statusKey = ['open','settled','expired'][statusInt] || 'open';
-  const inScope = (b.inScopeCwes || []).map(h => window.bytes32ToCwe(h) || window.shortHash(h));
-  const scopeChips = inScope.length
-    ? inScope.map(c => `<span class="chip">${escapeHtml(c)}</span>`).join('')
-    : '<span class="chip" style="font-style:italic;">any class</span>';
-
-  let rightPanel = '';
-  if (statusInt === 0) {
-    // Open — countdown + live findings list
-    rightPanel = `
+        let rightPanel = "";
+        if (statusInt === 0) {
+          // Open — countdown + live findings list
+          rightPanel = `
       <div class="panel-r">
         <div style="font-family:var(--mono); font-size:10px; color:var(--ink-mute); text-transform:uppercase; letter-spacing:0.1em;">race ends in</div>
         <div class="countdown" data-deadline="${b.raceDeadline}"><span class="pulse" style="display:none;"></span><span class="t">&mdash;</span></div>
         <div class="findings-list">
           <div style="font-family:var(--mono); font-size:10px; color:var(--ink-mute); text-transform:uppercase; letter-spacing:0.1em; margin-top:12px; margin-bottom:6px;">findings so far &middot; ${findings.length}</div>
-          ${findings.length === 0 ? '<div style="color:var(--ink-mute); font-style:italic; font-family:var(--serif); font-size:14px;">silence&hellip; hunters racing.</div>' : `
+          ${
+            findings.length === 0
+              ? '<div style="color:var(--ink-mute); font-style:italic; font-family:var(--serif); font-size:14px;">silence&hellip; hunters racing.</div>'
+              : `
             <div class="row head"><span>hunter</span><span>class</span><span>sev</span><span>tee t</span><span></span></div>
-            ${findings.map((f, i) => {
-              const sev = window.severityLabel(f.severity);
-              const cls = window.bytes32ToCwe(f.cweClass) || window.shortHash(f.cweClass);
-              return `<div class="row">
+            ${findings
+              .map((f, i) => {
+                const sev = window.severityLabel(f.severity);
+                const cls =
+                  window.bytes32ToCwe(f.cweClass) ||
+                  window.shortHash(f.cweClass);
+                return `<div class="row">
                 <span>#${f.hunterId}</span>
                 <span>${escapeHtml(cls)}</span>
                 <span class="sev ${sev}">${sev}</span>
                 <span>${relSec(f.teeTimestamp, b.postedAt)}</span>
                 <span></span>
               </div>`;
-            }).join('')}
-          `}
+              })
+              .join("")}
+          `
+          }
         </div>
       </div>
     `;
-  } else if (statusInt === 1) {
-    // Settled — show winning finding
-    const winIdx = Number(b.winningFindingIdx);
-    rightPanel = `
+        } else if (statusInt === 1) {
+          // Settled — show winning finding
+          const winIdx = Number(b.winningFindingIdx);
+          rightPanel = `
       <div class="panel-r">
         <div style="font-family:var(--mono); font-size:10px; color:var(--ink-mute); text-transform:uppercase; letter-spacing:0.1em;">winning finding</div>
-        ${findings[winIdx] ? `
+        ${
+          findings[winIdx]
+            ? `
           <div style="font-family:var(--serif); font-size:22px; font-weight:500; margin-top:6px;">
             hunter <span style="color:var(--gold);">#${findings[winIdx].hunterId}</span>
             <span class="won-pill">won</span>
@@ -202,25 +422,27 @@ function renderBountyCard(b, findings) {
             severity: <span class="sev ${window.severityLabel(findings[winIdx].severity)}" style="font-weight:600;">${window.severityLabel(findings[winIdx].severity)}</span><br>
             submitted: ${relSec(findings[winIdx].teeTimestamp, b.postedAt)}
           </div>
-        ` : '<div style="color:var(--ink-mute); font-style:italic;">winning finding not loaded</div>'}
+        `
+            : '<div style="color:var(--ink-mute); font-style:italic;">winning finding not loaded</div>'
+        }
         <div style="margin-top:12px;">
           <a href="/proof.html?bounty=${id}" class="btn ghost" style="font-size:12px; padding:6px 12px;">view judge proof &rarr;</a>
         </div>
       </div>
     `;
-  } else {
-    // Expired
-    rightPanel = `
+        } else {
+          // Expired
+          rightPanel = `
       <div class="panel-r">
         <div style="font-family:var(--mono); font-size:10px; color:var(--ink-mute); text-transform:uppercase; letter-spacing:0.1em;">expired</div>
         <div style="font-family:var(--serif); font-size:17px; color:var(--ink-soft); margin-top:6px;">
-          ${findings.length === 0 ? 'No findings. Escrow refunded to poster.' : 'Settle window closed. Findings made, but no winner selected.'}
+          ${findings.length === 0 ? "No findings. Escrow refunded to poster." : "Settle window closed. Findings made, but no winner selected."}
         </div>
       </div>
     `;
-  }
+        }
 
-  return `
+        return `
     <div class="bounty-card ${statusKey}" data-id="${id}">
       <div>
         <div class="bounty-head">
@@ -238,89 +460,107 @@ function renderBountyCard(b, findings) {
       ${rightPanel}
     </div>
   `;
-}
-
-function tickCountdowns() {
-  const now = Math.floor(Date.now() / 1000);
-  document.querySelectorAll('.countdown[data-deadline]').forEach(el => {
-    const deadline = Number(el.getAttribute('data-deadline'));
-    const remaining = deadline - now;
-    const t = el.querySelector('.t');
-    const pulse = el.querySelector('.pulse');
-    if (remaining <= 0) {
-      t.textContent = 'race over';
-      el.classList.add('urgent');
-      if (pulse) pulse.style.display = 'inline-block';
-    } else {
-      t.textContent = fmtCountdown(remaining);
-      if (remaining <= 60) {
-        el.classList.add('urgent');
-        if (pulse) pulse.style.display = 'inline-block';
-      } else {
-        el.classList.remove('urgent');
-        if (pulse) pulse.style.display = 'none';
       }
-    }
-  });
-}
 
-async function loadAll() {
-  await loadDeployment();
-  $('contractAddr').textContent = window.HUNT_ADDRESS;
-  $('contractLink').href = `${window.CHAINSCAN_URL}/address/${window.HUNT_ADDRESS}`;
-
-  if (window.HUNT_ADDRESS === '0x0000000000000000000000000000000000000000') {
-    $('grid').innerHTML = `<p class="empty">Hunt contract not yet deployed. Bounties will appear here once it ships to mainnet.</p>`;
-    return;
-  }
-
-  try {
-    const provider = window.mkProvider();
-    const hunt = new ethers.Contract(window.HUNT_ADDRESS, window.HUNT_ABI, provider);
-    const total = Number(await window.withRetry(() => hunt.totalBounties()));
-    if (total === 0) {
-      $('grid').innerHTML = `<p class="empty">No bounties posted yet.</p>`;
-      return;
-    }
-    const ids = Array.from({ length: total }, (_, i) => i);
-    const rows = await Promise.all(ids.map(async (id) => {
-      const [b, findings] = await Promise.all([
-        window.withRetry(() => hunt.getBounty(id)),
-        window.withRetry(() => hunt.getFindings(id)),
-      ]);
-      return { id, b, findings };
-    }));
-
-    rows.sort((a, b) => {
-      const sa = Number(a.b.status); const sb = Number(b.b.status);
-      if (sa !== sb) {
-        // Open(0) first, then Settled(1), then Expired(2)
-        return sa - sb;
+      function tickCountdowns() {
+        const now = Math.floor(Date.now() / 1000);
+        document.querySelectorAll(".countdown[data-deadline]").forEach((el) => {
+          const deadline = Number(el.getAttribute("data-deadline"));
+          const remaining = deadline - now;
+          const t = el.querySelector(".t");
+          const pulse = el.querySelector(".pulse");
+          if (remaining <= 0) {
+            t.textContent = "race over";
+            el.classList.add("urgent");
+            if (pulse) pulse.style.display = "inline-block";
+          } else {
+            t.textContent = fmtCountdown(remaining);
+            if (remaining <= 60) {
+              el.classList.add("urgent");
+              if (pulse) pulse.style.display = "inline-block";
+            } else {
+              el.classList.remove("urgent");
+              if (pulse) pulse.style.display = "none";
+            }
+          }
+        });
       }
-      if (sa === 0) return Number(a.b.raceDeadline) - Number(b.b.raceDeadline);
-      // newest first for Settled / Expired
-      return Number(b.b.postedAt) - Number(a.b.postedAt);
-    });
 
-    // ethers v6 Result is a Proxy — spreading drops the named accessors and leaves only
-    // numeric-index keys (0..N). Use toObject() to materialise a plain object first.
-    $('grid').innerHTML = rows.map(({ id, b, findings }) =>
-      renderBountyCard({ ...b.toObject(), id }, findings)).join('');
-    tickCountdowns();
-  } catch (e) {
-    console.error(e);
-    $('grid').innerHTML = `<p class="empty">
+      async function loadAll() {
+        await loadDeployment();
+        $("contractAddr").textContent = window.HUNT_ADDRESS;
+        $("contractLink").href =
+          `${window.CHAINSCAN_URL}/address/${window.HUNT_ADDRESS}`;
+
+        if (
+          window.HUNT_ADDRESS === "0x0000000000000000000000000000000000000000"
+        ) {
+          $("grid").innerHTML =
+            `<p class="empty">Hunt contract not yet deployed. Bounties will appear here once it ships to mainnet.</p>`;
+          return;
+        }
+
+        try {
+          const provider = window.mkProvider();
+          const hunt = new ethers.Contract(
+            window.HUNT_ADDRESS,
+            window.HUNT_ABI,
+            provider,
+          );
+          const total = Number(
+            await window.withRetry(() => hunt.totalBounties()),
+          );
+          if (total === 0) {
+            $("grid").innerHTML =
+              `<p class="empty">No bounties posted yet.</p>`;
+            return;
+          }
+          const ids = Array.from({ length: total }, (_, i) => i);
+          const rows = await Promise.all(
+            ids.map(async (id) => {
+              const [b, findings] = await Promise.all([
+                window.withRetry(() => hunt.getBounty(id)),
+                window.withRetry(() => hunt.getFindings(id)),
+              ]);
+              return { id, b, findings };
+            }),
+          );
+
+          rows.sort((a, b) => {
+            const sa = Number(a.b.status);
+            const sb = Number(b.b.status);
+            if (sa !== sb) {
+              // Open(0) first, then Settled(1), then Expired(2)
+              return sa - sb;
+            }
+            if (sa === 0)
+              return Number(a.b.raceDeadline) - Number(b.b.raceDeadline);
+            // newest first for Settled / Expired
+            return Number(b.b.postedAt) - Number(a.b.postedAt);
+          });
+
+          // ethers v6 Result is a Proxy — spreading drops the named accessors and leaves only
+          // numeric-index keys (0..N). Use toObject() to materialise a plain object first.
+          $("grid").innerHTML = rows
+            .map(({ id, b, findings }) =>
+              renderBountyCard({ ...b.toObject(), id }, findings),
+            )
+            .join("");
+          tickCountdowns();
+        } catch (e) {
+          console.error(e);
+          $("grid").innerHTML = `<p class="empty">
       Could not read from 0G RPC: ${escapeHtml(e.message)}<br>
       <span style="font-size:13px; color:var(--ink-mute);">0G's public endpoint is occasionally slow under load. Try again in a moment, or inspect the contract directly on
       <a href="${window.CHAINSCAN_URL}/address/${window.HUNT_ADDRESS}" target="_blank">chainscan</a>.</span><br>
       <button onclick="loadAll()" class="btn ghost" style="margin-top:12px; font-size:12px; padding:6px 14px;">retry</button>
     </p>`;
-  }
-}
+        }
+      }
 
-setInterval(tickCountdowns, 1000);
-setInterval(loadAll, 60_000);
-loadAll();
-</script>
-</body>
+      setInterval(tickCountdowns, 1000);
+      setInterval(loadAll, 60_000);
+      loadAll();
+    </script>
+  </body>
 </html>

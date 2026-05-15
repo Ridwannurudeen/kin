@@ -854,6 +854,7 @@ section { padding: 80px 0; }
   letter-spacing: 0.1em;
 }
 .footer .row { display: flex; gap: 32px; flex-wrap: wrap; align-items: baseline; }
+.footer .row > * { min-width: 0; overflow-wrap: anywhere; }
 .footer a { color: var(--text-soft); }
 .footer a:hover { color: var(--brand); }
 
