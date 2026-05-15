@@ -7,6 +7,7 @@ import http from "node:http";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { handleApi } from "./api.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const PUBLIC_DIR = path.join(ROOT, "public");
@@ -45,6 +46,11 @@ function resolveTarget(urlPath) {
 }
 
 const server = http.createServer(async (req, res) => {
+  // /api/* is the public read-only protocol API (see bin/api.js).
+  const urlPath = (req.url || "").split("?")[0].split("#")[0];
+  if (urlPath.startsWith("/api")) {
+    if (handleApi(req, res)) return;
+  }
   if (req.method !== "GET" && req.method !== "HEAD") {
     res.writeHead(405, { "content-type": "text/plain" });
     res.end("method not allowed");

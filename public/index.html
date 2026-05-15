@@ -483,15 +483,26 @@
           // status directly — accurate, and only totalBounties() calls.
           try {
             const n = Number(bounties);
-            const all = await Promise.all(
-              Array.from({ length: n }, (_, i) => hunt.getBounty(i)),
-            );
-            const settledBounties = all.filter((b) => Number(b.status) === 1);
-            $("statSettled").textContent = settledBounties.length.toString();
-            $("liveSettled").textContent = `${settledBounties.length} of ${n}`;
-            // Cumulative OG paid to hunters (sum of maxPayout for settled bounties).
-            const paidWei = settledBounties.reduce(
-              (acc, b) => acc + b.maxPayout,
+            // settleBounty zeros out maxPayout — sum totalEarnedWei across
+            // hunters for the cumulative-paid number, sum status==1 counts
+            // for the settled total.
+            const [allBounties, allHunters] = await Promise.all([
+              Promise.all(
+                Array.from({ length: n }, (_, i) => hunt.getBounty(i)),
+              ),
+              Promise.all(
+                Array.from({ length: Number(hunters) }, (_, i) =>
+                  hunt.getHunter(i),
+                ),
+              ),
+            ]);
+            const settledCount = allBounties.filter(
+              (b) => Number(b.status) === 1,
+            ).length;
+            $("statSettled").textContent = settledCount.toString();
+            $("liveSettled").textContent = `${settledCount} of ${n}`;
+            const paidWei = allHunters.reduce(
+              (acc, h) => acc + h.totalEarnedWei,
               0n,
             );
             const paidStr = Number(ethers.formatEther(paidWei)).toFixed(2);
