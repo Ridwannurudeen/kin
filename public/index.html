@@ -169,6 +169,15 @@
         border-top: 1px solid var(--border);
         border-bottom: 1px solid var(--border);
       }
+      @media (max-width: 720px) {
+        /* container padding shrinks to 16px on mobile (see styles.css);
+           keep the band's negative-margin aligned so it doesn't push the
+           document past the viewport. */
+        .band-section {
+          margin: 0 -16px;
+          padding: 56px 16px;
+        }
+      }
 
       /* Footer enhancements */
       .footer-tagline {
