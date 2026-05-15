@@ -1,7 +1,7 @@
 {
   "name": "@hunt-protocol/verifiable-ai",
   "version": "0.1.0",
-  "description": "Verifiable AI primitives for 0G Aristotle — attestation digests, per-domain class hashing, ECIES envelopes. Extracted from the Hunt protocol.",
+  "description": "Verifiable AI primitives for 0G Aristotle - attestation digests, per-domain class hashing, ECIES envelopes. Extracted from the Hunt protocol.",
   "type": "module",
   "main": "src/index.js",
   "exports": {
@@ -9,8 +9,7 @@
     "./digest": "./src/digest.js",
     "./classes": "./src/classes.js",
     "./ecdh": "./src/ecdh.js",
-    "./attestation": "./src/attestation.js",
-    "./notary": "./src/notary.js"
+    "./attestation": "./src/attestation.js"
   },
   "scripts": {
     "test": "node --test test/*.test.js",

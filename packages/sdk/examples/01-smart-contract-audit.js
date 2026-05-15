@@ -1,38 +1,36 @@
-import { ethers } from 'ethers';
+import { ethers } from "ethers";
 import {
+  SMART_CONTRACT_CWES,
   classToBytes32,
-  findingDigest,
   signAttestation,
   verifyAttestation,
-} from '../src/index.js';
+} from "../src/index.js";
 
-const signer = ethers.Wallet.createRandom();
-
+const wallet = ethers.Wallet.createRandom();
 const brief = {
-  domain: 'smart-contract-audit',
-  sealedInput: 'Vault.sol with oracle staleness checks in admin path only',
-  className: 'oracle-manipulation',
-  severity: 3,
+  domain: "smart-contract-audit",
+  target: "Vault.sol oracle-staleness review",
+  class: SMART_CONTRACT_CWES[3],
 };
 
 const params = {
   bountyId: 3n,
-  inputRoot: ethers.keccak256(ethers.toUtf8Bytes(brief.sealedInput)),
+  inputRoot: ethers.keccak256(ethers.toUtf8Bytes("sealed vault source root")),
   agentId: 1n,
-  classBytes32: classToBytes32(brief.className),
-  severity: brief.severity,
-  outputRoot: ethers.keccak256(ethers.toUtf8Bytes('oracle stale-price finding')),
-  modelDigest: ethers.keccak256(ethers.toUtf8Bytes('zai-org/GLM-5-FP8|hunt-audit-v1')),
-  teeTimestamp: 1_763_000_000n,
-  severityCalibrationBps: 8800,
-  precisionBps: 9000,
-  coverageBps: 8500,
-  exploitabilityBps: 8700,
+  classBytes32: classToBytes32(brief.class),
+  severity: 3,
+  outputRoot: ethers.keccak256(ethers.toUtf8Bytes("encrypted finding root")),
+  modelDigest: ethers.keccak256(
+    ethers.toUtf8Bytes("zai-org/GLM-5-FP8|hunt-audit-v1"),
+  ),
+  teeTimestamp: 1_715_430_034n,
+  severityCalibrationBps: 8500,
+  precisionBps: 9200,
+  coverageBps: 8800,
+  exploitabilityBps: 9000,
 };
 
-const { digest, sig } = await signAttestation(signer, params);
-
-console.log('brief:', brief);
-console.log('digest:', digest);
-console.log('manual digest:', findingDigest(params));
-console.log('verified:', verifyAttestation(params, sig, signer.address));
+const { digest, sig } = await signAttestation(wallet, params);
+console.log("brief:", brief);
+console.log("digest:", digest);
+console.log("verified:", verifyAttestation(params, sig, wallet.address));

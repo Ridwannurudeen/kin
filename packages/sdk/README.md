@@ -2,222 +2,247 @@
 
 Verifiable AI primitives for 0G Aristotle, extracted from the Hunt protocol.
 
-Hunt began as a sealed bug-bounty network: protocols post encrypted Solidity,
-AI hunter agents race inside 0G Sealed Inference, and the winning finding settles
-on 0G Chain with per-class reputation. This package extracts the reusable parts
-of that system so another 0G app can issue the same kind of receipt without
-copying the Hunt app.
+This package pulls out the reusable parts of Hunt's attestation stack:
 
-The core primitive is simple: hash the private input, hash the private output,
-hash the model identity, hash a canonical class label, then sign the ABI-encoded
-tuple. A verifier can later recompute the digest and recover the signer.
+- deterministic attestation digests
+- canonical class hashing across Hunt's four current domains
+- secp256k1 ECIES envelopes for sealed payload exchange
+- high-level signing and verification wrappers for operator-held `teeSigner` flows
+
+The code here is intentionally small. It is the protocol substrate, not the full Hunt app.
 
 ## Install
 
-This package lives in the Hunt monorepo during the hackathon window.
+This SDK is pre-1.0 and currently lives inside the Hunt repo.
 
 ```bash
-npm install github:Ridwannurudeen/hunt#main --workspace=@hunt-protocol/verifiable-ai
+git clone https://github.com/Ridwannurudeen/hunt
+cd hunt/packages/sdk
+npm test
 ```
 
-It declares `ethers` as a peer dependency:
+Your app must provide `ethers`:
 
 ```bash
-npm install ethers@^6.13.0
+npm install ethers
 ```
 
 ## Quickstart
 
 ```js
 import { ethers } from 'ethers';
-import { classToBytes32, signAttestation, verifyAttestation } from '@hunt-protocol/verifiable-ai';
+import { classToBytes32, findingDigest, signAttestation, verifyAttestation } from '@hunt-protocol/verifiable-ai';
 
-const signer = ethers.Wallet.createRandom();
+const wallet = ethers.Wallet.createRandom();
 const params = {
-  bountyId: 1n,
+  bountyId: 3n,
   inputRoot: ethers.keccak256(ethers.toUtf8Bytes('sealed input')),
-  agentId: 7n,
+  agentId: 1n,
   classBytes32: classToBytes32('oracle-manipulation'),
   severity: 3,
-  outputRoot: ethers.keccak256(ethers.toUtf8Bytes('encrypted output')),
-  modelDigest: ethers.keccak256(ethers.toUtf8Bytes('model-name|v1')),
-  teeTimestamp: BigInt(Math.floor(Date.now() / 1000)),
-  severityCalibrationBps: 8800,
-  precisionBps: 9000,
-  coverageBps: 8500,
-  exploitabilityBps: 8700,
+  outputRoot: ethers.keccak256(ethers.toUtf8Bytes('sealed output')),
+  modelDigest: ethers.keccak256(ethers.toUtf8Bytes('zai-org/GLM-5-FP8|hunt-audit-v1')),
+  teeTimestamp: 1_715_430_000n,
+  severityCalibrationBps: 8500,
+  precisionBps: 9200,
+  coverageBps: 8800,
+  exploitabilityBps: 9000,
 };
 
-const { sig } = await signAttestation(signer, params);
-console.log(verifyAttestation(params, sig, signer.address));
+const digest = findingDigest(params);
+const { sig } = await signAttestation(wallet, params);
+console.log(digest, verifyAttestation(params, sig, wallet.address));
 ```
 
 ## API reference
 
 ### `findingDigest(params)`
 
-Computes the byte-identical digest used by `contracts/Hunt.sol` for finding
-attestations. The SDK renames the fields to be domain-agnostic:
+Re-derives the byte-for-byte digest Hunt uses on-chain for `submitFinding`.
 
-| SDK field | Hunt v1 field | Solidity type |
-| --- | --- | --- |
-| `bountyId` | `bountyId` | `uint256` |
-| `inputRoot` | `codeRoot` | `bytes32` |
-| `agentId` | `hunterId` | `uint256` |
-| `classBytes32` | `cweClass` | `bytes32` |
-| `severity` | `severity` | `uint8` |
-| `outputRoot` | `findingRoot` | `bytes32` |
-| `modelDigest` | `modelDigest` | `bytes32` |
-| `teeTimestamp` | `teeTimestamp` | `uint64` |
-| `severityCalibrationBps` | `severityCalibrationBps` | `uint16` |
-| `precisionBps` | `precisionBps` | `uint16` |
-| `coverageBps` | `coverageBps` | `uint16` |
-| `exploitabilityBps` | `exploitabilityBps` | `uint16` |
+Parameters:
 
-The digest is:
+- `bountyId` - `uint256`
+- `inputRoot` - `bytes32`
+- `agentId` - `uint256`
+- `classBytes32` - `bytes32`
+- `severity` - `uint8`
+- `outputRoot` - `bytes32`
+- `modelDigest` - `bytes32`
+- `teeTimestamp` - `uint64`
+- `severityCalibrationBps` - `uint16`
+- `precisionBps` - `uint16`
+- `coverageBps` - `uint16`
+- `exploitabilityBps` - `uint16`
 
-```js
-keccak256(abi.encode(uint256, bytes32, uint256, bytes32, uint8, bytes32, bytes32, uint64, uint16, uint16, uint16, uint16))
-```
+Returns:
+
+- `bytes32` hex string
 
 ### `FINDING_DIGEST_ABI`
 
-The ABI type list used by `findingDigest`. Exported for consumers that need to
-encode the tuple themselves.
+The canonical ABI tuple used by `findingDigest`.
 
 ### `canonicalise(name)`
 
-Normalizes arbitrary class names to Hunt's kebab-case form. It lowercases,
-collapses whitespace and underscores to hyphens, drops punctuation, collapses
-repeated hyphens, and trims leading or trailing hyphens.
+Lowercases, converts whitespace and underscores to hyphens, strips non `[a-z0-9-]`, collapses repeated hyphens, and trims leading or trailing hyphens.
 
 ### `classToBytes32(name)`
 
-Returns `keccak256(utf8(canonicalise(name)))`. Unlike Hunt v1's closed CWE
-helper, the SDK does not reject unknown names. Consumer apps can define their
-own class registries.
+`keccak256(utf8(canonicalise(name)))`.
+
+Unlike Hunt's smart-contract-only `lib/cwe.js`, this helper does not throw on unknown names. That lets downstream consumers define their own domain registries while still staying compatible with Hunt's hashing rules.
 
 ### `bytes32ToClass(hash, registry)`
 
-Performs an inverse lookup against a registry array. Returns `undefined` if the
-hash is not present.
+Inverse lookup helper across any registry array. Returns the first matching canonical class string or `undefined`.
 
-### Class registries
+### `SMART_CONTRACT_CWES`
 
-The SDK ships four frozen registries:
+The 12 canonical Hunt v1 smart-contract classes:
 
-- `SMART_CONTRACT_CWES`
-- `INSURANCE_DEFECT_CLASSES`
-- `BENEFITS_DEFECT_CLASSES`
-- `MEDICAL_READING_CLASSES`
+- `swc-107-reentrancy`
+- `swc-115-tx-origin`
+- `access-control`
+- `oracle-manipulation`
+- `swc-101-int-overflow`
+- `storage-collision`
+- `unchecked-external-call`
+- `front-running`
+- `price-manipulation`
+- `signature-replay`
+- `unsafe-delegatecall`
+- `denial-of-service`
 
-These registries are convenience constants, not protocol limits. Any domain can
-hash its own canonical labels with `classToBytes32`.
+### `INSURANCE_DEFECT_CLASSES`
 
-### `signAttestation(signer, params)`
+The 6 Hunt insurance-defense classes:
 
-Computes `findingDigest(params)` and signs the digest bytes with an ethers
-signer using EIP-191 `signMessage`. Returns `{ digest, sig }`.
+- `medical-necessity-misapplication`
+- `coding-cpt-error`
+- `prior-auth-overreach`
+- `network-adequacy-violation`
+- `erisa-procedural-defect`
+- `state-external-review-misclassification`
 
-### `verifyAttestation(params, sig, expectedSigner)`
+### `BENEFITS_DEFECT_CLASSES`
 
-Recomputes the digest, recovers the EIP-191 signer, and compares it to
-`expectedSigner`. Returns `true` or `false`.
+The 7 Hunt disability and benefits-defense classes:
+
+- `medical-listing-misapplication`
+- `residual-functional-capacity-error`
+- `vocational-expert-misclassification`
+- `duration-requirement-misapplication`
+- `substantial-gainful-activity-miscalculation`
+- `combined-impairments-omission`
+- `treating-physician-opinion-weight`
+
+### `MEDICAL_READING_CLASSES`
+
+The 6 Hunt Records Reader classes:
+
+- `pathology-borderline-interpretation`
+- `radiology-second-read-discrepancy`
+- `oncology-staging-revision`
+- `cardiology-ecg-echo-revision`
+- `dermatology-pigmented-lesion-revision`
+- `hematology-flow-cytometry-discordance`
 
 ### `encryptToPubkey(plaintextBytes, recipientPubkeyHex)`
 
-Encrypts bytes or a string to a secp256k1 compressed or uncompressed public key.
-The return value is a single binary blob:
+Encrypts bytes to a secp256k1 public key using:
 
-```text
-[33-byte ephemeral pubkey][12-byte iv][16-byte gcm tag][ciphertext]
+- ephemeral secp256k1 ECDH
+- HKDF-SHA256
+- AES-256-GCM
+
+Output format:
+
+```txt
+[33-byte ephemeral compressed pubkey][12-byte IV][16-byte GCM tag][ciphertext]
 ```
 
 ### `decryptFromPrivkey(encryptedBytes, recipientPrivkeyHex)`
 
-Decrypts a blob produced by `encryptToPubkey` with the recipient's private key.
+Decrypts a payload emitted by `encryptToPubkey`.
 
-### Notary helpers
+### `signAttestation(signer, params)`
 
-`src/notary.js` exports:
+High-level helper that computes `findingDigest(params)` and signs it as an EIP-191 personal message. Returns `{ digest, sig }`.
 
-- `NOTARY_ABI`
-- `ZERO_BYTES32`
-- `hashContent(transcript)`
-- `modelToDigest(modelName)`
-- `domainToBytes32(domain)`
-- `buildNotaryArgs({ transcript, model, domain, sealedInputRoot })`
+### `verifyAttestation(params, sig, expectedSigner)`
 
-These helpers prepare arguments for `HuntNotary.attest(bytes32,bytes32,bytes32,bytes32)`.
+Recomputes the digest, recovers the signer, and compares it to `expectedSigner`.
 
 ## Examples
 
-### Smart-contract audit
+### `examples/01-smart-contract-audit.js`
+
+Minimal Hunt-native example using the v1 smart-contract registry and an `oracle-manipulation` class.
+
+### `examples/02-insurance-defense.js`
+
+Shows the same digest structure against an insurance denial-defense workflow where the domain class is `medical-necessity-misapplication`.
+
+### `examples/03-medical-records-reader.js`
+
+Uses the medical reading registry for a physician-question workflow. Same digest, different class vocabulary.
+
+### `examples/04-benefits-defense.js`
+
+Uses the benefits-defense registry for a benefits denial with `vocational-expert-misclassification`.
+
+### `examples/05-generic-classification.js`
+
+Demonstrates a completely new vertical with custom labels such as `positive`, `negative`, `mixed`, and `urgent-review`.
+
+Run them one at a time:
 
 ```bash
-npm run example:audit
+node examples/01-smart-contract-audit.js
+node examples/02-insurance-defense.js
+node examples/03-medical-records-reader.js
+node examples/04-benefits-defense.js
+node examples/05-generic-classification.js
 ```
 
-Builds a Hunt v1-style attestation for an oracle-manipulation finding against a
-sealed Solidity bounty.
+Each example prints:
 
-### Insurance defense
-
-```bash
-npm run example:insurance
-```
-
-Builds an attestation for an insurance denial-defect class such as
-`medical-necessity-misapplication`.
-
-### Medical records reader
-
-```bash
-npm run example:medical
-```
-
-Builds an attestation for a scope-limited medical Records Reader output. The
-class registry covers second-read and interpretation-disagreement surfaces.
-
-### Benefits defense
-
-```bash
-npm run example:benefits
-```
-
-Builds an attestation for an SSDI/SSI benefits-defense defect class such as
-`residual-functional-capacity-error`.
-
-### Generic classification
-
-```bash
-npm run example:generic
-```
-
-Demonstrates a new domain, tweet sentiment classification, with a custom class
-registry. This example is the shortest proof that the primitive is not limited
-to Hunt's current verticals.
+- a compact domain brief
+- the computed digest
+- a `verifyAttestation` result
 
 ## Used by
 
-Hunt's four verticals use the same digest shape:
+Hunt uses this primitive across four current verticals:
 
-- Smart-contract bug-bounty auditing
-- Insurance-claim-denial defense
-- Disability and senior benefits defense
-- Medical Records Reader
+1. smart-contract bug-bounty audit
+2. insurance-claim-denial defense
+3. disability and senior benefits defense
+4. medical Records Reader
 
-Only the canonical class strings change between domains. The input root, output
-root, model digest, timestamp, and self-evaluation fields keep the same encoding.
+The important design choice is that the attestation shape stays fixed while the canonical class registry changes per domain.
+
+## Development
+
+Run the SDK tests:
+
+```bash
+node --test test/*.test.js
+```
+
+The test suite covers:
+
+- deterministic digest generation
+- digest parity with Hunt's existing `lib/credential.js`
+- class canonicalisation and registry lookups
+- sign and verify round-trips
 
 ## Status
 
-This is a pre-1.0 SDK. Expect breaking changes while the Hunt protocol hardens
-its TEE-attestation relay, Notary, and Reputation Oracle layers.
+Pre-1.0. Expect breaking changes.
 
-The v0.1.0 API intentionally stays close to the deployed Hunt v1 digest so
-judges and downstream 0G builders can verify that the package did not invent a
-second receipt format.
+The digest wire format is intentionally stable because it must match Hunt's live contract behavior, but package structure and helper surface may still change while the SDK is being extracted into a standalone protocol layer.
 
 ## License
 
@@ -225,7 +250,7 @@ MIT.
 
 ## Links
 
-- Hunt repo: https://github.com/Ridwannurudeen/hunt
-- Live demo: https://hunt.gudman.xyz
-- Verticals page: https://hunt.gudman.xyz/verticals.html
-- Judge proof: https://hunt.gudman.xyz/proof.html?bounty=3
+- Hunt repo: `https://github.com/Ridwannurudeen/hunt`
+- Live Hunt demo: `https://hunt.gudman.xyz`
+- Hunt verticals page: `https://hunt.gudman.xyz/verticals.html`
+- Hunt roadmap: `../../doc/FUTURE.md`

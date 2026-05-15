@@ -1,35 +1,41 @@
-import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
-import { ethers } from 'ethers';
-import { signAttestation, verifyAttestation } from '../src/attestation.js';
-import { classToBytes32 } from '../src/classes.js';
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
+import { ethers } from "ethers";
+import { signAttestation, verifyAttestation } from "../src/attestation.js";
+import { classToBytes32 } from "../src/classes.js";
 
-const params = {
-  bountyId: 3n,
-  inputRoot: '0x' + '11'.repeat(32),
-  agentId: 1n,
-  classBytes32: classToBytes32('oracle-manipulation'),
-  severity: 3,
-  outputRoot: '0x' + '22'.repeat(32),
-  modelDigest: ethers.keccak256(ethers.toUtf8Bytes('zai-org/GLM-5-FP8|hunt-audit-v1')),
-  teeTimestamp: 1_763_000_000n,
-  severityCalibrationBps: 8800,
-  precisionBps: 9000,
-  coverageBps: 8500,
-  exploitabilityBps: 8700,
-};
+function makeParams() {
+  return {
+    bountyId: 5n,
+    inputRoot: "0x" + "55".repeat(32),
+    agentId: 9n,
+    classBytes32: classToBytes32("signature-replay"),
+    severity: 4,
+    outputRoot: "0x" + "77".repeat(32),
+    modelDigest: ethers.keccak256(ethers.toUtf8Bytes("hunt-audit-v1|sig-test")),
+    teeTimestamp: 1_715_430_444n,
+    severityCalibrationBps: 9100,
+    precisionBps: 9300,
+    coverageBps: 8800,
+    exploitabilityBps: 9200,
+  };
+}
 
-describe('attestation', () => {
-  it('signAttestation and verifyAttestation round-trip', async () => {
+describe("sdk attestation", () => {
+  it("signAttestation and verifyAttestation round-trip with a random wallet", async () => {
     const wallet = ethers.Wallet.createRandom();
-    const { sig } = await signAttestation(wallet, params);
+    const params = makeParams();
+    const { digest, sig } = await signAttestation(wallet, params);
+    assert.ok(digest.startsWith("0x"));
+    assert.equal(sig.startsWith("0x"), true);
     assert.equal(verifyAttestation(params, sig, wallet.address), true);
   });
 
-  it('verifyAttestation returns false for tampered params', async () => {
+  it("verifyAttestation returns false for tampered params", async () => {
     const wallet = ethers.Wallet.createRandom();
+    const params = makeParams();
     const { sig } = await signAttestation(wallet, params);
-    const tampered = { ...params, outputRoot: '0x' + '33'.repeat(32) };
+    const tampered = { ...params, outputRoot: "0x" + "88".repeat(32) };
     assert.equal(verifyAttestation(tampered, sig, wallet.address), false);
   });
 });

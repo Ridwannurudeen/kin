@@ -1,38 +1,36 @@
-import { ethers } from 'ethers';
+import { ethers } from "ethers";
 import {
-  classToBytes32,
   INSURANCE_DEFECT_CLASSES,
+  classToBytes32,
   signAttestation,
   verifyAttestation,
-} from '../src/index.js';
+} from "../src/index.js";
 
-const signer = ethers.Wallet.createRandom();
-
+const wallet = ethers.Wallet.createRandom();
 const brief = {
-  domain: 'insurance-claim-denial-defense',
-  insurer: 'ACME Medicare Advantage Plan',
-  service: 'Skilled nursing facility continuation',
-  inScope: INSURANCE_DEFECT_CLASSES.slice(0, 3),
+  domain: "insurance-claim-denial-defense",
+  insurer: "synthetic medicare advantage denial",
+  class: INSURANCE_DEFECT_CLASSES[0],
 };
 
 const params = {
-  bountyId: 0n,
-  inputRoot: ethers.keccak256(ethers.toUtf8Bytes(JSON.stringify(brief))),
+  bountyId: 11n,
+  inputRoot: ethers.keccak256(ethers.toUtf8Bytes("sealed denial package root")),
   agentId: 0n,
-  classBytes32: classToBytes32('medical-necessity-misapplication'),
+  classBytes32: classToBytes32(brief.class),
   severity: 3,
-  outputRoot: ethers.keccak256(ethers.toUtf8Bytes('appeal defect with CFR citation')),
-  modelDigest: ethers.keccak256(ethers.toUtf8Bytes('hunt-insurance-defense-v0')),
-  teeTimestamp: 1_763_000_010n,
-  severityCalibrationBps: 8100,
-  precisionBps: 7900,
-  coverageBps: 8400,
-  exploitabilityBps: 8600,
+  outputRoot: ethers.keccak256(ethers.toUtf8Bytes("appeal grounds root")),
+  modelDigest: ethers.keccak256(
+    ethers.toUtf8Bytes("hunt-insurance-defense|hunt-insurance-defense-v0"),
+  ),
+  teeTimestamp: 1_715_430_101n,
+  severityCalibrationBps: 7900,
+  precisionBps: 8700,
+  coverageBps: 8200,
+  exploitabilityBps: 9100,
 };
 
-const { digest, sig } = await signAttestation(signer, params);
-
-console.log('brief:', brief);
-console.log('digest:', digest);
-console.log('class:', params.classBytes32);
-console.log('verified:', verifyAttestation(params, sig, signer.address));
+const { digest, sig } = await signAttestation(wallet, params);
+console.log("brief:", brief);
+console.log("digest:", digest);
+console.log("verified:", verifyAttestation(params, sig, wallet.address));

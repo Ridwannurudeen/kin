@@ -1,44 +1,46 @@
-import { ethers } from 'ethers';
+import { ethers } from "ethers";
 import {
-  bytes32ToClass,
   classToBytes32,
   signAttestation,
   verifyAttestation,
-} from '../src/index.js';
+} from "../src/index.js";
 
-const signer = ethers.Wallet.createRandom();
-const SENTIMENT_CLASSES = Object.freeze([
-  'bullish',
-  'bearish',
-  'neutral',
-  'uncertain',
+const wallet = ethers.Wallet.createRandom();
+const sentimentRegistry = Object.freeze([
+  "positive",
+  "negative",
+  "mixed",
+  "urgent-review",
 ]);
 
 const brief = {
-  domain: 'tweet-sentiment-classification',
-  text: 'Builders keep asking for verifiable AI receipts on 0G.',
-  customRegistry: SENTIMENT_CLASSES,
+  domain: "tweet-sentiment-classification",
+  labels: sentimentRegistry,
+  class: "urgent-review",
 };
 
-const classBytes32 = classToBytes32('Bullish');
 const params = {
-  bountyId: 42n,
-  inputRoot: ethers.keccak256(ethers.toUtf8Bytes(brief.text)),
-  agentId: 7n,
-  classBytes32,
-  severity: 1,
-  outputRoot: ethers.keccak256(ethers.toUtf8Bytes('bullish classification, confidence 0.82')),
-  modelDigest: ethers.keccak256(ethers.toUtf8Bytes('sentiment-model-v1')),
-  teeTimestamp: 1_763_000_040n,
-  severityCalibrationBps: 8200,
+  bountyId: 41n,
+  inputRoot: ethers.keccak256(
+    ethers.toUtf8Bytes("sealed social post batch root"),
+  ),
+  agentId: 8n,
+  classBytes32: classToBytes32(brief.class),
+  severity: 2,
+  outputRoot: ethers.keccak256(
+    ethers.toUtf8Bytes("classification output root"),
+  ),
+  modelDigest: ethers.keccak256(
+    ethers.toUtf8Bytes("generic-classifier|sentiment-v1"),
+  ),
+  teeTimestamp: 1_715_430_322n,
+  severityCalibrationBps: 7200,
   precisionBps: 8100,
-  coverageBps: 9000,
-  exploitabilityBps: 7000,
+  coverageBps: 7800,
+  exploitabilityBps: 7600,
 };
 
-const { digest, sig } = await signAttestation(signer, params);
-
-console.log('brief:', brief);
-console.log('digest:', digest);
-console.log('class:', bytes32ToClass(classBytes32, SENTIMENT_CLASSES));
-console.log('verified:', verifyAttestation(params, sig, signer.address));
+const { digest, sig } = await signAttestation(wallet, params);
+console.log("brief:", brief);
+console.log("digest:", digest);
+console.log("verified:", verifyAttestation(params, sig, wallet.address));
