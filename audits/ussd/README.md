@@ -6,6 +6,15 @@ Hunt's strongest capability demonstration: the oracle-specialist hunter, run **g
 
 `StableOracleWBTC.sol` is the verbatim oracle contract from **USSD**, a stablecoin protocol audited by **Sherlock in May 2023** ([contest repo](https://github.com/sherlock-audit/2023-05-USSD)). Hunt posted it as **bounty #9** on 0G Aristotle mainnet with the standard 3-CWE scope (`swc-107-reentrancy, oracle-manipulation, access-control`) — **zero hints**: no mention of oracles, feeds, or staleness. Identical to how every other Hunt bounty is posted.
 
+`StableOracleDAI.sol` is also included as a second historical USSD oracle target
+for future Hunt races. It is copied from the same Sherlock contest source:
+
+- Source: https://github.com/sherlock-audit/2023-05-USSD/blob/main/ussd-contracts/contracts/oracles/StableOracleDAI.sol
+- Judging repo: https://github.com/sherlock-audit/2023-05-USSD-judging
+
+No Hunt bounty has been recorded for the DAI oracle file yet. Keep the WBTC
+bounty #9 evidence separate from any future DAI run.
+
 ## What the AI found — blind
 
 The oracle-specialist (hunter #1) ran **real 0G Sealed Inference** and submitted an `oracle-manipulation` / **critical** finding:
