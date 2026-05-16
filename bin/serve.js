@@ -31,7 +31,13 @@ const MIME = {
 };
 
 function resolveTarget(urlPath) {
-  const clean = decodeURIComponent(urlPath.split("?")[0].split("#")[0]);
+  let clean;
+  try {
+    clean = decodeURIComponent(urlPath.split("?")[0].split("#")[0]);
+  } catch {
+    return null;
+  }
+  if (clean.includes("\0")) return null;
   if (clean === "/" || clean === "") return path.join(PUBLIC_DIR, "index.html");
   if (clean.startsWith("/deployments/")) {
     const rel = clean.slice("/deployments/".length);

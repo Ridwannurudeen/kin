@@ -4,6 +4,7 @@
 
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import http from "node:http";
 
 const PORT = String(3900 + Math.floor(Math.random() * 500));
 const BASE = `http://127.0.0.1:${PORT}`;
@@ -14,14 +15,27 @@ const EXPECTED = {
   oracle: "0xdf2f9587D5746cd1358d40804bE7885BDaaE45d2",
 };
 
-function startServer() {
+function startServer(rpcUrl) {
   const child = spawn(process.execPath, ["bin/serve.js"], {
-    env: { ...process.env, PORT },
+    env: {
+      ...process.env,
+      PORT,
+      ZG_RPC_URL: rpcUrl,
+      HUNT_RPC_TIMEOUT_MS: "250",
+    },
     stdio: ["ignore", "pipe", "pipe"],
   });
   child.stdout.on("data", (buf) => process.stdout.write(buf));
   child.stderr.on("data", (buf) => process.stderr.write(buf));
   return child;
+}
+
+function startSlowRpc() {
+  const server = http.createServer(() => {});
+  return new Promise((resolve, reject) => {
+    server.once("error", reject);
+    server.listen(0, "127.0.0.1", () => resolve(server));
+  });
 }
 
 async function waitForServer() {
@@ -50,7 +64,9 @@ async function getJson(path) {
 }
 
 async function main() {
-  const server = startServer();
+  const rpc = await startSlowRpc();
+  const rpcUrl = `http://127.0.0.1:${rpc.address().port}`;
+  const server = startServer(rpcUrl);
   try {
     await waitForServer();
 
@@ -88,9 +104,37 @@ async function main() {
       "deployment traversal should not serve package.json",
     );
 
+    const malformed = await fetch(`${BASE}/%E0%A4%A`);
+    assert.equal(malformed.status, 400, "malformed URL escape returns 400");
+
+    const badLimit = await fetch(`${BASE}/api/bounties?limit=abc`);
+    assert.equal(badLimit.status, 400, "invalid API limit returns 400");
+
+    const t0 = Date.now();
+    const health = await fetch(`${BASE}/api/health`);
+    const healthJson = await health.json();
+    assert.equal(health.status, 503, "stuck RPC should return degraded health");
+    assert.equal(healthJson.rpcOk, false);
+    assert.ok(Date.now() - t0 < 3_000, "health should not hang on stuck RPC");
+
+    const statsFail = await fetch(`${BASE}/api/stats`);
+    assert.equal(
+      statsFail.status,
+      500,
+      "RPC stats failures return JSON errors",
+    );
+
+    const apiAfterFailure = await fetch(`${BASE}/api`);
+    assert.equal(
+      apiAfterFailure.status,
+      200,
+      "API server should survive async handler failures",
+    );
+
     console.log("static smoke: ok");
   } finally {
     server.kill();
+    rpc.close();
   }
 }
 

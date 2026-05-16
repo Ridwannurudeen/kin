@@ -21,6 +21,8 @@ import { ethers } from "ethers";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const RPC_URL = process.env.ZG_RPC_URL || "https://evmrpc.0g.ai";
+const RPC_TIMEOUT_MS = normalizeRpcTimeout(process.env.HUNT_RPC_TIMEOUT_MS);
+const CHAIN_ID = 16661;
 const CACHE_TTL_MS = 30_000;
 
 const cache = new Map();
@@ -30,6 +32,23 @@ let _hunt = null;
 let _abi = null;
 let _address = null;
 
+function normalizeRpcTimeout(raw) {
+  if (raw === undefined || raw === "") return 8_000;
+  const ms = Number(raw);
+  if (!Number.isInteger(ms) || ms < 1 || ms > 60_000) return 8_000;
+  return ms;
+}
+
+function createProvider() {
+  const request = new ethers.FetchRequest(RPC_URL);
+  request.timeout = RPC_TIMEOUT_MS;
+  return new ethers.JsonRpcProvider(request, undefined, {
+    batchMaxCount: 4,
+    batchStallTime: 50,
+    staticNetwork: ethers.Network.from(CHAIN_ID),
+  });
+}
+
 async function ensureContract() {
   if (_hunt) return _hunt;
   const artifactPath = path.join(ROOT, "deployments", "Hunt.json");
@@ -37,7 +56,7 @@ async function ensureContract() {
   const artifact = JSON.parse(raw);
   _abi = artifact.abi;
   _address = artifact.address;
-  _provider = new ethers.JsonRpcProvider(RPC_URL);
+  _provider = createProvider();
   _hunt = new ethers.Contract(_address, _abi, _provider);
   return _hunt;
 }
@@ -158,10 +177,25 @@ async function statsHandler(_req, res) {
     ]);
     const n = Number(totalBounties);
     const hCount = Number(totalHunters);
-    const [bountyStructs, hunterStructs] = await Promise.all([
-      Promise.all(Array.from({ length: n }, (_, i) => hunt.getBounty(i))),
-      Promise.all(Array.from({ length: hCount }, (_, i) => hunt.getHunter(i))),
-    ]);
+    const bountyStructs = [];
+    const hunterStructs = [];
+    const CHUNK = 4;
+    for (let i = 0; i < n; i += CHUNK) {
+      const part = await Promise.all(
+        Array.from({ length: Math.min(CHUNK, n - i) }, (_, k) =>
+          hunt.getBounty(i + k),
+        ),
+      );
+      bountyStructs.push(...part);
+    }
+    for (let i = 0; i < hCount; i += CHUNK) {
+      const part = await Promise.all(
+        Array.from({ length: Math.min(CHUNK, hCount - i) }, (_, k) =>
+          hunt.getHunter(i + k),
+        ),
+      );
+      hunterStructs.push(...part);
+    }
     // `settleBounty` zeros out `maxPayout` on settle. The accurate
     // cumulative-paid number is the sum of `totalEarnedWei` across hunters.
     const paidWei = hunterStructs.reduce(
@@ -170,7 +204,7 @@ async function statsHandler(_req, res) {
     );
     return {
       contract: _address,
-      chainId: 16661,
+      chainId: CHAIN_ID,
       rpc: RPC_URL,
       teeSigner,
       totalHunters: hCount,
@@ -229,7 +263,13 @@ async function bountiesHandler(req, res) {
   // 502ing at ~22 bounties so we batch in chunks of 4 either way.
   const url = new URL(req.url || "/", `http://${req.headers.host}`);
   const limitRaw = url.searchParams.get("limit");
-  const limit = limitRaw ? Math.max(1, Math.min(100, Number(limitRaw))) : null;
+  let limit = null;
+  if (limitRaw !== null) {
+    if (!/^\d+$/.test(limitRaw)) {
+      return badRequest(res, "limit must be a positive integer");
+    }
+    limit = Math.max(1, Math.min(100, Number(limitRaw)));
+  }
   const key = limit ? `bounties:limit:${limit}` : "bounties";
   const data = await cached(key, async () => {
     const hunt = await ensureContract();
@@ -625,29 +665,29 @@ export function handleApi(req, res) {
   (async () => {
     try {
       if (parts.length === 1 && parts[0] === "health")
-        return healthHandler(req, res);
+        return await healthHandler(req, res);
       if (parts.length === 1 && parts[0] === "openapi.json")
-        return openapiHandler(req, res);
+        return await openapiHandler(req, res);
       if (parts.length === 1 && parts[0] === "docs")
-        return docsHandler(req, res);
+        return await docsHandler(req, res);
       if (parts.length === 1 && parts[0] === "stats")
-        return statsHandler(req, res);
+        return await statsHandler(req, res);
       if (parts.length === 1 && parts[0] === "hunters")
-        return huntersHandler(req, res);
+        return await huntersHandler(req, res);
       if (parts.length === 2 && parts[0] === "hunters")
-        return hunterByIdHandler(req, res, parts[1]);
+        return await hunterByIdHandler(req, res, parts[1]);
       if (parts.length === 1 && parts[0] === "bounties")
-        return bountiesHandler(req, res);
+        return await bountiesHandler(req, res);
       if (parts.length === 2 && parts[0] === "bounties")
-        return bountyByIdHandler(req, res, parts[1]);
+        return await bountyByIdHandler(req, res, parts[1]);
       if (
         parts.length === 3 &&
         parts[0] === "bounties" &&
         parts[2] === "findings"
       )
-        return findingsForBountyHandler(req, res, parts[1]);
+        return await findingsForBountyHandler(req, res, parts[1]);
       if (parts.length === 3 && parts[0] === "rep")
-        return repHandler(req, res, parts[1], parts[2]);
+        return await repHandler(req, res, parts[1], parts[2]);
       notFound(res, `unknown endpoint /api/${rest}`);
     } catch (e) {
       serverError(res, e);

@@ -156,7 +156,11 @@
         border-radius: var(--r-md);
         border: 1px solid var(--brand-glow);
         background:
-          radial-gradient(ellipse at top, var(--brand-glow-soft), transparent 60%),
+          radial-gradient(
+            ellipse at top,
+            var(--brand-glow-soft),
+            transparent 60%
+          ),
           var(--bg-elev-1);
       }
       .mint-result .head {
@@ -241,11 +245,15 @@
           A hunter is a wallet-bound on-chain agent that races for sealed
           bounties in its CWE specialty. Minting requires a verifier-signed
           GitHub credential and a teeSigner-signed sample fingerprint &mdash;
-          two off-chain artifacts the Hunt operator produces from your
-          inputs, then you sign the on-chain
-          <code style="font-family: var(--mono)">mintHunter</code> tx from
-          your own wallet. See
-          <a href="https://github.com/Ridwannurudeen/hunt/blob/master/doc/OPERATOR_ONBOARDING.md" target="_blank" rel="noreferrer">
+          two off-chain artifacts the Hunt operator produces from your inputs,
+          then you sign the on-chain
+          <code style="font-family: var(--mono)">mintHunter</code> tx from your
+          own wallet. See
+          <a
+            href="https://github.com/Ridwannurudeen/hunt/blob/master/doc/OPERATOR_ONBOARDING.md"
+            target="_blank"
+            rel="noreferrer"
+          >
             doc/OPERATOR_ONBOARDING.md
           </a>
           for the full external-operator path.
@@ -259,13 +267,15 @@
           <p class="helper" style="margin-bottom: 16px">
             Fill in your GitHub handle, choose a specialty, paste 3&ndash;20
             prior audit findings (anonymise where needed), and click
-            <strong>generate request</strong>. You'll get a JSON blob to send
-            to the Hunt operator out-of-band (Discord / email). The operator
-            runs the verifier (GitHub-bar check) and the Sealed Inference
+            <strong>generate request</strong>. You'll get a JSON blob to send to
+            the Hunt operator out-of-band (Discord / email). The operator runs
+            the verifier (GitHub-bar check) and the Sealed Inference
             fingerprinter on your samples and returns a signed Credential +
-            SampleFingerprint blob within a few minutes. Today's verifier
-            bar:
-            <strong>account age &ge; 730 days, &ge; 20 merged PRs, &ge; 10 code reviews.</strong>
+            SampleFingerprint blob within a few minutes. Today's verifier bar:
+            <strong
+              >account age &ge; 730 days, &ge; 20 merged PRs, &ge; 10 code
+              reviews.</strong
+            >
           </p>
           <form id="requestForm" class="mint-form">
             <div class="field">
@@ -278,7 +288,9 @@
               />
             </div>
             <div class="field">
-              <label for="walletAddress">wallet address (will be bound to this hunter)</label>
+              <label for="walletAddress"
+                >wallet address (will be bound to this hunter)</label
+              >
               <input
                 id="walletAddress"
                 type="text"
@@ -296,7 +308,9 @@
               </span>
             </div>
             <div class="field">
-              <label for="description">description (short, public on-chain bio)</label>
+              <label for="description"
+                >description (short, public on-chain bio)</label
+              >
               <input
                 id="description"
                 type="text"
@@ -312,9 +326,10 @@
                 + add sample
               </button>
               <span class="helper">
-                Plain text. The operator AES-encrypts each sample with a per-hunter
-                key before upload to 0G Storage so only your daemon can decrypt
-                in v1. v2 will distribute keys via chain-bound key derivation.
+                Plain text. The operator AES-encrypts each sample with a
+                per-hunter key before upload to 0G Storage so only your daemon
+                can decrypt in v1. v2 will distribute keys via chain-bound key
+                derivation.
               </span>
             </div>
             <div class="row-actions">
@@ -349,11 +364,10 @@
           <p class="helper" style="margin-bottom: 16px">
             Operator returns a JSON blob with the verifier-signed
             <code>credential</code>, the teeSigner-signed
-            <code>fingerprint</code>, and the
-            <code>sampleRoots</code> + <code>embedRoots</code> arrays. Paste
-            it below, connect the same wallet you supplied in Step 1, and
-            sign <code>mintHunter</code> on Aristotle mainnet. Gas only
-            &mdash; no escrow required for the mint.
+            <code>fingerprint</code>, and the <code>sampleRoots</code> +
+            <code>embedRoots</code> arrays. Paste it below, connect the same
+            wallet you supplied in Step 1, and sign <code>mintHunter</code> on
+            Aristotle mainnet. Gas only &mdash; no escrow required for the mint.
           </p>
           <form id="mintForm" class="mint-form">
             <div class="field">
@@ -377,10 +391,18 @@
 
       <footer class="footer">
         <div class="row">
-          <a href="https://github.com/Ridwannurudeen/hunt" target="_blank" rel="noreferrer">
+          <a
+            href="https://github.com/Ridwannurudeen/hunt"
+            target="_blank"
+            rel="noreferrer"
+          >
             github &#x2197;
           </a>
-          <a href="https://github.com/Ridwannurudeen/hunt/blob/master/doc/OPERATOR_ONBOARDING.md" target="_blank" rel="noreferrer">
+          <a
+            href="https://github.com/Ridwannurudeen/hunt/blob/master/doc/OPERATOR_ONBOARDING.md"
+            target="_blank"
+            rel="noreferrer"
+          >
             operator-onboarding doc &#x2197;
           </a>
           <a href="https://chainscan.0g.ai" target="_blank" rel="noreferrer">
@@ -403,9 +425,23 @@
         el.textContent = msg || "";
       }
 
+      function escapeHtml(s) {
+        return String(s).replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      }
+
       function renderSpecialty() {
         $("specialty").innerHTML = window.CANONICAL_CWES.map(
-          (c) => `<option value="${c}">${c}</option>`,
+          (c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`,
         ).join("");
       }
 
@@ -415,7 +451,7 @@
             (s, i) => `
             <div class="row">
               <span class="idx">[${String(i + 1).padStart(2, "0")}]</span>
-              <textarea data-idx="${i}" placeholder="paste a prior finding here — 80–800 words is the typical sweet spot">${s || ""}</textarea>
+              <textarea data-idx="${i}" placeholder="paste a prior finding here — 80–800 words is the typical sweet spot">${escapeHtml(s || "")}</textarea>
               <button type="button" class="remove" data-idx="${i}">remove</button>
             </div>
           `,
@@ -479,7 +515,8 @@
         const description = $("description").value.trim();
         const samples = samplesState.map((s) => s.trim()).filter(Boolean);
 
-        if (!handle) return setStatus("request", "github handle required", "error");
+        if (!handle)
+          return setStatus("request", "github handle required", "error");
         if (!wallet || !ethers.isAddress(wallet))
           return setStatus(
             "request",
@@ -627,13 +664,13 @@
               <span class="k">hunter id</span>
               <span class="v">${hunterId !== null ? hunterId.toString() : "(check totalHunters on-chain)"}</span>
               <span class="k">tx hash</span>
-              <span class="v"><a href="${window.CHAINSCAN_URL}/tx/${tx.hash}" target="_blank" rel="noreferrer">${tx.hash}</a></span>
+              <span class="v"><a href="${window.CHAINSCAN_URL}/tx/${escapeHtml(tx.hash)}" target="_blank" rel="noreferrer">${escapeHtml(tx.hash)}</a></span>
               <span class="k">block</span>
-              <span class="v">${rcpt.blockNumber}</span>
+              <span class="v">${escapeHtml(String(rcpt.blockNumber))}</span>
               <span class="k">gas used</span>
-              <span class="v">${rcpt.gasUsed.toString()}</span>
+              <span class="v">${escapeHtml(rcpt.gasUsed.toString())}</span>
               <span class="k">specialty</span>
-              <span class="v">${blob.specialty}</span>
+              <span class="v">${escapeHtml(blob.specialty)}</span>
             </div>
             <p style="font-family:var(--mono);font-size:12px;color:var(--text-soft);margin-top:14px;line-height:1.6;">
               See your hunter on the roster: <a href="/hunters.html" style="color:var(--brand);">hunters.html &rarr;</a><br />

@@ -444,6 +444,13 @@
         );
       }
 
+      function normalizeBountyId(value) {
+        const id = String(value ?? "").trim();
+        if (!/^\d+$/.test(id))
+          throw new Error("bounty id must be a non-negative integer");
+        return id;
+      }
+
       // Re-derive the attestation digest from a finding row, mirroring Hunt.sol:298-302.
       function deriveAttestationDigest(
         bountyId,
@@ -509,8 +516,9 @@
       }
 
       async function render(bountyId, provider, hunt) {
+        bountyId = normalizeBountyId(bountyId);
         const root = $("root");
-        root.innerHTML = `<p class="empty">loading bounty #${bountyId}&hellip;</p>`;
+        root.innerHTML = `<p class="empty">loading bounty #${escapeHtml(bountyId)}&hellip;</p>`;
 
         // Pull everything in parallel, each call retried up to 2× to ride out transient
         // "Failed to fetch" hiccups from 0G's public RPC.
@@ -521,7 +529,7 @@
         ]);
 
         if (bounty.poster === ethers.ZeroAddress) {
-          root.innerHTML = `<p class="empty">bounty #${bountyId} not found on-chain.</p>`;
+          root.innerHTML = `<p class="empty">bounty #${escapeHtml(bountyId)} not found on-chain.</p>`;
           return;
         }
 
@@ -751,7 +759,6 @@ node scripts/verify_bounty.js ${bountyId} --model-digest "$MODEL_DIGEST"</div>
 
         const params = new URLSearchParams(location.search);
         const bountyId = params.get("bounty");
-        if (bountyId !== null) $("bountyInput").value = bountyId;
 
         if (
           window.HUNT_ADDRESS === "0x0000000000000000000000000000000000000000"
@@ -777,6 +784,12 @@ node scripts/verify_bounty.js ${bountyId} --model-digest "$MODEL_DIGEST"</div>
     </p>`;
         }
 
+        function logUnexpectedError(e) {
+          if (e.message !== "bounty id must be a non-negative integer") {
+            console.error(e);
+          }
+        }
+
         $("loadBtn").addEventListener("click", async () => {
           const id = $("bountyInput").value;
           if (!id) {
@@ -784,20 +797,22 @@ node scripts/verify_bounty.js ${bountyId} --model-digest "$MODEL_DIGEST"</div>
             return;
           }
           $("hint").textContent = "";
-          history.replaceState(null, "", `?bounty=${id}`);
+          history.replaceState(null, "", `?bounty=${encodeURIComponent(id)}`);
           try {
             await render(id, provider, hunt);
           } catch (e) {
-            console.error(e);
+            logUnexpectedError(e);
             $("root").innerHTML = renderError(e, id);
           }
         });
 
         if (bountyId !== null) {
           try {
-            await render(bountyId, provider, hunt);
+            const normalizedBountyId = normalizeBountyId(bountyId);
+            $("bountyInput").value = normalizedBountyId;
+            await render(normalizedBountyId, provider, hunt);
           } catch (e) {
-            console.error(e);
+            logUnexpectedError(e);
             $("root").innerHTML = renderError(e, bountyId);
           }
         }

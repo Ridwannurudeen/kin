@@ -1,4 +1,8 @@
 // SPDX-License-Identifier: MIT
+// NOTE: Source is ahead of bytecode at 0xD4Fe5127d519B775a9a581A54ED0719BBFf0d68C.
+// The 4 input-validation requires added 2026-05-16 (MAX_SCOPE_CWES, MAX_SELF_EVAL_BPS,
+// empty-class guards) are slated for the v1.1 redeploy after the 0G APAC submission
+// window closes. Deployed bytecode lacks them; tests pin both behaviors.
 pragma solidity ^0.8.20;
 
 /// @title Hunt - sealed bug-bounty network for smart contracts.
@@ -119,6 +123,8 @@ contract Hunt {
 
     uint16  public constant MIN_FINGERPRINT_QUALITY_BPS = 6000;
     uint16  public constant MIN_FINDING_QUALITY_BPS     = 6000;  // TEE self-eval floor
+    uint16  public constant MAX_SELF_EVAL_BPS           = 10000;
+    uint8   public constant MAX_SCOPE_CWES              = 32;
     uint64  public constant MIN_RACE_DURATION           = 5 minutes;
     uint64  public constant MAX_RACE_DURATION           = 7 days;
     uint64  public constant SETTLE_WINDOW               = 24 hours;
@@ -255,6 +261,10 @@ contract Hunt {
         require(msg.value > 0, "payout=0");
         require(codeRoot != bytes32(0), "empty code");
         require(raceDuration >= MIN_RACE_DURATION && raceDuration <= MAX_RACE_DURATION, "race duration");
+        require(inScopeCwes.length <= MAX_SCOPE_CWES, "scope too large");
+        for (uint256 i = 0; i < inScopeCwes.length; i++) {
+            require(inScopeCwes[i] != bytes32(0), "empty class");
+        }
 
         bountyId = nextBountyId++;
         Bounty storage b = bountiesMap[bountyId];
@@ -289,6 +299,14 @@ contract Hunt {
         require(!h.paused, "hunter paused");
         require(input.severity >= 1 && input.severity <= 4, "severity 1..4");
         require(input.findingRoot != bytes32(0), "empty finding");
+        require(input.cweClass != bytes32(0), "empty class");
+        require(
+            input.severityCalibrationBps <= MAX_SELF_EVAL_BPS
+                && input.precisionBps <= MAX_SELF_EVAL_BPS
+                && input.coverageBps <= MAX_SELF_EVAL_BPS
+                && input.exploitabilityBps <= MAX_SELF_EVAL_BPS,
+            "self-eval bps"
+        );
         require(input.teeTimestamp >= b.postedAt && input.teeTimestamp <= b.raceDeadline, "tee timestamp window");
         require(_classInScope(b.inScopeCwes, input.cweClass), "class out of scope");
 

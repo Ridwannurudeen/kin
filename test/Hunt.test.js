@@ -18,6 +18,15 @@ import {
 } from "./helpers.js";
 
 const E = (env, n) => env.ethers.parseEther(n);
+const SECP256K1_N =
+  0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141n;
+
+function malleateToHighS(ethers, sig) {
+  const parsed = ethers.Signature.from(sig);
+  const s = SECP256K1_N - BigInt(parsed.s);
+  const v = parsed.v === 27 ? "1c" : "1b";
+  return ethers.concat([parsed.r, ethers.toBeHex(s, 32), `0x${v}`]);
+}
 
 // ─── Deployment ─────────────────────────────────────────────────────────
 
@@ -260,6 +269,33 @@ describe("Hunt — mintHunter validation", () => {
     );
   });
 
+  it("reverts on malleated high-s credential signatures", async () => {
+    const env = await deployHunt();
+    const sampleRoots = rootList(env.ethers, 3);
+    const embedRoots = rootList(env.ethers, 3);
+    const credBase = makeCredential({ verifier: env.verifier.address });
+    const cred = await signCredential(
+      env.ethers,
+      env.verifier,
+      env.user.address,
+      credBase,
+    );
+    cred.sig = malleateToHighS(env.ethers, cred.sig);
+    const fp = await signFingerprint(
+      env.ethers,
+      env.teeSigner,
+      sampleRoots,
+      makeFingerprint(),
+    );
+
+    await assert.rejects(
+      env.hunt
+        .connect(env.user)
+        .mintHunter(cred, sampleRoots, embedRoots, fp, "reentrancy", ""),
+      /bad cred sig/,
+    );
+  });
+
   it("reverts on bad fingerprint signature (wrong signer)", async () => {
     const env = await deployHunt();
     const sampleRoots = rootList(env.ethers, 3);
@@ -405,6 +441,31 @@ describe("Hunt — postBounty validation", () => {
           value: E(env, "0.01"),
         }),
       /race duration/,
+    );
+  });
+
+  it("reverts when inScopeCwes contains an empty class", async () => {
+    const env = await deployHunt();
+    await assert.rejects(
+      env.hunt
+        .connect(env.client)
+        .postBounty(randomRoot(env.ethers), [ZERO_ROOT], 600, {
+          value: E(env, "0.01"),
+        }),
+      /empty class/,
+    );
+  });
+
+  it("reverts when inScopeCwes exceeds MAX_SCOPE_CWES", async () => {
+    const env = await deployHunt();
+    const scope = rootList(env.ethers, 33);
+    await assert.rejects(
+      env.hunt
+        .connect(env.client)
+        .postBounty(randomRoot(env.ethers), scope, 600, {
+          value: E(env, "0.01"),
+        }),
+      /scope too large/,
     );
   });
 });
@@ -644,6 +705,23 @@ describe("Hunt — submitFinding validation", () => {
     );
   });
 
+  it("reverts on empty cweClass", async () => {
+    const env = await deployHunt();
+    const { hunterId, bountyId } = await huntScenario(env);
+    const input = makeFindingInput({ cweClass: ZERO_ROOT });
+    const signed = await buildSignedFindingInput(
+      env,
+      bountyId,
+      hunterId,
+      env.teeSigner,
+      input,
+    );
+    await assert.rejects(
+      env.hunt.connect(env.user).submitFinding(bountyId, hunterId, signed),
+      /empty class/,
+    );
+  });
+
   it("reverts when teeTimestamp before postedAt", async () => {
     const env = await deployHunt();
     const { hunterId, bountyId } = await huntScenario(env);
@@ -744,6 +822,23 @@ describe("Hunt — submitFinding validation", () => {
     await assert.rejects(
       env.hunt.connect(env.user).submitFinding(bountyId, hunterId, signed),
       /self-eval below bar/,
+    );
+  });
+
+  it("reverts when any self-eval axis exceeds 10000 bps", async () => {
+    const env = await deployHunt();
+    const { hunterId, bountyId } = await huntScenario(env);
+    const input = makeFindingInput({ severityCalibrationBps: 10001 });
+    const signed = await buildSignedFindingInput(
+      env,
+      bountyId,
+      hunterId,
+      env.teeSigner,
+      input,
+    );
+    await assert.rejects(
+      env.hunt.connect(env.user).submitFinding(bountyId, hunterId, signed),
+      /self-eval bps/,
     );
   });
 
