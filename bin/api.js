@@ -223,20 +223,36 @@ async function hunterByIdHandler(_req, res, id) {
   }
 }
 
-async function bountiesHandler(_req, res) {
-  const data = await cached("bounties", async () => {
+async function bountiesHandler(req, res) {
+  // ?limit=N to read just the last N bounties (highest IDs first). Default
+  // returns all, but the parallel-read fanout against 0G's slow RPC was
+  // 502ing at ~22 bounties so we batch in chunks of 4 either way.
+  const url = new URL(req.url || "/", `http://${req.headers.host}`);
+  const limitRaw = url.searchParams.get("limit");
+  const limit = limitRaw ? Math.max(1, Math.min(100, Number(limitRaw))) : null;
+  const key = limit ? `bounties:limit:${limit}` : "bounties";
+  const data = await cached(key, async () => {
     const hunt = await ensureContract();
     const total = Number(await hunt.totalBounties());
-    const bounties = await Promise.all(
-      Array.from({ length: total }, async (_, i) => {
-        const [b, fc] = await Promise.all([
-          hunt.getBounty(i),
-          hunt.getFindingsCount(i),
-        ]);
-        return { id: i, ...bountyTupleToJson(b), findingsCount: Number(fc) };
-      }),
-    );
-    return { count: total, bounties };
+    const ids = limit
+      ? Array.from({ length: Math.min(limit, total) }, (_, k) => total - 1 - k)
+      : Array.from({ length: total }, (_, k) => k);
+    const CHUNK = 4;
+    const out = [];
+    for (let i = 0; i < ids.length; i += CHUNK) {
+      const slice = ids.slice(i, i + CHUNK);
+      const part = await Promise.all(
+        slice.map(async (id) => {
+          const [b, fc] = await Promise.all([
+            hunt.getBounty(id),
+            hunt.getFindingsCount(id),
+          ]);
+          return { id, ...bountyTupleToJson(b), findingsCount: Number(fc) };
+        }),
+      );
+      out.push(...part);
+    }
+    return { count: total, returned: out.length, bounties: out };
   });
   jsonResponse(res, 200, data);
 }
