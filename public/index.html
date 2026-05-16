@@ -193,6 +193,12 @@
     <script src="/theme.js"></script>
   </head>
   <body>
+    <div class="ticker" id="ticker" aria-label="live protocol stats">
+      <div class="ticker-track" id="tickerTrack">
+        <span class="ticker-item"><span class="dot"></span> initialising live ticker…</span>
+      </div>
+    </div>
+
     <div class="container">
       <header class="masthead">
         <div class="masthead-row">
@@ -601,6 +607,67 @@
             // Leave whatever placeholder is there; don't blank out fields we did fill.
           }
         }
+      })();
+
+      // Top ticker tape: aggregate stats + recent bounty status. Refreshes
+      // every 90s. CSS handles the horizontal scroll; we rebuild the track
+      // contents in place (doubled so the keyframe loop is seamless).
+      (function ticker() {
+        const track = document.getElementById("tickerTrack");
+        if (!track) return;
+        function escapeHtml(s) {
+          return String(s).replace(/[&<>"']/g, (c) =>
+            ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c],
+          );
+        }
+        function sep() { return `<span class="sep">|</span>`; }
+        async function refresh() {
+          try {
+            const [statsR, bountiesR] = await Promise.all([
+              fetch("/api/stats", { cache: "no-store" }),
+              fetch("/api/bounties", { cache: "no-store" }),
+            ]);
+            const stats = await statsR.json();
+            const bounties = (await bountiesR.json()).bounties || [];
+            const recent = bounties.slice().sort((a, b) => b.id - a.id).slice(0, 3);
+            const items = [];
+            items.push(`<span class="ticker-item"><span class="dot"></span> <strong>live</strong> on 0G Aristotle &middot; block synced</span>`);
+            items.push(`<span class="ticker-item"><span class="num">${stats.totalBounties}</span> bounties posted</span>`);
+            items.push(`<span class="ticker-item"><span class="num">${stats.bountiesByStatus?.Settled ?? 0}</span> settled</span>`);
+            items.push(`<span class="ticker-item"><span class="num">${stats.bountiesByStatus?.Open ?? 0}</span> open</span>`);
+            items.push(`<span class="ticker-item"><span class="num">${stats.bountiesByStatus?.Expired ?? 0}</span> expired</span>`);
+            items.push(`<span class="ticker-item"><span class="gold">${Number(stats.paidOG || 0).toFixed(2)} OG</span> paid to hunters</span>`);
+            items.push(`<span class="ticker-item"><span class="num">${stats.totalHunters}</span> hunters minted</span>`);
+            for (const b of recent) {
+              const label = b.statusLabel || "Open";
+              const payout = b.maxPayoutOG && Number(b.maxPayoutOG) > 0
+                ? `${Number(b.maxPayoutOG).toFixed(2)} OG`
+                : "—";
+              items.push(`<span class="ticker-item">bounty <strong>#${b.id}</strong> ${escapeHtml(label).toLowerCase()} &middot; payout ${payout}</span>`);
+            }
+            items.push(`<span class="ticker-item"><a href="/verify.html">verify a finding &rarr;</a></span>`);
+            items.push(`<span class="ticker-item"><a href="/post-bounty.html">post a bounty &rarr;</a></span>`);
+            items.push(`<span class="ticker-item"><a href="/api/docs" target="_blank" rel="noreferrer">API docs &#x2197;</a></span>`);
+
+            const joined = items.join(sep());
+            // Duplicate the content so the -50% translate keyframe wraps
+            // back to a perfectly identical strip — no visible seam.
+            track.innerHTML = joined + sep() + joined;
+          } catch (e) {
+            console.warn("[ticker] refresh failed:", e);
+          }
+        }
+        refresh();
+        let timer = setInterval(refresh, 90_000);
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden && timer) {
+            clearInterval(timer);
+            timer = null;
+          } else if (!document.hidden && !timer) {
+            refresh();
+            timer = setInterval(refresh, 90_000);
+          }
+        });
       })();
 
       // Right-side hero activity card. Polls /api/bounties for the last 5
