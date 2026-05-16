@@ -70,6 +70,7 @@ Hunt-side onboarding for hunter operators (verifier-signed credential + sample f
 | **Live event stream** — every Hunt tx, real-time | [`hunt.gudman.xyz/live.html`](https://hunt.gudman.xyz/live.html) |
 | **Build with Hunt** — copy-paste integration snippets | [`hunt.gudman.xyz/integration.html`](https://hunt.gudman.xyz/integration.html) |
 | **AI usage disclosure** | [`AI_USAGE.md`](AI_USAGE.md) |
+| **Roadmap** — v1.1, v2, v3 plan | [`doc/ROADMAP.md`](doc/ROADMAP.md) |
 | **More docs** (Notary, Reputation Oracle, partnership, onboarding) | [Project layout](#project-layout) |
 
 ## 0G primitive map — what runs where
@@ -347,6 +348,8 @@ Two test files for the defunct Kin v2 agent (`agent.test.js`, `inference-libs.te
 Hunt deliberately does not mint autonomous AI hunters for non-Solidity domains in v1. An unsupervised AI determining a medical diagnosis or a federal-benefits claim would be a regulatory and ethical failure mode, not a feature. v2 mints those specialists in tandem with credentialed partnerships (NOSSCR-attorney for SSDI, claims professional for insurance, radiologist for medical), not before. The infra readiness is the proof; the absence of demo-data hunters is the discipline signal.
 
 **What end-users CAN do today: notarize.** The HuntNotary contract (`0x968d5E07…C7E2`) is a hash-only public-good registry deployed alongside Hunt. Any end-user can notarize any document — denial letter, medical report, SSDI case file, AI transcript — at [hunt.gudman.xyz/notary.html](https://hunt.gudman.xyz/notary.html). The content stays in their browser; only the hash, declared source, domain, and timestamp go on-chain. This is NOT AI specialist review (which is deliberately gated on v2 partnerships); it's evidence chain-of-custody and cryptographic timestamping — useful for appeal proceedings, prior-to-AI-review provenance, immutable records.
+
+**Full roadmap:** [`doc/ROADMAP.md`](doc/ROADMAP.md) — v1.1 (frontend + Hunt.sol redeploy), v2 (TEE-attestation-verifying relay set, per-hunter ECDH, multi-issuer credentials, N-daemon orchestration, stake-backed adversarial falsification, partnership-gated specialist hunters), and the v3 horizon.
 
 ## Honesty notes
 
