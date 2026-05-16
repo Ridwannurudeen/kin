@@ -354,6 +354,8 @@ Hunt is a 2026-05-11 pivot from **Kin v2**, the immediate predecessor on the sam
 
 Kin v2's contract `0x47F25b2fAf6E5626946582F86F0e52A4517f3234` is preserved on-chain as the historical reference. The credential / fingerprint / attestation plumbing is identical between the two contracts — `contracts/Hunt.sol` carries the fork note in its docstring, and the Kin-specific test suite stays in-tree as the predecessor's regression baseline.
 
+The preserved predecessor artifacts (`contracts/Kin.sol`, `doc/V2_SPEC.md`) contain internal cross-references that reflect the docs' original write date and may point to files no longer present (e.g. the removed `doc/FUTURE.md`). That's authentic provenance, not a stale link — the historical text is preserved exactly as written.
+
 ## Project layout
 
 ```
