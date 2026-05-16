@@ -176,6 +176,38 @@ body { transition: background-color 240ms var(--ease), color 240ms var(--ease); 
   background: var(--brand-glow-soft);
 }
 
+/* Language toggle pill — compact EN/中 switch, sits in nav-row beside the wallet pill. */
+.lang-pill {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+  font-family: var(--mono);
+  font-size: 11px;
+  background: var(--bg-elev-1);
+  height: 26px;
+}
+.lang-pill a {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  color: var(--text-mute);
+  text-decoration: none;
+  transition: color 180ms var(--ease), background 180ms var(--ease);
+  border-right: 1px solid var(--border-strong);
+}
+.lang-pill a:last-child { border-right: none; }
+.lang-pill a.active {
+  color: var(--text);
+  background: var(--bg-elev-2);
+  cursor: default;
+}
+.lang-pill a:not(.active):hover {
+  color: var(--brand);
+  background: var(--brand-glow-soft);
+}
+
 /* Wallet-connect pill — sits at the right end of .nav-row, just left of theme toggle. */
 .wallet-pill {
   margin-left: auto;
