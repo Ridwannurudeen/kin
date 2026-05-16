@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Notary &mdash; Hunt</title>
-<meta name="description" content="Notarize an AI conversation on 0G Aristotle. Hunt Notary stores only hashes, model digest, domain, timestamp, and wallet provenance.">
+<title>Notarize a document &mdash; Hunt</title>
+<meta name="description" content="Notarize any document on 0G Aristotle: insurance denials, medical reports, SSDI case files, AI transcripts. Hash-only on-chain receipt &mdash; your content never leaves your browser.">
 <link rel="stylesheet" href="/styles.css">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <style>
@@ -106,10 +106,10 @@
   </header>
 
   <section class="hero">
-    <div class="section-eyebrow">public-good receipt</div>
-    <h1>Notarize an AI <em>conversation.</em></h1>
+    <div class="section-eyebrow">end-user surface</div>
+    <h1>Notarize <em>any document.</em></h1>
     <p class="lede">
-      Paste a transcript, choose the model and domain, and record a hash-only receipt on 0G Aristotle. Hunt Notary proves what content hash you committed to, which model name you declared, and when the chain saw it.
+      Paste or upload a document &mdash; denial letter, medical report, case file, AI transcript, contract, anything you want timestamped on-chain. The content is hashed in your browser and never leaves your machine. Hunt Notary records only the hash, the model/source you declared, the domain, and the timestamp on 0G Aristotle mainnet &mdash; a public, cryptographic proof that the document existed in this exact state at this exact moment, anchored to your wallet.
     </p>
     <div class="domain-strip">
       <div><span class="num">0</span><span class="lab">plaintext bytes stored on-chain</span></div>
@@ -124,13 +124,13 @@
       <h2 class="section-title" style="font-size:34px;">Hash locally. <em>Attest publicly.</em></h2>
       <form id="notaryForm">
         <div class="field">
-          <label for="transcript">AI conversation transcript</label>
-          <textarea id="transcript" required placeholder="Paste the AI conversation exactly as you want to later prove it existed. The transcript is hashed in your browser and is not sent to the contract."></textarea>
+          <label for="transcript">Document or transcript</label>
+          <textarea id="transcript" required placeholder="Paste any document you want timestamped on-chain — a denial letter, medical report, AI transcript, case file. The text is hashed in your browser; only the hash + your declared model/source + domain + timestamp go on-chain."></textarea>
         </div>
         <div class="field-row">
           <div class="field">
-            <label for="model">Model</label>
-            <input id="model" required placeholder="zai-org/GLM-5-FP8|notary-v1">
+            <label for="model">Model <span style="color: var(--text-mute); font-weight: 400; font-size: 11px;">or any source identifier &mdash; e.g., <code>self-authored</code>, <code>firm-name</code>, <code>gpt-4-2026</code>, <code>human-written</code>.</span></label>
+            <input id="model" required placeholder="self-authored">
           </div>
           <div class="field">
             <label for="domain">Domain</label>
@@ -139,6 +139,8 @@
               <option value="medical">medical</option>
               <option value="legal">legal</option>
               <option value="financial">financial</option>
+              <option value="insurance">insurance</option>
+              <option value="ssdi-benefits">ssdi-benefits</option>
               <option value="other">other</option>
             </select>
           </div>
@@ -155,7 +157,7 @@
         <div id="status" class="status-line"></div>
       </form>
       <div class="privacy-note">
-        This is a public-good attestation log. The contract does NOT store your content - only the keccak hash. Your content stays on your machine.
+        Your document never leaves your browser. The contract stores only the keccak-256 hash, your declared source/model identifier, the domain you picked, the block timestamp, and your wallet address. No one &mdash; not Hunt, not 0G, not anyone reading the blockchain &mdash; can recover the document from the hash. You hold the only copy that matches the hash you committed to.
       </div>
     </section>
 
