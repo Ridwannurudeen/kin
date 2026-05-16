@@ -14,7 +14,7 @@ Do NOT open the HackQuest form until **every** item below is true:
 
 - [ ] Demo video recorded per `doc/DEMO_VIDEO_SCRIPT.md` (under 3 min, 1080p, real voice) and uploaded unlisted to YouTube — URL ready to paste
 - [ ] X post published per `doc/X_POST.md` with the 30-45s demo clip attached, `#0GHackathon #BuildOn0G` hashtags, `@0G_labs @0g_CN @0g_Eco @HackQuest_` tags — URL ready to paste
-- [ ] `npm test` passes locally (212/212 green as of 2026-05-15)
+- [ ] `npm test` passes locally (230/230 green as of 2026-05-16)
 - [ ] `node scripts/verify_bounty.js 3 --model-digest 0x<digest>` exits 0 against Aristotle mainnet
 - [ ] You have re-read every block below and confirmed nothing in it has drifted since the last edit of `doc/SUBMISSION.md`
 
@@ -65,7 +65,7 @@ Problem solved. Existing bug-bounty programs trust a central audit firm or a lea
 - TEE attestation chain-of-custody: teeSigner address on-chain; off-chain relay produces the digest Hunt.sol recovers. v1 = one operator key. v2 = TEE-attestation-verifying relay set.
 - Credential verifier: verifier/server.js enforces a GitHub-activity bar (730d+ account age, 20+ merged PRs, 10+ reviews) and signs a wallet-bound, replay-protected Credential the contract recovers on mint.
 
-Engineering depth. 212 tests passing, 0 failing. Race-deadline, settle-window, CWE-scope filter, per-hunter specialty intersection, teeTimestamp window, self-eval quality floor — all on-chain. Standalone verifier (scripts/verify_bounty.js) re-derives the attestation digest from on-chain fields and runs ecrecover independently — judges can run it without project setup.
+Engineering depth. 230 tests passing, 0 failing. Race-deadline, settle-window, CWE-scope filter, per-hunter specialty intersection, teeTimestamp window, self-eval quality floor — all on-chain. Standalone verifier (scripts/verify_bounty.js) re-derives the attestation digest from on-chain fields and runs ecrecover independently — judges can run it without project setup.
 
 Judge-runnable surface (no setup, no clone):
 
@@ -221,7 +221,7 @@ The following were drafted in case HackQuest asks for them — **skip if no matc
 
 - **Pitch deck URL** — Hunt does not currently ship a deck. Leave blank or paste the README link as a substitute.
 - **API documentation URL** — use `https://hunt.gudman.xyz/api/` (the API is self-describing via JSON responses).
-- **Testing notes** — paste: "`npm test` — 212 tests green, 0 failing as of 2026-05-15. Race-deadline, settle-window, CWE-scope filter, per-hunter specialty intersection, teeTimestamp window, self-eval quality floor — all on-chain and covered by the contract suite (68 Hunt tests)."
+- **Testing notes** — paste: "`npm test` — 230 tests green, 0 failing as of 2026-05-16. Race-deadline, settle-window, CWE-scope filter, per-hunter specialty intersection, teeTimestamp window, self-eval quality floor — all on-chain and covered by the contract suite. +18 tests added in 2026-05-16 security-hardening pass cover Hunt.sol input-validation, SSRF/DNS-rebinding defense in lib/inference.js, and ABI consistency between deployed bytecode + frontend."
 
 ---
 

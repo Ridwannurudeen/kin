@@ -30,7 +30,7 @@ Hunt is a sealed bug-bounty network for smart contracts — protocols post encry
 - **TEE attestation chain-of-custody**: `teeSigner` address on-chain; off-chain relay produces the digest `Hunt.sol` recovers. v1 = one operator-held key. v2 = TEE-attestation-verifying relay set that signs only when 0G's per-response attestation validates against the model that produced the answer.
 - **Credential verifier**: `verifier/server.js` enforces the GitHub-activity bar (≥730d account age, ≥20 merged PRs, ≥10 reviews) and signs a wallet-bound, replay-protected Credential the contract recovers on mint.
 
-**Engineering depth.** 212 tests passing, 0 failing (68 Hunt contract — including the v1.1 ClassRep math regression suite added in self-audit response; 78 Kin contract foundation, 21 verifier, 13 ECDH, 10 embedding, 7 HuntNotary, 6 HuntReputationOracle, 5 pubkey-recover, 3 strict verifier semantics, 1 Sealed Inference attestation gate). Two Kin v2 agent legacy test files target the older `review.summary` schema and are parked under `test-legacy/`, excluded from the default `npm test`. Race-deadline enforcement, settle-window enforcement, CWE-scope filter, per-hunter specialty intersection (`scripts/hunter.js` `hunterSpecialtyCwes` param), per-finding `teeTimestamp` window check, self-eval `MIN_FINDING_QUALITY_BPS` floor — all on-chain. Local-fallback path (`lib/audit-fallback.js`) is documented and stamps a distinct `modelDigest` on-chain so judges can audit which path each finding took. Standalone verifier (`scripts/verify_bounty.js`) re-derives the attestation digest from on-chain fields and runs `ecrecover` independently — judges can run it without project setup; pass `--model-digest 0x<digest>` for strict cryptographic re-derivation (one-liner in §9).
+**Engineering depth.** 230 tests passing, 0 failing — the 212-test baseline (Hunt + Kin contract suites, verifier, ECDH, embedding, HuntNotary, HuntReputationOracle, pubkey-recover, strict verifier semantics, Sealed Inference attestation gate) plus +18 from the 2026-05-16 security-hardening pass (Hunt.sol input-validation guards, SSRF + DNS-rebinding defense in lib/inference.js, ABI consistency between deployed bytecode + frontend ABI copies). Two Kin v2 agent legacy test files target the older `review.summary` schema and are parked under `test-legacy/`, excluded from the default `npm test`. Race-deadline enforcement, settle-window enforcement, CWE-scope filter, per-hunter specialty intersection (`scripts/hunter.js` `hunterSpecialtyCwes` param), per-finding `teeTimestamp` window check, self-eval `MIN_FINDING_QUALITY_BPS` floor — all on-chain. Local-fallback path (`lib/audit-fallback.js`) is documented and stamps a distinct `modelDigest` on-chain so judges can audit which path each finding took. Standalone verifier (`scripts/verify_bounty.js`) re-derives the attestation digest from on-chain fields and runs `ecrecover` independently — judges can run it without project setup; pass `--model-digest 0x<digest>` for strict cryptographic re-derivation (one-liner in §9).
 
 **Judge-runnable surface (no setup, no clone).**
 
@@ -260,12 +260,12 @@ For the strict re-derivation, pass `--model-digest 0x…` matching the encrypted
 - [x] `scripts/settle_bounty.js` — bounty #0 settled (tx `0xe67459a1`); bounty #3 settled at tx `0x9edab38c…d241`
 - [x] `scripts/verify_bounty.js 3 --model-digest 0x<digest>` exits 0 — winning finding cryptographically verifies against `teeSigner` AND `modelDigest` (real Sealed Inference proof) — confirmed live against Aristotle mainnet
 - [x] README + SUBMISSION tx hashes match what's actually on-chain
-- [x] `npm test` — 212 tests green, 0 failing (legacy Kin v2 agent tests parked under `test-legacy/` and excluded from default suite) — last run 2026-05-15
+- [x] `npm test` — 230 tests green, 0 failing (legacy Kin v2 agent tests parked under `test-legacy/` and excluded from default suite) — last run 2026-05-16
 - [ ] Demo video recorded per `doc/DEMO_VIDEO_SCRIPT.md` (≤3 min, 1080p, real voice)
 - [ ] Demo video uploaded to YouTube unlisted; link added to §6
 - [x] X post drafted (`doc/X_POST.md`); clip attached _(draft exists in doc/X_POST.md; clip attachment is part of the publish step)_
 - [ ] X post published; URL added to §8
-- [x] AI_USAGE.md current — updated 2026-05-15 with the v1 attestation-claim honesty pass and 212-test breakdown
+- [x] AI_USAGE.md current — updated 2026-05-16 with the v1 attestation-claim honesty pass and 230-test breakdown (212 baseline + 18 from security-hardening pass)
 - [ ] **User explicit approval to submit**
 
 When all boxes above are checked: log into HackQuest, paste each numbered section into the matching form field, **wait for user explicit go-ahead**, then click submit.

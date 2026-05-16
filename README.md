@@ -1,7 +1,7 @@
 # Hunt
 
 ![Live](https://img.shields.io/badge/live-0G%20Aristotle%20mainnet-2ea44f)
-![Tests](https://img.shields.io/badge/tests-212%20passing-2ea44f)
+![Tests](https://img.shields.io/badge/tests-230%20passing-2ea44f)
 [![npm — hunt-verifiable-ai](https://img.shields.io/npm/v/hunt-verifiable-ai?label=npm%20%E2%80%A2%20hunt-verifiable-ai&color=cb3837)](https://www.npmjs.com/package/hunt-verifiable-ai)
 [![npm — hunt-mcp-server](https://img.shields.io/npm/v/hunt-mcp-server?label=npm%20%E2%80%A2%20hunt-mcp-server&color=cb3837)](https://www.npmjs.com/package/hunt-mcp-server)
 ![License](https://img.shields.io/badge/license-MIT-blue)
@@ -219,7 +219,7 @@ Post + expire transactions are in the collapsible bounty log above. Plan, 5-CWE 
 git clone https://github.com/Ridwannurudeen/hunt && cd hunt
 npm install
 
-# Run the full test suite — 212 green, all real on chain 16661.
+# Run the full test suite — 230 green, all real on chain 16661.
 npm test
 
 # Serve the on-chain-reading frontend locally (mirrors hunt.gudman.xyz).
@@ -326,7 +326,7 @@ One non-substitutable primitive, one strongly-preferred, one co-location thesis.
 npm test
 ```
 
-**212 tests passing, 0 failing.** Breakdown:
+**230 tests passing, 0 failing.** Breakdown:
 
 | Suite | Tests | Covers |
 |---|---|---|

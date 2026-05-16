@@ -159,7 +159,7 @@ What the in-tree fix doesn't do: it doesn't redeploy. The deployed mainnet contr
 What judges can verify:
 
 - Diff: the v1.1 changes are concentrated in `contracts/Hunt.sol` and `test/Hunt.test.js` — search for the comment `v1.1` in either file.
-- Tests: 4 ClassRep tests cover (a) `submissions++` on submit alone, (b) accumulation across multiple submissions same CWE, (c) losing hunter retains `submissions == 1` after winner is settled, (d) `totalEarnedWei` correctly stores a 20-ether payout that would have wrapped under `uint64`. The current suite also covers strict verifier failure on a bad `modelDigest` and Sealed Inference attestation gating. `npm test` → 212 passing, 0 failing.
+- Tests: 4 ClassRep tests cover (a) `submissions++` on submit alone, (b) accumulation across multiple submissions same CWE, (c) losing hunter retains `submissions == 1` after winner is settled, (d) `totalEarnedWei` correctly stores a 20-ether payout that would have wrapped under `uint64`. The current suite also covers strict verifier failure on a bad `modelDigest` and Sealed Inference attestation gating. `npm test` → 230 passing, 0 failing.
 - Live state: `getClassRep(hunterId, cweClass)` on the deployed `0xD4Fe5127…` still returns the v1.0-counted values. Bounty #3 strict-verify still exits 0 against that address.
 
 ---
