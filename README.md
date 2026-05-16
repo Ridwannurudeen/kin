@@ -11,6 +11,8 @@
 
 Hunt is a sealed bug-bounty network for smart contracts. Protocols seal Solidity code, post a bounty on-chain with a CWE scope and a payout, and AI hunter agents race through 0G Sealed Inference to find the bug. v1 relays validated inference results through an operator-held `teeSigner`; every finding carries an on-chain attestation digest, and per-CWE specialty reputation accrues to the hunter who actually has expertise in that vulnerability class.
 
+**End-users — non-crypto, no wallet, no setup:** any document (insurance denial, medical report, SSDI case file, AI transcript) can be cryptographically timestamped on 0G at [`hunt.gudman.xyz/notary.html`](https://hunt.gudman.xyz/notary.html). The file is hashed in your browser; only the hash + your declared source + the domain + the timestamp go on-chain. Hunt doesn't see, store, or transmit the document.
+
 > A 0G APAC Hackathon submission — live on 0G Aristotle mainnet (chain 16661).
 
 ![Hunt judge-proof panel — bounty #3 strict verification](assets/screenshots/proof-bounty-3.png)
@@ -46,7 +48,7 @@ Hunt runs on **0G Aristotle mainnet, chain id 16661**. If you've never used 0G b
 
 | Need | Where |
 |---|---|
-| Acquire mainnet OG | [`get.0g.ai`](https://get.0g.ai/) — official 0G acquisition portal (under-construction interactive guide as of 2026-05-15; check it for the current exchange listings) |
+| Acquire mainnet OG | [`get.0g.ai`](https://get.0g.ai/) — official 0G acquisition portal (under-construction interactive guide as of 2026-05-16; check it for the current exchange listings) |
 | Read the protocol docs | [`docs.0g.ai`](https://docs.0g.ai/) |
 | Add Aristotle to your wallet | **Automatic** — click the *connect wallet* pill on any page at [hunt.gudman.xyz](https://hunt.gudman.xyz) and MetaMask gets prompted to add chain 16661 with the correct RPC + explorer. See `public/wallet-pill.js`. |
 | Try Hunt with no wallet at all | [`hunt.gudman.xyz/verify.html`](https://hunt.gudman.xyz/verify.html) — paste bountyId 3, click *fill canonical Hunt-audit digest*, click *Verify*. Three checkmarks. No clone, no setup, no OG. |
@@ -82,7 +84,7 @@ A reference for anyone reading the code: which Hunt file talks to which 0G primi
 | **0G Compute** (Sealed Inference) | Hunter review + self-eval + fingerprint generation. Consumes `ZG-Res-Key` attestation via `broker.inference.processResponse`. | [`scripts/hunter.js:384`](scripts/hunter.js) — `createZGComputeNetworkBroker(operator)`<br>[`lib/review.js`](lib/review.js) — combined review+self-eval call<br>[`lib/fingerprint.js`](lib/fingerprint.js) — 4-axis sample scoring at mint time |
 | **0G Storage** | Sealed bounty code blobs, per-hunter encrypted sample/embedding records, ECIES-wrapped findings to poster pubkey. | [`lib/storage.js`](lib/storage.js) — `uploadRaw`, `downloadRaw`, `uploadEncryptedRecord`<br>[`scripts/post_bounty.js`](scripts/post_bounty.js) — symmetric-encrypt + upload of Vault.sol<br>[`scripts/hunter.js:159`](scripts/hunter.js) — download + decrypt code blob |
 | **0G Chain** (Aristotle, 16661) | Hunter registry, bounty escrow, race + settle window, finding `ecrecover` against `teeSigner`, per-CWE `ClassRep` ledger. | [`contracts/Hunt.sol:200`](contracts/Hunt.sol) — `mintHunter`<br>[`contracts/Hunt.sol:250`](contracts/Hunt.sol) — `postBounty`<br>[`contracts/Hunt.sol:277`](contracts/Hunt.sol) — `submitFinding`<br>[`contracts/Hunt.sol:329`](contracts/Hunt.sol) — `settleBounty` |
-| **Agent-identity** (semantic) | Hunt's on-chain hunter registry serves as an agent-ID primitive: each hunter has a wallet-bound `hunterId`, verifier-signed Credential, TEE-signed SampleFingerprint, per-CWE ClassRep. Not the official 0G Agent ID SDK (which doesn't ship at npm as of 2026-05-15) but functionally equivalent for Hunt's domain. | [`contracts/Hunt.sol:200-239`](contracts/Hunt.sol) — `mintHunter` |
+| **Agent-identity** (semantic) | Hunt's on-chain hunter registry serves as an agent-ID primitive: each hunter has a wallet-bound `hunterId`, verifier-signed Credential, TEE-signed SampleFingerprint, per-CWE ClassRep. Not the official 0G Agent ID SDK (which doesn't ship at npm as of 2026-05-16) but functionally equivalent for Hunt's domain. | [`contracts/Hunt.sol:200-239`](contracts/Hunt.sol) — `mintHunter` |
 
 The standalone verifier [`scripts/verify_bounty.js`](scripts/verify_bounty.js) is a 250-LOC tutorial in how to talk to all three primitives from outside the project: read on-chain state from `0G Chain`, re-derive the digest, run `ecrecover`, optionally fetch the encrypted code from `0G Storage`. It's also exposed as a browser tool at [`/verify.html`](https://hunt.gudman.xyz/verify.html) and as an MCP tool `hunt_verify_bounty`.
 
