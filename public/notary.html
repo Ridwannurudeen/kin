@@ -124,8 +124,16 @@
       <h2 class="section-title" style="font-size:34px;">Hash locally. <em>Attest publicly.</em></h2>
       <form id="notaryForm">
         <div class="field">
+          <label for="docFile">Or upload any file</label>
+          <input type="file" id="docFile" accept="*/*" style="font-family: var(--mono); font-size: 12px; color: var(--text-soft);">
+          <div id="fileMeta" style="font-family: var(--mono); font-size: 11px; color: var(--text-mute); margin-top: 6px; min-height: 16px;"></div>
+          <div id="filePrivacyNote" style="display: none; margin-top: 8px; padding: 10px 14px; border: 1px solid var(--brand-glow); background: var(--brand-glow-soft); border-radius: var(--r-md); font-size: 12px; color: var(--text); line-height: 1.5;">
+            <strong>Your file is hashed in your browser.</strong> The file itself never leaves your machine &mdash; only the keccak-256 hash goes on-chain. Hunt does not see, store, or transmit the file.
+          </div>
+        </div>
+        <div class="field">
           <label for="transcript">Document or transcript</label>
-          <textarea id="transcript" required placeholder="Paste any document you want timestamped on-chain — a denial letter, medical report, AI transcript, case file. The text is hashed in your browser; only the hash + your declared model/source + domain + timestamp go on-chain."></textarea>
+          <textarea id="transcript" placeholder="Paste any document you want timestamped on-chain — a denial letter, medical report, AI transcript, case file. The text is hashed in your browser; only the hash + your declared model/source + domain + timestamp go on-chain."></textarea>
         </div>
         <div class="field-row">
           <div class="field">
@@ -208,10 +216,44 @@ function hashText(value) {
   return ethers.keccak256(ethers.toUtf8Bytes(String(value)));
 }
 
+let _fileHash = null;
+let _fileMeta = null;
+
 function refreshHashes() {
-  $('contentHash').textContent = hashText($('transcript').value || '');
+  if (!_fileHash) $('contentHash').textContent = hashText($('transcript').value || '');
   $('modelDigest').textContent = hashText($('model').value || '');
   $('domainHash').textContent = hashText($('domain').value || '');
+}
+
+async function handleFileChange(e) {
+  const f = e.target.files && e.target.files[0];
+  if (!f) {
+    _fileHash = null;
+    _fileMeta = null;
+    $('fileMeta').textContent = '';
+    $('filePrivacyNote').style.display = 'none';
+    $('transcript').disabled = false;
+    $('transcript').placeholder = 'Paste any document you want timestamped on-chain — a denial letter, medical report, AI transcript, case file. The text is hashed in your browser; only the hash + your declared model/source + domain + timestamp go on-chain.';
+    refreshHashes();
+    return;
+  }
+  $('transcript').disabled = true;
+  $('transcript').placeholder = 'File selected — clear file selection to paste text instead.';
+  $('fileMeta').textContent = `reading ${f.name} (${f.size.toLocaleString()} bytes)...`;
+  try {
+    const buf = await f.arrayBuffer();
+    const bytes = new Uint8Array(buf);
+    _fileHash = ethers.keccak256(bytes);
+    _fileMeta = { name: f.name, size: f.size, type: f.type || 'application/octet-stream' };
+    $('fileMeta').textContent = `${f.name} — ${f.size.toLocaleString()} bytes — hashed locally`;
+    $('filePrivacyNote').style.display = 'block';
+    $('contentHash').textContent = _fileHash;
+  } catch (err) {
+    $('fileMeta').textContent = `failed to read file: ${err.message || err}`;
+    _fileHash = null;
+    _fileMeta = null;
+    $('transcript').disabled = false;
+  }
 }
 
 async function ensureWallet() {
@@ -272,7 +314,18 @@ function renderReceipt({ attestId, txHash, user, contentHash, modelDigest, domai
     setStatus('Notary deployment artifact not found yet. Deploy contracts/Notary.sol, then reload this page.');
   }
 
-  ['transcript', 'model', 'domain'].forEach((id) => $(id).addEventListener('input', refreshHashes));
+  ['model', 'domain'].forEach((id) => $(id).addEventListener('input', refreshHashes));
+  $('docFile').addEventListener('change', handleFileChange);
+  $('transcript').addEventListener('input', () => {
+    if ($('transcript').value && _fileHash) {
+      $('docFile').value = '';
+      _fileHash = null;
+      _fileMeta = null;
+      $('fileMeta').textContent = '';
+      $('filePrivacyNote').style.display = 'none';
+    }
+    refreshHashes();
+  });
   $('connectBtn').addEventListener('click', async () => {
     try {
       await ensureWallet();
@@ -287,11 +340,12 @@ function renderReceipt({ attestId, txHash, user, contentHash, modelDigest, domai
     const transcript = $('transcript').value.trim();
     const model = $('model').value.trim();
     const domain = $('domain').value;
-    if (!transcript) return setStatus('Transcript is required.');
+    const useFile = !!_fileHash;
+    if (!useFile && !transcript) return setStatus('Document text or file is required.');
     if (!model) return setStatus('Model name is required.');
     if (window.NOTARY_ADDRESS === ethers.ZeroAddress) return setStatus('Notary is not deployed yet.');
 
-    const contentHash = hashText(transcript);
+    const contentHash = useFile ? _fileHash : hashText(transcript);
     const modelDigest = hashText(model);
     const domainHash = hashText(domain);
 
@@ -310,11 +364,14 @@ function renderReceipt({ attestId, txHash, user, contentHash, modelDigest, domai
         .find((log) => log?.name === 'AttestationRecorded');
       const attestId = parsed ? parsed.args.attestId : await notary.totalAttestations() - 1n;
       const onChain = await notary.getAttestation(attestId);
+      const contentHashDisplay = useFile
+        ? `${contentHash} (${_fileMeta.name}, ${_fileMeta.size.toLocaleString()} bytes)`
+        : contentHash;
       renderReceipt({
         attestId,
         txHash: tx.hash,
         user: onChain.user,
-        contentHash,
+        contentHash: contentHashDisplay,
         modelDigest,
         domainHash,
         sealedInputRoot: onChain.sealedInputRoot,
