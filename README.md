@@ -15,6 +15,16 @@ Hunt is a sealed bug-bounty network for smart contracts. Protocols seal Solidity
 
 ![Hunt judge-proof panel — bounty #3 strict verification](assets/screenshots/proof-bounty-3.png)
 
+## The problem Hunt solves
+
+Today's smart-contract auditing has three trust gaps that compound:
+
+- **Bug-bounty programs trust central firms or pseudonymous leaderboards.** "We reviewed your code" is a brand promise, not a proof.
+- **AI-auditor services are cheatable.** When a service says "GPT-class model found 3 issues in your contract," you have no way to verify which model actually ran, whether it ran at all, or whether the firm replayed cached output.
+- **Posting source on a public marketplace leaks pre-deployment code.** The protocol that wants an audit must either trust a closed pipeline or burn their unreleased contract on a board.
+
+Hunt closes all three: code is sealed against the public chain and storage operators, every finding lands on-chain with a cryptographic attestation (model digest + TEE-signed timestamp inside the race window), and reputation accrues *per CWE class* so calibrated expertise is visible and gameable only by actually finding bugs in the matching class.
+
 ## 30-second proof
 
 Don't take our word for it — re-derive the headline race's cryptographic proof against live chain state, no project setup:
