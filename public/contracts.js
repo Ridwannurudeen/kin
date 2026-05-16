@@ -18,8 +18,8 @@ window.HUNT_ADDRESS = "0x0000000000000000000000000000000000000000";
 window.NOTARY_ADDRESS = "0x0000000000000000000000000000000000000000";
 window.ORACLE_ADDRESS = "0x0000000000000000000000000000000000000000";
 
-// Mirror lib/cwe.js CANONICAL_CWES exactly.
-window.CANONICAL_CWES = Object.freeze([
+// Mirror lib/cwe.js — per-domain class registries + union for backwards-compat.
+window.SMART_CONTRACT_CWES = Object.freeze([
   "swc-107-reentrancy",
   "swc-115-tx-origin",
   "access-control",
@@ -33,6 +33,49 @@ window.CANONICAL_CWES = Object.freeze([
   "unsafe-delegatecall",
   "denial-of-service",
 ]);
+window.INSURANCE_DEFECT_CLASSES = Object.freeze([
+  "medical-necessity-misapplication",
+  "coding-cpt-error",
+  "prior-auth-overreach",
+  "network-adequacy-violation",
+  "erisa-procedural-defect",
+  "state-external-review-misclassification",
+]);
+window.BENEFITS_DEFECT_CLASSES = Object.freeze([
+  "medical-listing-misapplication",
+  "residual-functional-capacity-error",
+  "vocational-expert-misclassification",
+  "duration-requirement-misapplication",
+  "substantial-gainful-activity-miscalculation",
+  "combined-impairments-omission",
+  "treating-physician-opinion-weight",
+]);
+window.MEDICAL_READING_CLASSES = Object.freeze([
+  "pathology-borderline-interpretation",
+  "radiology-second-read-discrepancy",
+  "oncology-staging-revision",
+  "cardiology-ecg-echo-revision",
+  "dermatology-pigmented-lesion-revision",
+  "hematology-flow-cytometry-discordance",
+]);
+window.CANONICAL_CWES = Object.freeze([
+  ...window.SMART_CONTRACT_CWES,
+  ...window.INSURANCE_DEFECT_CLASSES,
+  ...window.BENEFITS_DEFECT_CLASSES,
+  ...window.MEDICAL_READING_CLASSES,
+]);
+window.CLASS_DOMAIN = Object.freeze(
+  Object.fromEntries([
+    ...window.SMART_CONTRACT_CWES.map((c) => [c, "smart-contract"]),
+    ...window.INSURANCE_DEFECT_CLASSES.map((c) => [c, "insurance"]),
+    ...window.BENEFITS_DEFECT_CLASSES.map((c) => [c, "benefits"]),
+    ...window.MEDICAL_READING_CLASSES.map((c) => [c, "medical"]),
+  ]),
+);
+window.bytes32ToDomain = function (hash) {
+  const name = window.bytes32ToCwe(hash);
+  return name ? window.CLASS_DOMAIN[name] : undefined;
+};
 
 function _canonicalise(s) {
   return String(s || "")

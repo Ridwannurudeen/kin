@@ -97,6 +97,26 @@ const TARGETS = [
     cwes: "swc-107-reentrancy,access-control,signature-replay,unsafe-delegatecall",
     note: "BullvBear protocol — comprehensive scope, blind",
   },
+  // v2 verticals — non-Solidity domains. The contract treats inScopeCwes
+  // as opaque bytes32 so these post fine; the runtime CWE registry
+  // (lib/cwe.js) accepts these canonical strings as of 2026-05-16.
+  // Specialist hunters for these domains are NOT minted yet (requires
+  // VERIFIER_PRIVATE_KEY). Bounties posted here sit Open until expired.
+  {
+    file: "audits/insurance/sample_denial.txt",
+    cwes: "erisa-procedural-defect,medical-necessity-misapplication,prior-auth-overreach",
+    note: "insurance v2: synthetic ERISA-governed claim denial — defect-class registry proof",
+  },
+  {
+    file: "audits/medical/sample_pathology_report.txt",
+    cwes: "pathology-borderline-interpretation,oncology-staging-revision",
+    note: "medical v2: synthetic pathology report — records-reader registry proof (NOT a diagnosis)",
+  },
+  {
+    file: "audits/benefits/sample_denial.txt",
+    cwes: "medical-listing-misapplication,residual-functional-capacity-error,treating-physician-opinion-weight",
+    note: "benefits v2: synthetic SSDI denial — defect-class registry proof",
+  },
 ];
 
 const REPO_ROOT = path.resolve(

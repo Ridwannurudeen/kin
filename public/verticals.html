@@ -1020,16 +1020,29 @@
       </div>
 
       <div class="v-note">
-        <strong>Tier-A scope discipline.</strong> The three v2 verticals are
-        positioning + runnable demonstration scripts only. No new on-chain
-        specialists are minted; no new bounties fire on the new verticals.
-        Bounty #3's strict verifier remains the load-bearing cryptographic
-        receipt: signer, race window, and supplied Sealed Inference modelDigest
-        must all match. First on-chain bounty in each v2 vertical fires
-        post-hackathon, once specialist briefs are tuned against public corpora
-        and the appropriate human-in-the-loop partnerships are in place
-        (NOSSCR-credentialed representatives for benefits, CLIA-certified
-        pathologists/radiologists for medical). Each vertical's
+        <strong>Tier-A scope discipline (updated 2026-05-16).</strong> The
+        three v2 verticals now have a real on-chain footprint: the canonical
+        defect-class registries (insurance / benefits / medical reading) are
+        live in
+        <code style="font-family: var(--mono); font-size: 11px">lib/cwe.js</code>,
+        and the first non-Solidity bounty in each vertical has posted to
+        Aristotle mainnet —
+        <strong>bounty #23 (insurance, ERISA / medical-necessity / prior-auth)</strong>,
+        <strong>bounty #24 (medical, pathology-borderline / oncology-staging — records-reader, NOT a diagnosis)</strong>,
+        <strong>bounty #25 (benefits, SSDI medical-listing / RFC / treating-physician-opinion-weight)</strong>.
+        Specialist hunters for these domains are <em>not</em> minted yet
+        (the verifier wallet's PK is held by the operator and the
+        appropriate human-in-the-loop partnerships — NOSSCR-credentialed
+        representatives for benefits, CLIA-certified pathologists for
+        medical — need to be in place before a non-operator hunter
+        races). The v2 bounties sit Open until expired-and-refunded by
+        <code>expireBounty</code> after the settle window; the
+        <code>BountyPosted</code> events are permanent on-chain proof
+        that Hunt's CWE registry now spans four domains, not just
+        smart-contracts. Bounty #3's strict verifier remains the
+        load-bearing cryptographic receipt for the v1 (smart-contract)
+        lifecycle: signer, race window, and supplied Sealed Inference
+        modelDigest must all match. Each vertical's
         <code
           style="
             font-family: var(--mono);
