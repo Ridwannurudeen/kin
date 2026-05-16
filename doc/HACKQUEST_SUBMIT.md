@@ -62,7 +62,7 @@ Problem solved. Existing bug-bounty programs trust a central audit firm or a lea
 - 0G Chain (Aristotle, 16661): contracts/Hunt.sol — hunter registry, bounty escrow, race + settle window, finding submission with ecrecover-verified attestation, per-CWE ClassRep ledger, credential reuse protection. ~470 LOC.
 - 0G Compute / Sealed Inference: lib/fingerprint.js scores hunter sample quality at mint time; lib/review.js runs review + self-eval in a single Sealed Inference call per bounty. Both consume ZG-Res-Key attestation via broker.inference.processResponse. Bounty #3 ran on real Sealed Inference end-to-end. lib/audit-fallback.js is the documented degraded path with a distinct on-chain modelDigest.
 - 0G Storage: symmetric AES for the bounty code blob (shared hunter-network key); per-hunter AES for samples + embeddings; ECIES (secp256k1 + HKDF + AES-GCM) for findings encrypted to the bounty poster's pubkey.
-- TEE attestation chain-of-custody: teeSigner address on-chain; off-chain relay produces the digest Hunt.sol recovers. v1 = one operator key. v2 (doc/FUTURE.md) = TEE-attestation-verifying relay set.
+- TEE attestation chain-of-custody: teeSigner address on-chain; off-chain relay produces the digest Hunt.sol recovers. v1 = one operator key. v2 = TEE-attestation-verifying relay set.
 - Credential verifier: verifier/server.js enforces a GitHub-activity bar (730d+ account age, 20+ merged PRs, 10+ reviews) and signs a wallet-bound, replay-protected Credential the contract recovers on mint.
 
 Engineering depth. 212 tests passing, 0 failing. Race-deadline, settle-window, CWE-scope filter, per-hunter specialty intersection, teeTimestamp window, self-eval quality floor — all on-chain. Standalone verifier (scripts/verify_bounty.js) re-derives the attestation digest from on-chain fields and runs ecrecover independently — judges can run it without project setup.
@@ -184,7 +184,6 @@ Direct deep-links judges should bookmark:
 - Standalone judge verifier: scripts/verify_bounty.js — single-file, zero-setup, depends only on ethers + Node built-ins.
 - Primary live audit target — ChartChain: bounty #6 on Aristotle audits the real MedicalRecordsVault.sol from https://github.com/Ridwannurudeen/chartchain. Demonstrates the same primitive on a separate live 0G protocol.
 - Institutional partnership playbook: doc/INSTITUTIONAL_PARTNERSHIP.md.
-- Roadmap: doc/FUTURE.md (4-pillar v2 plan with primary-source competitive citations).
 - AI usage attribution: AI_USAGE.md (last updated 2026-05-15).
 ```
 

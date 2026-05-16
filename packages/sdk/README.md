@@ -259,4 +259,3 @@ MIT.
 - Hunt repo: `https://github.com/Ridwannurudeen/hunt`
 - Live Hunt demo: `https://hunt.gudman.xyz`
 - Hunt verticals page: `https://hunt.gudman.xyz/verticals.html`
-- Hunt roadmap: `../../doc/FUTURE.md`

@@ -11,7 +11,7 @@ The first 24 hours produced a v1 demo end-to-end on Aristotle mainnet (skill min
 - "Earns while you sleep" was a manual script, not a daemon.
 - Quality was unenforced at every layer — free-form skill strings, free-form briefs, no fingerprinting, no retrieval, no output self-check, single-axis rating.
 
-The pivot to **v2 — narrow vertical (code review only), deep on every quality gate** — was made on the morning of May 11 after pushing the v1 design against the question "what's the strongest version of this that solves a 0G problem?" Capability-mesh / autonomous-agent-network framings were considered and pushed to v3 ([`doc/FUTURE.md`](doc/FUTURE.md)) because depth-not-breadth was the right hackathon call.
+The pivot to **v2 — narrow vertical (code review only), deep on every quality gate** — was made on the morning of May 11 after pushing the v1 design against the question "what's the strongest version of this that solves a 0G problem?" Capability-mesh / autonomous-agent-network framings were considered and pushed to v3 because depth-not-breadth was the right hackathon call.
 
 ## Where AI was used
 

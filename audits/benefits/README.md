@@ -70,7 +70,7 @@ Both secondary surfaces share the same contract machinery; they're populated pos
 
 The same two gaps as insurance + medical, with one population-specific addition:
 
-- **Sealed-from-third-parties, not sealed-from-the-specialist** in v1. The shared hunter-network key means every registered benefits-specialist could decrypt every posted SSDI denial bundle. Bounded to verified-credential hunters, not the public, not OpenAI, not 0G's storage operators. v2's per-hunter ECDH envelope closes the gap ([`doc/FUTURE.md`](../../doc/FUTURE.md) Decentralisation roadmap).
+- **Sealed-from-third-parties, not sealed-from-the-specialist** in v1. The shared hunter-network key means every registered benefits-specialist could decrypt every posted SSDI denial bundle. Bounded to verified-credential hunters, not the public, not OpenAI, not 0G's storage operators. v2's per-hunter ECDH envelope closes the gap.
 - **Operator-relayed attestation in v1.** Same v1 → v2 closure as the other verticals.
 - **Population-specific: elderly + cognitively impaired claimants may not understand the privacy posture.** This vertical's onboarding flow must be designed for users who may have dementia, low literacy, language barriers, or no smartphone. Plain-language consent, in-language interpreters, and an accredited-representative human-in-the-loop are not optional. v2 ships with a partnership-with-accredited-non-attorney-representatives requirement before any real claimant data is processed.
 

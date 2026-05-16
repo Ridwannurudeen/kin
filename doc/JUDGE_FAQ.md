@@ -14,7 +14,7 @@ Honest scope of v1:
 
 Both are operator-held in v1 because shipping a TEE-attestation-verifying relay set + an EAS multi-issuer credential schema would have eaten the entire hackathon window. We chose to ship the *cryptographic settlement layer* correctly — the digest structure, the `ecrecover` gate, the race-window check, the per-CWE rep math — and document the path away from operator-relayed v1.
 
-v2 plan (`doc/FUTURE.md`):
+v2 plan:
 - **TEE-attestation-verifying relay set** — k-of-n signers, each independently verifies 0G's per-response `ZG-Res-Key` attestation against the model that produced the answer, signs only if k of n agree. The contract gates `submitFinding` on threshold-multisig instead of single ecrecover.
 - **EAS multi-issuer verifier** — schema `hunt:github-credential`, any registered verifier can attest, on-chain allowlist governed by DAO or token vote.
 
@@ -100,15 +100,15 @@ v3 (12+ months):
 
 ---
 
-## Q8 — The v2 falsifier sounds clean in `doc/FUTURE.md` but the contract isn't deployed. What happens if it has bugs?
+## Q8 — The v2 falsifier is described but the contract isn't deployed. What happens if it has bugs?
 
 **Yes — v2 falsifier is unbuilt, intentionally. v1 ships the verifiable substrate; v2 is the next 6 weeks.**
 
 We deliberately chose to NOT ship v2 in the hackathon submission for two reasons:
 1. **Risk to v1 strict-verify**: any change to `Hunt.sol` invalidates the bounty #3 strict-mode proof. The load-bearing claim is the on-chain attestation chain we have today, not the v2 falsifier we'd deploy in a rush. New contract introduces new attack surface; building it in 5 days = bug-shipping risk.
-2. **Settlement-game-theory rigour**: stake-backed adversarial falsification has non-trivial design choices (slashing economics, time windows, dispute resolution if both find and falsifier are TEE-attested). Half-baked falsifier in 5 days is worse than v1 + clearly-scoped v2 in `doc/FUTURE.md`.
+2. **Settlement-game-theory rigour**: stake-backed adversarial falsification has non-trivial design choices (slashing economics, time windows, dispute resolution if both find and falsifier are TEE-attested). Half-baked falsifier in 5 days is worse than v1 + a clearly-scoped v2 plan.
 
-What we did instead: `doc/FUTURE.md` gives the pillar-by-pillar v2 design with primary-source citations to every named competitor it differentiates against. Contract delta is estimated (~300 LOC, ~25 new tests, ~2 weeks of work). New contract `HuntV2.sol` will deploy alongside v1 — bounty #3 strict-verify keeps working forever.
+What we did instead: documented the pillar-by-pillar v2 design internally. Contract delta is estimated (~300 LOC, ~25 new tests, ~2 weeks of work). New contract `HuntV2.sol` will deploy alongside v1 — bounty #3 strict-verify keeps working forever.
 
 ---
 
@@ -154,7 +154,7 @@ What the in-tree fix does (`contracts/Hunt.sol` at HEAD):
 - Move `ClassRep.submissions++` into `submitFinding`, alongside the existing scope + self-eval + ecrecover checks; remove it from `settleBounty` so winners aren't double-counted. Add `ClassRepUpdated(hunterId, cweClass, wins, submissions)` emit at submit-time so observers see live precision evolution per CWE.
 - Widen `Hunter.totalEarnedWei` + `ClassRep.totalEarnedWei` from `uint64` to `uint256`. Remove the `uint64(amount)` truncation casts in `settleBounty`.
 
-What the in-tree fix doesn't do: it doesn't redeploy. The deployed mainnet contract at `0xD4Fe5127d519B775a9a581A54ED0719BBFf0d68C` remains v1.0 with the original semantics. Bounty #3's strict-mode verifier (`scripts/verify_bounty.js 3 --model-digest 0x<digest>`) is anchored to that address; redeploying invalidates that proof, and rebuilding a fresh mainnet narrative in the last 72 hours of the hackathon would be reckless. v1.1 ships alongside v2's TEE-attestation-verifying signer set (`doc/FUTURE.md`); both deploy in the post-hackathon 8-week window.
+What the in-tree fix doesn't do: it doesn't redeploy. The deployed mainnet contract at `0xD4Fe5127d519B775a9a581A54ED0719BBFf0d68C` remains v1.0 with the original semantics. Bounty #3's strict-mode verifier (`scripts/verify_bounty.js 3 --model-digest 0x<digest>`) is anchored to that address; redeploying invalidates that proof, and rebuilding a fresh mainnet narrative in the last 72 hours of the hackathon would be reckless. v1.1 ships alongside v2's TEE-attestation-verifying signer set; both deploy in the post-hackathon 8-week window.
 
 What judges can verify:
 

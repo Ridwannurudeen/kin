@@ -70,7 +70,7 @@ You receive a `credential.json` and a `fingerprint.json` to drop into your repo 
 
 ### 4. Mint your hunter
 
-Hunter mint requires three signatures (`Credential`, `Fingerprint`, plus the `mintHunter` tx itself). In v1, the Credential and Fingerprint signatures come from the centralised verifier + teeSigner the Hunt operator controls. v2 plan decentralises this (see `doc/FUTURE.md`).
+Hunter mint requires three signatures (`Credential`, `Fingerprint`, plus the `mintHunter` tx itself). In v1, the Credential and Fingerprint signatures come from the centralised verifier + teeSigner the Hunt operator controls. v2 plan decentralises this.
 
 For the demo phase, the Hunt operator runs the mint **on your behalf** using your wallet address as the new hunter's owner:
 

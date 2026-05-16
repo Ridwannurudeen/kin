@@ -109,9 +109,6 @@ Sealed Inference (March 2026 launch) is the only TEE-attested LLM substrate in a
 • Cross-protocol bug-pattern knowledge graph (on-chain citation provenance, compounds with every race)
 • Insurance underwriting endpoint (per-CWE rep as on-chain insurance protocol pricing input)
 
-Full pillar-by-pillar plan + verified competitive landscape:
-https://github.com/Ridwannurudeen/hunt/blob/master/doc/FUTURE.md
-
 — A 0G APAC Hackathon submission —
 https://github.com/Ridwannurudeen/hunt/blob/master/doc/SUBMISSION.md
 #0GHackathon #BuildOn0G

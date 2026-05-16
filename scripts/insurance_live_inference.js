@@ -209,7 +209,7 @@ This output is whatever the model returned, unedited. Specific things to look fo
 2. **The TEE attestation surface is exercised against the new domain input.** The response (if successful) carries 0G's \`ZG-Res-Key\` attestation header, which \`broker.inference.processResponse\` validates against the model that produced the response. The integration is not theoretical.
 3. **The honest-caveat framing in \`audits/insurance/README.md\` is now empirically backed.** Whatever the output above shows is what \`zai-org/GLM-5-FP8\` actually does on a structured legal-policy task today, without fine-tuning. The README's "model not yet tuned for legal/clinical text" statement is supported by, not in tension with, this capture.
 
-For the v2 production sequence (fine-tune specialist briefs against a public denial-letter corpus → validate on a 50-letter set against known appeal outcomes → TEE-attestation-verifying signer set replacing the v1 operator-relayed \`teeSigner\`), see \`audits/insurance/README.md\` and \`doc/FUTURE.md\` Pillar 5a.
+For the v2 production sequence (fine-tune specialist briefs against a public denial-letter corpus → validate on a 50-letter set against known appeal outcomes → TEE-attestation-verifying signer set replacing the v1 operator-relayed \`teeSigner\`), see \`audits/insurance/README.md\`.
 
 Reproducible: \`PRIVATE_KEY=0x... node scripts/insurance_live_inference.js\` against the public \`https://evmrpc.0g.ai\` RPC.
 `;
