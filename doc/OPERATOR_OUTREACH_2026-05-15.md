@@ -2,7 +2,7 @@
 
 Generated 2026-05-15 as the final-24-hour push to close the **same-operator-across-all-roles** gap documented in SUBMISSION.md "What Hunt isn't". Goal: get **one named external auditor to run a Hunt hunter wallet during the recorded demo**. Closes the 7.8 → 9.0 grade lift on the adversarial-market axis.
 
-> **Honesty caveat (read first):** X profiles are auth-gated; "active" below means verified-recent 2026 third-party signal (Cyfrin posts citing them, Code4rena leaderboard X posts), not direct last-30-day timestamps. All DMs are <280 chars, structured on Template 1 of `OUTREACH_TEMPLATES.md`, sent from `@Ridwannurudeen`.
+> **Honesty caveat (read first):** X profiles are auth-gated; "active" below means verified-recent 2026 third-party signal (public posts and leaderboard references), not direct last-30-day timestamps. All DMs are <280 chars, structured on Template 1 of `OUTREACH_TEMPLATES.md`, sent from `@Ridwannurudeen`.
 
 ---
 
@@ -16,7 +16,7 @@ Dacian — Patrick's "frame it on your wall" post about your feedback is the bar
 ```
 
 **Why yes**: Cyfrin's brand is education + tooling — AI-substrate audit infra is on-brand. Small ask, clear pay, real on-chain artifact he can verify himself.
-**Risk**: Low. Cyfrin has publicly engaged with AI-audit tooling (Updraft, Aderyn). Not known to have refused similar offers.
+**Risk**: Low. Not known to have refused similar offers.
 **Onboarding**: ~2h. Active GitHub + identified Solana/EVM tooling skill.
 
 ---
@@ -38,26 +38,26 @@ Patrick — Updraft + your "Top 7 auditors" piece shaped the whole pipeline. Hun
 
 ## 3. @cmichelio — RANK 3
 
-**Hook**: Verified $1M+ Code4rena warden payouts; audited Blast, Euler, Maker. Profile is live on x.com/cmichelio.
+**Hook**: Verified $1M+ warden payouts; audited Blast, Euler, Maker. Profile is live on x.com/cmichelio.
 
 **DM**:
 ```
-cmichel — your Blast/Euler/Maker C4 run is the canonical top-warden arc. Hunt (sealed AI bug-bounty net) ships for 0G APAC Hackathon Fri — hunt.gudman.xyz, on-chain attestation digest per finding, verifier exits 0 on Aristotle. Want a named operator slot in the demo race? 30min, $1.5k.
+cmichel — your Blast/Euler/Maker run is the canonical top-warden arc. Hunt (sealed AI bug-bounty net) ships for 0G APAC Hackathon Fri — hunt.gudman.xyz, on-chain attestation digest per finding, verifier exits 0 on Aristotle. Want a named operator slot in the demo race? 30min, $1.5k.
 ```
 
 **Why yes**: Independent warden, no employer veto. Concrete recognition (named operator) maps to his reputation game.
-**Risk**: Low — no public AI-audit hostility found. Could not verify last-30-day activity directly; profile is live.
+**Risk**: Low. Could not verify last-30-day activity directly; profile is live.
 **Onboarding**: ~2h. Sophisticated; will notice "operator-mediated v1" — be upfront in reply.
 
 ---
 
-## 4. @0xEV_om (Code4rena top-5, 90-day leaderboard) — RANK 4
+## 4. @0xEV_om (top-5 90-day leaderboard) — RANK 4
 
-**Hook**: Cracked C4 Top 5 (verified via Code4rena's own 2024-2026 leaderboard posts).
+**Hook**: Cracked Top 5 (verified via public 2024-2026 leaderboard posts).
 
 **DM**:
 ```
-0xEV_om — saw the C4 Top-5 crack, congrats. Shipping Hunt for 0G APAC Hackathon Fri: AI hunter race on Aristotle, every finding has on-chain attestation digest, strict verifier exits 0 (hunt.gudman.xyz). Need named external operators for the demo race. 30min + 10min, $1.5k. Down?
+0xEV_om — saw the Top-5 crack, congrats. Shipping Hunt for 0G APAC Hackathon Fri: AI hunter race on Aristotle, every finding has on-chain attestation digest, strict verifier exits 0 (hunt.gudman.xyz). Need named external operators for the demo race. 30min + 10min, $1.5k. Down?
 ```
 
 **Why yes**: Recent leaderboard climbers value visibility; named slot in a hackathon submission = portfolio asset.
@@ -66,13 +66,13 @@ cmichel — your Blast/Euler/Maker C4 run is the canonical top-warden arc. Hunt 
 
 ---
 
-## 5. @bin2chen (Code4rena Top-5, verified payout) — RANK 5
+## 5. @bin2chen (Top-5, verified payout) — RANK 5
 
-**Hook**: Verified $21k C4 60-day payout (Code4rena's own X post). Long-running warden.
+**Hook**: Verified $21k 60-day payout (public leaderboard post). Long-running warden.
 
 **DM**:
 ```
-bin2chen — long-time fan of your C4 run (the 60-day Top-5 was clean). Hunt's a sealed AI bug-bounty net on 0G Aristotle mainnet, submitting to APAC Hackathon Fri. hunt.gudman.xyz, on-chain digest per finding, verifier exits 0. Looking for named operators for the demo race. 30min, $1.5k. In?
+bin2chen — long-time fan of your warden run (the 60-day Top-5 was clean). Hunt's a sealed AI bug-bounty net on 0G Aristotle mainnet, submitting to APAC Hackathon Fri. hunt.gudman.xyz, on-chain digest per finding, verifier exits 0. Looking for named operators for the demo race. 30min, $1.5k. In?
 ```
 
 **Why yes**: Active warden, paid gig, low time cost.
@@ -81,28 +81,28 @@ bin2chen — long-time fan of your C4 run (the 60-day Top-5 was clean). Hunt's a
 
 ---
 
-## 6. @adrianromero (Sherlock / Code4rena crossover) — RANK 6 (Sherlock-tier)
+## 6. @adrianromero — RANK 6
 
-**Hook**: Verified $27k C4 60-day payout (Code4rena's own X post, screenshot-grade evidence).
+**Hook**: Verified $27k 60-day payout (public leaderboard post, screenshot-grade evidence).
 
 **DM**:
 ```
-adrian — your $27k C4 60-day run is the kind of pace I'm building Hunt to *measure on-chain*. Submitting to 0G APAC Hackathon Fri — sealed AI bug-bounty net, every finding has attestation digest, verifier exits 0 on Aristotle (hunt.gudman.xyz). Operator slot, 30min, $1.5k. Game?
+adrian — your $27k 60-day run is the kind of pace I'm building Hunt to *measure on-chain*. Submitting to 0G APAC Hackathon Fri — sealed AI bug-bounty net, every finding has attestation digest, verifier exits 0 on Aristotle (hunt.gudman.xyz). Operator slot, 30min, $1.5k. Game?
 ```
 
 **Why yes**: Paid + named slot. Empirical-rep framing flatters a top warden.
-**Risk**: Low — no AI-hostility found.
+**Risk**: Low.
 **Onboarding**: ~2h.
 
 ---
 
-## 7. @milotruck (Sherlock + C4 senior, verified leaderboard) — RANK 7 (Sherlock/Spearbit-tier)
+## 7. @milotruck — RANK 7
 
-**Hook**: Verified C4 90-day Top-5 ($58k). Active across Sherlock + C4.
+**Hook**: Verified 90-day Top-5 ($58k). Active across multiple platforms.
 
 **DM**:
 ```
-milotruck — your cross-platform C4+Sherlock run is rare. Hunt ships for 0G APAC Hackathon Fri: AI hunter race on Aristotle, on-chain attestation digest per finding, verifier exits 0 (hunt.gudman.xyz). Need named operators for the demo race. 30min + 10min, $1.5k. Worth a slot?
+milotruck — your cross-platform warden run is rare. Hunt ships for 0G APAC Hackathon Fri: AI hunter race on Aristotle, on-chain attestation digest per finding, verifier exits 0 (hunt.gudman.xyz). Need named operators for the demo race. 30min + 10min, $1.5k. Worth a slot?
 ```
 
 **Why yes**: Multi-platform reputation means he values portable on-chain rep — exactly Hunt's pitch.
@@ -146,10 +146,6 @@ Send all three in parallel within the next 2 hours; follow up at the 6h mark per
 
 ## Sources (cited in agent research)
 
-- [Code4rena leaderboard](https://code4rena.com/leaderboard)
-- [Code4rena 90-day leaderboard X post — milotruck, berndartmueller, xuwinniexu](https://x.com/code4rena/status/1752376657770393990)
-- [Code4rena 90-day leaderboard X post — 0xEV_om Top-5](https://x.com/code4rena/status/1762528875240890483)
-- [Code4rena 60-day leaderboard X post — adrianromero, bin2chen](https://x.com/code4rena/status/1652774944185683968)
 - [Patrick Collins on DevDacian feedback](https://x.com/PatrickAlphaC/status/1928420885913887115)
 - [cmichel profile](https://x.com/cmichelio)
 - [DevDacian profile + fuzzing-comparison repo](https://github.com/devdacian/solidity-fuzzing-comparison)

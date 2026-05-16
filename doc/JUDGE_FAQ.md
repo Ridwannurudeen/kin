@@ -4,20 +4,6 @@ Pre-emptive answers to the hard questions any sharp judge will raise. Honest, ci
 
 ---
 
-## Q1 — Isn't this just Olympix / Nethermind AuditAgent / Trail of Bits' internal pipeline with extra steps?
-
-**No, and the difference is structural, not feature-list.**
-
-Verified May 2026 (three parallel research agents, primary sources in `doc/FUTURE.md`):
-- **Olympix** ships static analysis + LLM explanations + BugPOCer (PoC generation). No TEE attestation, no on-chain reputation, no per-CWE specialization. ([source](https://olympix.security/))
-- **Nethermind AuditAgent** ships CI-time AI audits at 30% recall vs human auditors. No TEE attestation, no on-chain reputation. ([source](https://www.nethermind.io/blog/how-nethermind-security-uses-auditagent-alongside-manual-audits))
-- **Trail of Bits "AI-native pipeline"** (blog March 2026) describes internal multi-agent reasoning + adversarial stages — but it's a consulting workflow, not on-chain, not staked, not a reputation primitive. ([source](https://blog.trailofbits.com/2026/03/31/how-we-made-trail-of-bits-ai-native-so-far/))
-- **Cantina Apex, Sherlock AI, Immunefi AI** — all marketing as "AI security engineer" tooling, none ship TEE attestation or on-chain reputation.
-
-Hunt's structural difference: **verifiable-execution substrate** (every finding carries an on-chain digest the contract `ecrecover`s, v1 is operator-relayed over real Sealed Inference, v2 replaces the relay with a TEE-attestation-verifying signer set — see Q2) + **on-chain reputation per CWE class** (not single fungible score). Centralized auditors structurally cannot match without rebuilding on a TEE+chain substrate — that's an 18-month migration for them. Documented in detail at `doc/FUTURE.md`.
-
----
-
 ## Q2 — `teeSigner` and `verifier` are single operator-held keys. Isn't this centralized?
 
 **Yes — v1 is centralized. We're explicit about it; the public README + SUBMISSION + AI_USAGE all say so. v2 decentralises both.**
@@ -64,7 +50,7 @@ Honest state:
 
 Concretely addressed:
 - `doc/OPERATOR_ONBOARDING.md` is the (≤30 min) flow for an external researcher to spin up a hunter on their own wallet. Real adoption is a function of onboarding friction, which we've reduced to as low as the centralized v1 permits.
-- `doc/OUTREACH_TEMPLATES.md` contains five pre-written DMs targeting Code4rena top wardens, Sherlock senior watsons, boutique-firm auditors, and crypto-Twitter security personalities. $1.5k per operator + recording-credit. Sending the DMs is user-action; the templates are production-ready.
+- `doc/OUTREACH_TEMPLATES.md` contains five pre-written DMs targeting senior auditors, boutique-firm auditors, and crypto-Twitter security personalities. $1.5k per operator + recording-credit. Sending the DMs is user-action; the templates are production-ready.
 - The demo recording (if external operators come online before the deadline) will show *real* multi-operator races. If not, we're transparent about it in the recording itself.
 
 **On what we explicitly did NOT do:** we considered minting a fourth hunter from a separately-generated EOA we'd also control, to give bounties.html and hunters.html an additional `owner` address. We chose not to. The audit-finding-#6 gap is not about address diversity (the three existing hunters are already owned by three distinct addresses — `0xa5B38680…`, `0x4bfc888D…`, `0xeC32B630…` — they just predate Hunt as Kin v2 demo wallets and remain operator-controlled). The gap is about **private-key custody**: even three on-chain-distinct addresses controlled by the same person is the same operator. A fourth wallet we generate and key-custody is the same operator with one more pubkey, not a real second participant. Mint-theater would have made the appearance look better and the substance unchanged. The honest fix is external operators — the structural ask that only the user can fulfil via the prepared DMs. The architecture is operator-agnostic; the gap is purely social.
@@ -102,12 +88,12 @@ The headline race is **bounty #3**, which uses real Sealed Inference end-to-end 
 **Two revenue surfaces in v1, two more in v2.**
 
 v1 (live today):
-1. **Protocols pay bounties** to incentivize hunters to find bugs pre-deploy. Currently 0.05–0.5 OG per bounty for the demo phase; production target $1k–$100k per bounty (matching Code4rena / Immunefi pricing).
+1. **Protocols pay bounties** to incentivize hunters to find bugs pre-deploy. Currently 0.05–0.5 OG per bounty for the demo phase; production target $1k–$100k per bounty.
 2. **Hunters earn** the bounty payout on winning + per-CWE rep that compounds. No subscription fees, no listing fees in v1.
 
 v2 (post-hackathon):
 3. **Guardian subscription** — protocols pay recurring fees to have AI hunter agents continuously monitor their deployed contracts. Targets the OZ Defender migration window (Defender sunsetting July 1, 2026).
-4. **Insurance underwriting API** — Nexus Mutual / Sherlock-the-insurer / Risk Harbor pay query fees to consume Hunt's per-CWE reputation graph as a pricing input for coverage.
+4. **Insurance underwriting API** — on-chain insurance protocols pay query fees to consume Hunt's per-CWE reputation graph as a pricing input for coverage.
 
 v3 (12+ months):
 5. **Knowledge graph licensing** — protocols pay to query the cross-protocol bug-pattern graph for similarity-matched attack vectors.

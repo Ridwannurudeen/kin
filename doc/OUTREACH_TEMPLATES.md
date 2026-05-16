@@ -6,11 +6,11 @@ For the 4 days leading to the 0G APAC Hackathon submission (deadline 2026-05-16)
 
 ---
 
-## Template 1 — Code4rena top warden (DM via Twitter / Discord)
+## Template 1 — Top contest warden (DM via Twitter / Discord)
 
 **Subject / opener**: "Quick paid gig — 0G hackathon demo this week"
 
-> Hey {NAME} — caught your {HOOK: their most recent c4 finding or thread}. Sharp work.
+> Hey {NAME} — caught your {HOOK: their most recent finding or thread}. Sharp work.
 >
 > I'm shipping Hunt for the 0G APAC Hackathon (Track 3, deadline Friday). It's a sealed bug-bounty network — AI hunter agents race through 0G Sealed Inference, v1 relays validated findings on-chain, and per-CWE reputation accrues on-chain. Live mainnet: https://hunt.gudman.xyz, contract 0xD4Fe5127… on Aristotle.
 >
@@ -20,15 +20,15 @@ For the 4 days leading to the 0G APAC Hackathon submission (deadline 2026-05-16)
 
 **Targets** (verify activity is current before sending):
 
-- Top 10 c4 wardens for the last quarter (publicly listed on https://code4rena.com/leaderboard)
+- Top contest wardens for the last quarter
 - @CyfrinJared, @CyfrinTincho, @PaulRBerg
 - @0xRajeev, @0xfoobar, @samczsun (long-shots — high value if they engage)
 
 ---
 
-## Template 2 — Sherlock senior watson (DM via Discord)
+## Template 2 — Senior contest auditor (DM via Discord)
 
-> {NAME} — your write-up on {HOOK: their most recent Sherlock contest finding} hit hard. Wanted to ping you on a fast paid gig.
+> {NAME} — your write-up on {HOOK: their most recent contest finding} hit hard. Wanted to ping you on a fast paid gig.
 >
 > Hunt is a sealed AI-audit network on 0G mainnet (live https://hunt.gudman.xyz). For the 0G APAC Hackathon demo on {DATE}, I'm hiring 2–3 senior auditors to run an AI hunter agent against a live bounty. Your wallet, your CWE specialty, your name on-chain. Pays $1.5k for ~30 min of setup + one 10-min race.
 >
@@ -38,7 +38,7 @@ For the 4 days leading to the 0G APAC Hackathon submission (deadline 2026-05-16)
 >
 > Yes / no in the next 24h would help — recording's Friday.
 
-**Targets**: top 3 watsons in current Sherlock contests; ex-Sherlock judges with public Twitter presence.
+**Targets**: top auditors in current contests; ex-contest judges with public Twitter presence.
 
 ---
 
@@ -46,7 +46,7 @@ For the 4 days leading to the 0G APAC Hackathon submission (deadline 2026-05-16)
 
 > Hi {NAME} — I'm Ridwan, building Hunt for the 0G APAC Hackathon (final submission Friday).
 >
-> Hunt is the first AI audit network where every finding carries an on-chain attestation digest binding (model, input, race-window timestamp) — v1 is operator-relayed over real 0G Sealed Inference, v2 swaps the relay for a TEE-attestation-verifying signer set (chain-enforced bind). Plus per-CWE on-chain reputation. We're verified-novel vs the May 2026 landscape (Olympix, Nethermind AuditAgent, Trail of Bits internal pipeline, Bittensor audit subnets — full scan at https://github.com/Ridwannurudeen/hunt/blob/master/doc/FUTURE.md).
+> Hunt is the first AI audit network where every finding carries an on-chain attestation digest binding (model, input, race-window timestamp) — v1 is operator-relayed over real 0G Sealed Inference, v2 swaps the relay for a TEE-attestation-verifying signer set (chain-enforced bind). Plus per-CWE on-chain reputation.
 >
 > Looking to engage 2–3 recognised security researchers as external hunter operators for the live demo race on {DATE}. The hunter daemon does the work — you just spin it up on your wallet and watch. $1.5k flat for the engagement.
 >
@@ -56,7 +56,7 @@ For the 4 days leading to the 0G APAC Hackathon submission (deadline 2026-05-16)
 >
 > Open to a 15-min call this week to talk through it.
 
-**Targets**: ex-Trail of Bits / Zellic / Spearbit engineers who have their own audit boutiques or do independent work.
+**Targets**: ex-boutique-firm engineers who have their own audit boutiques or do independent work.
 
 ---
 
@@ -98,7 +98,7 @@ For the 4 days leading to the 0G APAC Hackathon submission (deadline 2026-05-16)
 >
 > Two asks, either / both helpful:
 >
-> 1. **15-min Discord call this week** to walk you through the architecture before the submission lands. Verified-novel vs every AI audit competitor I scanned (Olympix, Nethermind AuditAgent, Trail of Bits internal pipeline, Mira, Bittensor audit subnets). I want 0G to see this isn't another GPT-wrapper — it's compute-substrate-specific.
+> 1. **15-min Discord call this week** to walk you through the architecture before the submission lands. I want 0G to see this isn't another GPT-wrapper — it's compute-substrate-specific.
 > 2. **One acknowledgement** before submission — even a "interesting build on Sealed Inference" reply on Twitter would massively help on the credibility axis.
 >
 > Repo: https://github.com/Ridwannurudeen/hunt · Submission doc: https://github.com/Ridwannurudeen/hunt/blob/master/doc/SUBMISSION.md

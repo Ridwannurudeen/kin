@@ -47,7 +47,7 @@ The pivot on 2026-05-11 reframed the same primitives around audit economics. Hun
 - `scripts/verify_bounty.js` — standalone judge verifier. Single file, depends only on `ethers` + Node built-ins. Re-derives the attestation digest from on-chain fields (mirrors `Hunt.sol:298–302`), runs `ecrecover`, checks the `teeTimestamp` is inside the race window. Strict mode (`--model-digest 0x…`) re-derives the digest with the supplied `modelDigest`; exit code 0 means the winning finding's attestation matches the on-chain `teeSigner` AND the supplied model.
 - `demo/staged-bounty/Vault.sol` — staged oracle-staleness bug. Reads `latestRoundData()` in `_currentPrice()` and stores `updatedAt`, but only compares against `block.timestamp` inside the admin-only `setPrice()`. Every user path (`liquidate`, `withdraw`, `mint`, `_isHealthy`, `healthFactorBps`) bypasses the freshness gate. Pattern sourced from public Code4rena (Prisma Finance Mar 2024) and Sherlock (Angle Protocol 2024) reports; provenance + reference findings in `demo/staged-bounty/README.md`.
 - 64 Hunt-specific contract tests (`test/Hunt.test.js`) covering mint, post, submit, settle, expire, scope filter, race window, attestation `ecrecover`, per-CWE `ClassRep` math, credential reuse protection.
-- Hunt-framed README, SUBMISSION.md, DEMO_VIDEO_SCRIPT.md, X_POST.md, FUTURE.md.
+- Hunt-framed README, SUBMISSION.md, DEMO_VIDEO_SCRIPT.md, X_POST.md.
 
 **Reused from prior 0G work**
 - AES-GCM upload/download patterns in `lib/storage.js` originate from a prior 0G prototype (ChartChain). Refactored in v2 to expose `uploadRaw`/`downloadRaw` primitives that ECDH-encrypted blobs route through directly.

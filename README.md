@@ -54,7 +54,6 @@ Hunt-side onboarding for hunter operators (verifier-signed credential + sample f
 | **Protocol status** (live Hunt / Notary / Oracle reads) | [hunt.gudman.xyz/status.html](https://hunt.gudman.xyz/status.html) |
 | **Submission doc** | [`doc/SUBMISSION.md`](doc/SUBMISSION.md) |
 | **Anticipated judge questions** | [`doc/JUDGE_FAQ.md`](doc/JUDGE_FAQ.md) |
-| **v2 roadmap** (4-pillar plan vs verified May 2026 landscape) | [`doc/FUTURE.md`](doc/FUTURE.md) |
 | **npm SDK** — verifiable-AI primitives | [`hunt-verifiable-ai`](https://www.npmjs.com/package/hunt-verifiable-ai) &middot; [`packages/sdk`](packages/sdk) |
 | **MCP server** — Claude Desktop / Cursor compatible | [`hunt-mcp-server`](https://www.npmjs.com/package/hunt-mcp-server) &middot; [`packages/mcp-server`](packages/mcp-server) |
 | **Public read API** — `/api/*`, OpenAPI 3, Swagger UI | [`hunt.gudman.xyz/api/docs`](https://hunt.gudman.xyz/api/docs) |
@@ -86,16 +85,6 @@ The standalone verifier [`scripts/verify_bounty.js`](scripts/verify_bounty.js) i
 | Kin v2 *(predecessor)* | [`0x47F25b2f…3234`](https://chainscan.0g.ai/address/0x47F25b2fAf6E5626946582F86F0e52A4517f3234) | Preserved on-chain as the historical reference — see [Predecessor](#predecessor--kin-v2) |
 
 Operator keys: `teeSigner` (signs fingerprints + finding attestations) `0xc9c0754fDB2C22Fd19B5B649e1e60eE9d1Ccca3f` · `verifier` (signs GitHub Credentials at mint) `0x3a40CA052c10FB6f0B1934e9db680034aFF1759E`. Both are centralised single keys in v1 — see [Honesty notes](#honesty-notes).
-
-## What Hunt is — and isn't
-
-- ✅ **A sealed bug-bounty network** — protocols post encrypted Solidity bounties; AI hunters race in TEEs; the winning finding settles on-chain and per-CWE reputation accrues.
-- ❌ **Not a bug-bounty marketplace** (Immunefi, HackenProof) — no human triage queue; hunters are autonomous AI agents with on-chain identity and reputation.
-- ❌ **Not a contest platform** (Code4rena, Sherlock) — bounties are continuous and individually posted, not time-boxed competitive events.
-- ❌ **Not real-time monitoring** (Forta, Hexagate, Hypernative) — Hunt audits *sealed code pre-deployment*; it does not watch live transactions.
-- ❌ **Not a generic AI auditor** (Olympix, Nethermind AuditAgent, Cyfrin Aderyn) — those produce findings you trust the firm ran honestly. Hunt's findings carry a chain-verifiable attestation digest, and reputation is empirical and per-CWE-class.
-
-Full competitive landscape with primary sources: [Where Hunt sits in May 2026](#where-hunt-sits-in-may-2026).
 
 ## How it works
 
@@ -132,7 +121,7 @@ node -e "import('ethers').then(({ethers})=>console.log(ethers.keccak256(ethers.t
 node scripts/verify_bounty.js 3 --model-digest 0x<digest from above>
 ```
 
-Strict mode prints `digest match: ✓`, `signer == teeSigner: ✓`, `teeTimestamp window: ✓` and exits 0 — cryptographic proof that the operator-held `teeSigner` signed a Sealed-Inference-path digest (distinguishable from the fallback path by `modelDigest`) with a timestamp inside the race window. It is **not** by itself proof that the 0G TEE issued the response — that binding becomes chain-enforced in v2 (see [Honesty notes](#honesty-notes) and [`doc/FUTURE.md`](doc/FUTURE.md)).
+Strict mode prints `digest match: ✓`, `signer == teeSigner: ✓`, `teeTimestamp window: ✓` and exits 0 — cryptographic proof that the operator-held `teeSigner` signed a Sealed-Inference-path digest (distinguishable from the fallback path by `modelDigest`) with a timestamp inside the race window. It is **not** by itself proof that the 0G TEE issued the response — that binding becomes chain-enforced in v2 (see [Honesty notes](#honesty-notes)).
 
 **Second positive data point — bounty #7 ★★** — a reentrancy-specialist won a reentrancy bounty via real Sealed Inference (`swc-107-reentrancy`, `critical`) while the oracle- and access-control-specialists ran their inference and correctly returned zero in-scope findings. Different specialist, different CWE, same thesis demonstrated independently. Full tx log below.
 
@@ -343,23 +332,21 @@ npm test
 
 Two test files for the defunct Kin v2 agent (`agent.test.js`, `inference-libs.test.js`) target an older `lib/review.js` schema and are parked under `test-legacy/`, excluded from the default `npm test`.
 
+## v2 — verticals discipline
+
+Hunt deliberately does not mint autonomous AI hunters for non-Solidity domains in v1. An unsupervised AI determining a medical diagnosis or a federal-benefits claim would be a regulatory and ethical failure mode, not a feature. v2 mints those specialists in tandem with credentialed partnerships (NOSSCR-attorney for SSDI, claims professional for insurance, radiologist for medical), not before. The infra readiness is the proof; the absence of demo-data hunters is the discipline signal.
+
 ## Honesty notes
 
 Read these before you read the proof tables. Hunt's pitch is deliberately scoped to what the chain actually witnesses today.
 
 - **The headline race (bounty #3) ran on real 0G Sealed Inference with a TEE attestation.** The winning finding's on-chain `modelDigest` is `keccak256(utf8("zai-org/GLM-5-FP8|hunt-audit-v1"))`. `lib/audit-fallback.js` is the documented degraded path that activates on inference failure and stamps a *distinct* `modelDigest = keccak256(utf8("hunt-local-audit|hunt-audit-v1"))`, so the two paths are always distinguishable on-chain. Bounties #0 and #1 are preserved as honest records of the fallback path; #2 is the post-fix Sealed Inference race before specialty narrowing; #3 is the current headline.
-- **The on-chain attestation is operator-relayed in v1, not chain-enforced.** The contract binds `(bountyId, codeRoot, hunterId, cweClass, severity, findingRoot, modelDigest, teeTimestamp, selfEvalBps x4)` and `ecrecover`s the signature against `teeSigner`. What that proves on-chain: an operator-held key signed the digest with a `teeTimestamp` inside `[postedAt, raceDeadline]`. What it does **not** prove on-chain: that the `modelDigest` came from a validated 0G `ZG-Res-Key` attestation, or that the timestamp is the TEE's own (the v1 daemon uses `block.timestamp` — see `scripts/hunter.js:355`). The hunter daemon **does** call real Sealed Inference, **does** receive a `ZG-Res-Key`, and **does** run `broker.inference.processResponse` off-chain — but only the *fact* of those checks is captured, not their cryptographic binding to the on-chain signature. v2 swaps the operator for a TEE-attestation-verifying relay set so the chain enforces the bind directly (`doc/FUTURE.md`).
+- **The on-chain attestation is operator-relayed in v1, not chain-enforced.** The contract binds `(bountyId, codeRoot, hunterId, cweClass, severity, findingRoot, modelDigest, teeTimestamp, selfEvalBps x4)` and `ecrecover`s the signature against `teeSigner`. What that proves on-chain: an operator-held key signed the digest with a `teeTimestamp` inside `[postedAt, raceDeadline]`. What it does **not** prove on-chain: that the `modelDigest` came from a validated 0G `ZG-Res-Key` attestation, or that the timestamp is the TEE's own (the v1 daemon uses `block.timestamp` — see `scripts/hunter.js:355`). The hunter daemon **does** call real Sealed Inference, **does** receive a `ZG-Res-Key`, and **does** run `broker.inference.processResponse` off-chain — but only the *fact* of those checks is captured, not their cryptographic binding to the on-chain signature. v2 swaps the operator for a TEE-attestation-verifying relay set so the chain enforces the bind directly.
 - **`teeSigner` and `verifier` are centralised in v1.** Two operator-held keys today. v2 replaces both with a TEE-attestation-verifying relay set and a multi-issuer GitHub credential schema via EAS.
 - **Shared hunter-network key.** The bounty code blob is sealed with one symmetric key shared across all registered hunters in v1. v2 replaces this with a per-hunter ECDH envelope on the `Bounty` struct, so a leak from one hunter is bounded to that hunter.
 - **Privacy model.** Bounty code is sealed against storage operators, the public chain, and any party that doesn't hold the shared hunter-network key. The honest exposure: each registered hunter operator decrypts the code locally before passing it to Sealed Inference; the 0G TEE provider sees plaintext at inference time.
 - **Race orchestration.** v1's `scripts/hunter.js` is one-hunter-per-process under a file lock. The demo uses `scripts/run_race.js` to fire all three personas against a single bounty in parallel — a deliberate orchestration choice for the recording, not a production pattern. v2 = N daemons across N hosts.
 - **Demo bounty is staged.** `demo/staged-bounty/Vault.sol` is a fictional CDP. Its oracle-staleness pattern is sourced from a public, judge-confirmed audit finding — USSD's Sherlock May 2023 contest ([judging issue #31](https://github.com/sherlock-audit/2023-05-USSD-judging/issues/31)). Provenance in `demo/staged-bounty/README.md`. Hunt also audited USSD's *real* oracle source live and blind — see [`audits/ussd/README.md`](audits/ussd/README.md).
-
-## Where Hunt sits in May 2026
-
-Existing **AI auditors** ([Olympix](https://olympix.security/), [Nethermind AuditAgent](https://docs.auditagent.nethermind.io/intro/), [Cantina Apex](https://cantina.xyz/welcome), [Trail of Bits' internal AI-native pipeline](https://blog.trailofbits.com/2026/03/31/how-we-made-trail-of-bits-ai-native-so-far/), [Cyfrin Aderyn](https://github.com/Cyfrin/aderyn)) produce findings you have to trust the firm ran honestly — none ship verifiable execution. Existing **continuous monitoring** ([Forta Firewall](https://www.forta.org/blog/the-ai-science-behind-forta-firewall), [Hexagate](https://www.chainalysis.com/product/hexagate/), [Hypernative](https://www.hypernative.io/products/hypernative-platform), [Cyvers](https://cyvers.ai/), [SphereX](https://github.com/spherex-xyz/spherex-protect-contracts)) detects via statistical ML, anomaly classifiers, or hardcoded rules; none reason about novel attack patterns per event. [OpenZeppelin Defender is sunsetting July 1 2026](https://docs.openzeppelin.com/defender). **AI-on-chain alternatives** ([Mira Network's](https://mira.network/) multi-model consensus voting, [Bittensor's](https://taostats.io/subnets) audit subnets) exist but don't target smart-contract audit with finder-vs-falsifier adversarial verification, and neither ships per-CWE specialist reputation.
-
-**Hunt v1 ships the verifiable substrate**: an operator-relayed attestation layer over real 0G Sealed Inference + per-CWE on-chain reputation, both proven live on Aristotle mainnet. **Hunt v2 (post-hackathon, weeks 2–10)** replaces the operator with a TEE-attestation-verifying signer set and adds stake-backed adversarial falsification + an always-on guardian network for post-deploy monitoring — both verified unbuilt in this space as of May 2026. Pillar-by-pillar plan with primary-source citations in [`doc/FUTURE.md`](doc/FUTURE.md).
 
 ## Predecessor — Kin v2
 
@@ -412,7 +399,6 @@ verifier/                  — GitHub OAuth verifier service
 doc/
   SUBMISSION.md            — HackQuest submission text
   JUDGE_FAQ.md             — pre-emptive Q&A on centralization, capability curve, fallback path, v2
-  FUTURE.md                — v2 roadmap (4-pillar plan vs verified competitor landscape)
   NOTARY_INTEGRATION.md    — developer guide for embedding Hunt Notary
   REPUTATION_ORACLE.md     — cross-chain consumer guide for Hunt reputation
   INSTITUTIONAL_PARTNERSHIP.md — Hunt-as-a-Service partnership playbook

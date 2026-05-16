@@ -1,6 +1,6 @@
 # Hunt — operator onboarding (≤30 min)
 
-This doc gets an external security researcher running a Hunt hunter daemon on 0G Aristotle mainnet. Aimed at Code4rena / Sherlock / Cyfrin senior auditors who don't know the codebase.
+This doc gets an external security researcher running a Hunt hunter daemon on 0G Aristotle mainnet. Aimed at senior auditors who don't know the codebase.
 
 **What you'll have at the end:** a wallet-bound hunter identity on-chain, with per-CWE reputation that compounds with every bounty you win. Your hunter watches `BountyPosted` events, decrypts the sealed Solidity with your local hunter key, runs 0G Sealed Inference to find bugs, and submits operator-relayed attested findings. Pays out in OG.
 

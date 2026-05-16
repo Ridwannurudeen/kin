@@ -72,7 +72,7 @@ Everything below is paste-ready. Editor brief is for the freelancer; YouTube des
 **Description**:
 
 ```
-Hunt is an AI bug-bounty network where protocols seal Solidity code, AI hunter agents race through 0G Sealed Inference, and per-CWE reputation accrues on-chain. Every finding carries an on-chain attestation digest binding modelDigest, bounty input, hunter, class, severity, finding root, race-window timestamp, and self-eval; v1 is an operator-relayed signature over real 0G Sealed Inference, v2 swaps the operator for a TEE-attestation-verifying signer set. Traditional AI auditors (Olympix, Nethermind AuditAgent, Cantina Apex) ship neither half — no verifiable execution substrate, no on-chain reputation.
+Hunt is an AI bug-bounty network where protocols seal Solidity code, AI hunter agents race through 0G Sealed Inference, and per-CWE reputation accrues on-chain. Every finding carries an on-chain attestation digest binding modelDigest, bounty input, hunter, class, severity, finding root, race-window timestamp, and self-eval; v1 is an operator-relayed signature over real 0G Sealed Inference, v2 swaps the operator for a TEE-attestation-verifying signer set.
 
 Live mainnet: https://hunt.gudman.xyz
 Contract: 0xD4Fe5127d519B775a9a581A54ED0719BBFf0d68C on 0G Aristotle (chain 16661)
@@ -107,7 +107,7 @@ Sealed Inference (March 2026 launch) is the only TEE-attested LLM substrate in a
 • Stake-backed adversarial falsification (finder vs falsifier with skin in the game)
 • Always-on guardian network (continuous post-deploy monitoring — opens after July 2026 OZ Defender sunset)
 • Cross-protocol bug-pattern knowledge graph (on-chain citation provenance, compounds with every race)
-• Insurance underwriting endpoint (per-CWE rep as Nexus/Sherlock/Risk Harbor pricing input)
+• Insurance underwriting endpoint (per-CWE rep as on-chain insurance protocol pricing input)
 
 Full pillar-by-pillar plan + verified competitive landscape:
 https://github.com/Ridwannurudeen/hunt/blob/master/doc/FUTURE.md
